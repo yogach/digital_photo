@@ -8,7 +8,7 @@ typedef struct PhotoDesc
   int iWidth;
   int iBpp;
   int iLineBytes;
-  unsigned char *aucPhotoDataStart;
+  unsigned char *aucPhotoData;
 
 }T_PhotoDesc,*PT_PhotoDesc;
 
@@ -17,7 +17,7 @@ typedef struct PicFileParser
 {
   char* name;
   int (*isSupport)(unsigned char *FileHead);
-  int (*GetPixelDatas)(unsigned char *FileHead,PT_PhotoDesc ptPhotoDesc);
+  int (*GetPixelDatas)(unsigned char *FileHead,PT_PhotoDesc ptPhotoDesc,,int iexpBpp);
   int (*FreePixelDatas)(PT_PhotoDesc ptPhotoDesc);
 
 }T_PicFileParser,*PT_PicFileParser;
