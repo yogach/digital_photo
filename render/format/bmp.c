@@ -54,10 +54,60 @@ static int isSupportBMP (unsigned char * FileHead)
 }
 
 
+//根据bpp将图片数据拷贝到指定空间
 static int CovertOneLine (int iWidth,int iSrcBpp,int iDstBpp,unsigned char * pudSrcDatas,unsigned char * pudDstDatas)
 {
+	unsigned int dwRed;
+	unsigned int dwGreen;
+	unsigned int dwBlue;
+	unsigned int dwColor;
+
+	unsigned short * pwDstDatas16bpp = (unsigned short *)pudDstDatas;
+	unsigned int * pwDstDatas32bpp = (unsigned int *)pudDstDatas;
 
 
+
+	if (iSrcBpp != 24)
+	{
+		DBG_PRINTF ("can't support this bpp %d\r\n",iSrcBpp);
+		return - 1;
+	}
+
+	if (iDstBpp == 24) //当目标BPP也为24时，直接拷贝
+	{
+		memcpy (pudDstDatas,pudSrcDatas,iWidth * 3); // 3= 24/8
+	}
+	else 
+	{
+		for (i = 0; i < iWidth; i++)
+		{
+			//只有bpp为24时可以这样操作
+			dwBlue = pudSrcDatas[pos++];
+			dwGreen = pudSrcDatas[pos++];
+			dwRed = pudSrcDatas[pos++];
+
+			if (iDstBpp == 16)
+			{
+				dwColor = (dwRed << 16) | (dwGreen << 8) | dwBlue;
+				*pwDstDatas32bpp = dwColor;
+				pwDstDatas32bpp++;//指针加1 与数据类型有关
+			}
+			else if (iDstBpp == 24)
+			{
+				/* 565 */
+				dwRed = dwRed >> 3;
+				dwGreen = dwGreen >> 2;
+				dwBlue = dwBlue >> 3;
+				dwColor = (dwRed << 11) | (dwGreen << 5) | (dwBlue);
+				*pwDstDatas16bpp = dwColor;
+				pwDstDatas16bpp++;
+			}
+
+
+
+		}
+
+	}
 
 
 }
