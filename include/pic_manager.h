@@ -19,8 +19,17 @@ typedef struct PicFileParser
   int (*isSupport)(unsigned char *FileHead);
   int (*GetPixelDatas)(unsigned char *FileHead,PT_PhotoDesc ptPhotoDesc,,int iexpBpp);
   int (*FreePixelDatas)(PT_PhotoDesc ptPhotoDesc);
-
+  struct PicFileParser *ptNext;
 }T_PicFileParser,*PT_PicFileParser;
+
+int RegisterPicFileParser(PT_PicFileParser ptPicFileParser);
+void ShowPicFileParser(void);
+PT_PicFileParser GetPicFileParser(char *pcName);
+int PicFileParserInit(void);
+int BMPInit(void);
+
+
+
 
 
 

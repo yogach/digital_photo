@@ -1,7 +1,7 @@
 
 #include <stdio.h>
 #include <config.h>
-#include <pic_operation.h>
+#include <pic_manager.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -204,7 +204,12 @@ static int FreePixelDatasForBMP (PT_PhotoDesc ptPhotoDesc)
 	free (ptPhotoDesc->aucPhotoDataStart);
 }
 
+int BMPInit(void)
+{
+	RegisterPicFileParser(&g_tBMPFileParser);
 
+
+}
 
 
 
