@@ -27,6 +27,8 @@ void ShowPicFileParser(void);
 PT_PicFileParser GetPicFileParser(char *pcName);
 int PicFileParserInit(void);
 int BMPInit(void);
+int Pic_Merge(int iX,int iY,PT_PhotoDesc ptSrc,PT_PhotoDesc ptDst);
+int PicZoom (PT_PhotoDesc ptOriginPic,PT_PhotoDesc ptZoomPic,int scale);
 
 
 

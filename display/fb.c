@@ -67,6 +67,7 @@ static int FBDeviceInit(void)
 	g_tFBOpr.iXres       = g_tFBVar.xres; //x最大坐标
 	g_tFBOpr.iYres       = g_tFBVar.yres; //y最大坐标
 	g_tFBOpr.iBpp        = g_tFBVar.bits_per_pixel;//bits_per_pixel每个像素占据的位数
+    g_tFBOpr.pucDispMem  = g_pucFBMem;
 
 	g_dwLineWidth  = g_tFBVar.xres * g_tFBVar.bits_per_pixel / 8; //xres x方向有多少像素  bits_per_pixel每个像素占据的位数 除8转化成字节 得到一行的字节数
 	g_dwPixelWidth = g_tFBVar.bits_per_pixel / 8; //每个像素点大小

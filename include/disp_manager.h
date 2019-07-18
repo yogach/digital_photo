@@ -6,6 +6,7 @@ typedef struct DispOpr {
 	int iXres;
 	int iYres;
 	int iBpp;
+	unsigned char *pucDispMem;
 	int (*DeviceInit)(void);
 	int (*ShowPixel)(int iPenX, int iPenY, unsigned int dwColor);
 	int (*CleanScreen)(unsigned int dwBackColor);

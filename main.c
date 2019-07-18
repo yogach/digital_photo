@@ -26,6 +26,9 @@ int main (int argc,char * *argv)
 	int iRet;
 	unsigned char * pucBMPmem;
 	PT_PicFileParser ptBMPFileParser;
+	T_PhotoDesc tBMPDesc;
+	T_PhotoDesc tBMPSmall;
+	T_PhotoDesc tFBDesc;
 
 	struct tBMPstat;
 
@@ -85,13 +88,28 @@ int main (int argc,char * *argv)
 
 	if (iRet == NULL)
 	{
-	    DBG_PRINTF ("this file is not bmp <%s> \r\n",argv[1]);
+		DBG_PRINTF ("this file is not bmp <%s> \r\n",argv[1]);
 		return - 1;
 	}
 
+
 	// 提取BMP文件的RGB数据, 缩放, 在LCD上显示出来 
+	ptBMPFileParser->GetPixelDatas (pucBMPmem,&tBMPDesc,24);
+
+	//设定fb为主页面
+	tFBDesc.iWidth = ptDispOpr->iXres;
+	tFBDesc.iHigh = ptDispOpr->iYres;
+	tFBDesc.iBpp = ptDispOpr->iBpp;
+	tFBDesc.iLineBytes = ptDispOpr->iYres;
+	tFBDesc.aucPhotoData = ptDispOpr->pucDispMem;
+
+	//合并图标到主页面上
+	Pic_Merge(120,120,&tBMPDesc,&tFBDesc);
+
 	//设置bmp文件缩放
-	g_tBMPFileParser
+    PicZoom(&tBMPDesc, &tBMPSmall,4);
+
+	
 }
 
 

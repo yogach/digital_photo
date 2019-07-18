@@ -109,6 +109,7 @@ static int CovertOneLine (int iWidth,int iSrcBpp,int iDstBpp,unsigned char * pud
 
 	}
 
+	return 0;
 
 }
 
@@ -134,6 +135,13 @@ static int GetPixelDatasFrmBMP (unsigned char * FileHead,PT_PhotoDesc ptPhotoDes
 	iWidth = PBMPInfo.biWidth;						//获取长宽高 像素
 	iHeight = PBMPInfo.biHeight;
 	iBMPBpp = PBMPInfo.biBitCount;
+
+    if(iexpBpp!=16 || iexpBpp!==24 || iexpBpp!=32)
+    {
+        DBG_PRINTF("can't support this %d bpp\r\n",iexpBpp);
+		return -1;
+	}
+
 
 	if (iHeight < 0) //如果高度数据小于 表示BMP数据存储方式为正向
 	{
@@ -195,6 +203,8 @@ static int GetPixelDatasFrmBMP (unsigned char * FileHead,PT_PhotoDesc ptPhotoDes
 
 	}
 
+	return 0;
+
 }
 
 
@@ -202,12 +212,14 @@ static int FreePixelDatasForBMP (PT_PhotoDesc ptPhotoDesc)
 {
 	//释放分配的内存
 	free (ptPhotoDesc->aucPhotoDataStart);
+	return 0;
 }
 
 int BMPInit(void)
 {
 	RegisterPicFileParser(&g_tBMPFileParser);
 
+	return 0;
 
 }
 
