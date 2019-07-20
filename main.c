@@ -21,16 +21,22 @@
 
 int main (int argc,char * *argv)
 {
-	PT_DispOpr ptDispOpr;
+	
 	int iFdBmp;
 	int iRet;
 	unsigned char * pucBMPmem;
+	
+
+	struct stat tBMPstat;
+	PT_DispOpr ptDispOpr;
+
 	PT_PicFileParser ptBMPFileParser;
 	T_PhotoDesc tBMPDesc;
+	
 	T_PhotoDesc tBMPSmall;
-	T_PhotoDesc tFBDesc;
+	T_PhotoDesc tPixelDatasFB;
 
-	struct tBMPstat;
+
 
 	if (argc != 2)
 	{
@@ -49,10 +55,10 @@ int main (int argc,char * *argv)
 	ptDispOpr = GetDispOpr ("fb");
 
 	ptDispOpr->DeviceInit ();
-	ptDispOpr->CleanScreen ();
+	ptDispOpr->CleanScreen (0);
 
 	/* 打开BMP文件 */
-	iFdBmp = open (argv[1],O_RDONLY);
+	iFdBmp = open (argv[1],O_RDWR);
 
 	if (iFdBmp == -1)
 	{
@@ -62,10 +68,9 @@ int main (int argc,char * *argv)
 
 	//获取文件大小 将bmp数据mmap到内存上
 	fstat (iFdBmp,&tBMPstat);
-	pucBMPmem = (unsigned char *)
-	mmap (NULL,tBMPstat.st_size,PROT_READ | PROT_WRITE,MAP_SHARED,iFdBmp,0);
+	pucBMPmem = (unsigned char *)mmap (NULL,tBMPstat.st_size,PROT_READ | PROT_WRITE,MAP_SHARED,iFdBmp,0);
 
-	if (pucBMPmem == NULL)
+	if (pucBMPmem == (unsigned char*)-1 )
 	{
 		DBG_PRINTF ("can't mmap bmp file \r\n");
 		return - 1;
@@ -86,7 +91,7 @@ int main (int argc,char * *argv)
 	//判断打开的文件是否是bmp文件
 	iRet = ptBMPFileParser->isSupport (pucBMPmem);
 
-	if (iRet == NULL)
+	if (iRet == 0)
 	{
 		DBG_PRINTF ("this file is not bmp <%s> \r\n",argv[1]);
 		return - 1;
@@ -94,20 +99,32 @@ int main (int argc,char * *argv)
 
 
 	// 提取BMP文件的RGB数据, 缩放, 在LCD上显示出来 
-	ptBMPFileParser->GetPixelDatas (pucBMPmem,&tBMPDesc,24);
+	//tBMPDesc.iBpp = ptDispOpr->iBpp;
+	iRet = ptBMPFileParser->GetPixelDatas (pucBMPmem,&tBMPDesc,ptDispOpr->iBpp);
+	if (iRet)
+	{
+		DBG_PRINTF("GetPixelDatas error!\n");
+		return -1;		
+	}
 
 	//设定fb为主页面
-	tFBDesc.iWidth = ptDispOpr->iXres;
-	tFBDesc.iHigh = ptDispOpr->iYres;
-	tFBDesc.iBpp = ptDispOpr->iBpp;
-	tFBDesc.iLineBytes = ptDispOpr->iYres;
-	tFBDesc.aucPhotoData = ptDispOpr->pucDispMem;
+	tPixelDatasFB.iWidth       = ptDispOpr->iXres;
+	tPixelDatasFB.iHigh        = ptDispOpr->iYres;
+	tPixelDatasFB.iBpp         = ptDispOpr->iBpp;
+	tPixelDatasFB.iBpp         = ptDispOpr->iBpp;
+	tPixelDatasFB.iLineBytes   = ptDispOpr->iYres *ptDispOpr->iBpp /8;
+	tPixelDatasFB.aucPhotoData = ptDispOpr->pucDispMem;
+
+    DBG_PRINTF("tPixelDatasFB.iBpp is %d!\n",tPixelDatasFB.iBpp);
 
 	//合并图标到主页面上
-	Pic_Merge(120,120,&tBMPDesc,&tFBDesc);
+	PicMerge(0,0,&tBMPDesc,&tPixelDatasFB);
 
 	//设置bmp文件缩放
     PicZoom(&tBMPDesc, &tBMPSmall,4);
+
+	//将小图也合并到主页面上
+	PicMerge(120,120,&tBMPSmall,&tPixelDatasFB);
 
 	
 }

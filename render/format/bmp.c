@@ -33,17 +33,9 @@ unsigned long	biClrImportant;
 } __attribute__ ((packed))BITMAPINFOHEADER;
 
 
-T_PicFileParser g_tBMPFileParser =
-{
-	.name = "bmp",
-	.isSupport = isSupportBMP,
-	.GetPixelDatas = GetPixelDatasFrmBMP,
-	.FreePixelDatas = FreePixelDatasForBMP,
-};
 
 
-
-static int isSupportBMP (unsigned char * FileHead)
+static int isSupportBMP(unsigned char * FileHead)
 {
 	//如果文件开头为424d 代表该文件为bmp格式
 	if (FileHead[0] != 0x42 || FileHead[1] != 0x4d)
@@ -55,12 +47,13 @@ static int isSupportBMP (unsigned char * FileHead)
 
 
 //根据bpp将图片数据拷贝到指定空间
-static int CovertOneLine (int iWidth,int iSrcBpp,int iDstBpp,unsigned char * pudSrcDatas,unsigned char * pudDstDatas)
+static int CovertOneLine(int iWidth,int iSrcBpp,int iDstBpp,unsigned char * pudSrcDatas,unsigned char * pudDstDatas)
 {
 	unsigned int dwRed;
 	unsigned int dwGreen;
 	unsigned int dwBlue;
 	unsigned int dwColor;
+    int i,pos=0;
 
 	unsigned short * pwDstDatas16bpp = (unsigned short *)pudDstDatas;
 	unsigned int * pwDstDatas32bpp = (unsigned int *)pudDstDatas;
@@ -114,7 +107,7 @@ static int CovertOneLine (int iWidth,int iSrcBpp,int iDstBpp,unsigned char * pud
 }
 
 
-static int GetPixelDatasFrmBMP (unsigned char * FileHead,PT_PhotoDesc ptPhotoDesc,int iexpBpp)
+static int GetPixelDatasFrmBMP(unsigned char * FileHead,PT_PhotoDesc ptPhotoDesc,int iexpBpp)
 {
 	BITMAPFILEHEADER * pBMPHead;
 	BITMAPINFOHEADER * PBMPInfo;
@@ -132,11 +125,11 @@ static int GetPixelDatasFrmBMP (unsigned char * FileHead,PT_PhotoDesc ptPhotoDes
 
 	PBMPInfo = (BITMAPINFOHEADER *) (FileHead + sizeof (BITMAPFILEHEADER));
 
-	iWidth = PBMPInfo.biWidth;						//获取长宽高 像素
-	iHeight = PBMPInfo.biHeight;
-	iBMPBpp = PBMPInfo.biBitCount;
+	iWidth = PBMPInfo->biWidth;						//获取长宽高 像素
+	iHeight = PBMPInfo->biHeight;
+	iBMPBpp = PBMPInfo->biBitCount;
 
-    if(iexpBpp!=16 || iexpBpp!==24 || iexpBpp!=32)
+    if(iexpBpp!=16 && iexpBpp!=24 && iexpBpp!=32)
     {
         DBG_PRINTF("can't support this %d bpp\r\n",iexpBpp);
 		return -1;
@@ -162,7 +155,7 @@ static int GetPixelDatasFrmBMP (unsigned char * FileHead,PT_PhotoDesc ptPhotoDes
 	ptPhotoDesc->iHigh = iHeight;
 	ptPhotoDesc->iWidth = iWidth;
 	ptPhotoDesc->iBpp = iexpBpp;
-	ptPhotoDesc->iLineBytes = iWidth * ptPhotoDesc.iBpp / 8;
+	ptPhotoDesc->iLineBytes = iWidth * ptPhotoDesc->iBpp / 8;
 
 	ptPhotoDesc->aucPhotoData = malloc (iWidth * iHeight * ptPhotoDesc->iBpp / 8);
 
@@ -211,9 +204,19 @@ static int GetPixelDatasFrmBMP (unsigned char * FileHead,PT_PhotoDesc ptPhotoDes
 static int FreePixelDatasForBMP (PT_PhotoDesc ptPhotoDesc)
 {
 	//释放分配的内存
-	free (ptPhotoDesc->aucPhotoDataStart);
+	free (ptPhotoDesc->aucPhotoData);
 	return 0;
 }
+
+
+T_PicFileParser g_tBMPFileParser =
+{
+	.name = "bmp",
+	.isSupport = isSupportBMP,
+	.GetPixelDatas = GetPixelDatasFrmBMP,
+	.FreePixelDatas = FreePixelDatasForBMP,
+};
+
 
 int BMPInit(void)
 {

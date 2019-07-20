@@ -17,7 +17,7 @@ typedef struct PicFileParser
 {
   char* name;
   int (*isSupport)(unsigned char *FileHead);
-  int (*GetPixelDatas)(unsigned char *FileHead,PT_PhotoDesc ptPhotoDesc,,int iexpBpp);
+  int (*GetPixelDatas)(unsigned char *FileHead,PT_PhotoDesc ptPhotoDesc,int iexpBpp);
   int (*FreePixelDatas)(PT_PhotoDesc ptPhotoDesc);
   struct PicFileParser *ptNext;
 }T_PicFileParser,*PT_PicFileParser;
@@ -27,7 +27,8 @@ void ShowPicFileParser(void);
 PT_PicFileParser GetPicFileParser(char *pcName);
 int PicFileParserInit(void);
 int BMPInit(void);
-int Pic_Merge(int iX,int iY,PT_PhotoDesc ptSrc,PT_PhotoDesc ptDst);
+int PicMerge(int iX, int iY, PT_PhotoDesc ptSmallPic, PT_PhotoDesc ptBigPic);
+
 int PicZoom (PT_PhotoDesc ptOriginPic,PT_PhotoDesc ptZoomPic,int scale);
 
 

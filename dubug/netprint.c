@@ -274,7 +274,7 @@ static int NetDbgPrint (char * strData)
 static T_DebugOpr g_tNetDbgOpr =
 {
 	.name = "netprint",
-	.isCanUse = 1,
+	.isCanUse = 0,
 	.DebugInit = NetDbgInit,
 	.DebugExit = NetDbgExit,
 	.DebugPrint = NetDbgPrint,

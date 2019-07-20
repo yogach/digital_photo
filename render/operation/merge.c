@@ -4,40 +4,28 @@
 #include <string.h>
 
 
-int Pic_Merge (int iX,int iY,PT_PhotoDesc ptSrc,PT_PhotoDesc ptDst)
+int PicMerge(int iX, int iY, PT_PhotoDesc ptSmallPic, PT_PhotoDesc ptBigPic)
 {
-	int pos = 0;
 	int i;
-	unsigned char * pucSrc;
-	unsigned char * pucDst;
-
-	if ((ptSrc->iHigh > ptDst->iHigh) || (ptSrc->iWidth > ptDst->iWidth) || (ptSrc->iBpp != ptDst->iBpp))
+	unsigned char *pucSrc;
+	unsigned char *pucDst;
+	
+	if ((ptSmallPic->iWidth > ptBigPic->iWidth)  ||
+		(ptSmallPic->iHigh > ptBigPic->iHigh) ||
+		(ptSmallPic->iBpp != ptBigPic->iBpp))
 	{
-		return - 1;
+		return -1;
 	}
 
-
-	if ((iX > ptDst->iWidth) || (iY > ptDst->iHigh))
+	pucSrc = ptSmallPic->aucPhotoData;
+	pucDst = ptBigPic->aucPhotoData + iY * ptBigPic->iLineBytes + iX * ptBigPic->iBpp / 8;
+	for (i = 0; i < ptSmallPic->iHigh; i++)
 	{
-
-		return - 1;
+		memcpy(pucDst, pucSrc, ptSmallPic->iLineBytes);
+		pucSrc += ptSmallPic->iLineBytes;
+		pucDst += ptBigPic->iLineBytes;
 	}
-
-	//得到两者的图片描述数据起始位置
-	pucSrc = ptSrc->aucPhotoData;
-	pucDst = ptDst->aucPhotoData + iX * ptSrc->iBpp / 8 + iY * ptSrc->iLineBytes;
-
-	//按行进行copy
-	for (i = 0; i < ptSrc->iHigh; i++)
-	{
-		memcpy (pucDst,pucSrc,ptSrc->iLineBytes);
-		pucSrc += ptSrc->iLineBytes;
-		pucDst += ptDst->iLineBytes;
-
-	}
-
-
-
+	return 0;
 }
 
 
