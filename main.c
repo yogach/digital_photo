@@ -122,6 +122,7 @@ int main (int argc,char * *argv)
    // DBG_PRINTF("after PicMerge\n");
 
 	//设置bmp文件缩放
+	/*
     tBMPSmall.iWidth = tBMPDesc.iWidth/2;
 	tBMPSmall.iHigh = tBMPDesc.iHigh/2;
 	
@@ -131,8 +132,9 @@ int main (int argc,char * *argv)
 	tBMPSmall.iBpp	= tBMPDesc.iBpp;
 	tBMPSmall.iLineBytes = tBMPSmall.iWidth * tBMPSmall.iBpp / 8;
 	tBMPSmall.aucPhotoData = malloc(tBMPSmall.iLineBytes * tBMPSmall.iHigh);
+    */
 
-    PicZoom(&tBMPDesc, &tBMPSmall);
+    PicZoom(&tBMPDesc, &tBMPSmall,4);
 
 	//将小图也合并到主页面上
 	PicMerge(160,160,&tBMPSmall,&tPixelDatasFB);
