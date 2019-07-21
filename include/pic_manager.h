@@ -29,7 +29,7 @@ int PicFileParserInit(void);
 int BMPInit(void);
 int PicMerge(int iX, int iY, PT_PhotoDesc ptSmallPic, PT_PhotoDesc ptBigPic);
 
-int PicZoom (PT_PhotoDesc ptOriginPic,PT_PhotoDesc ptZoomPic,int scale);
+int PicZoom (PT_PhotoDesc ptOriginPic,PT_PhotoDesc ptZoomPic);
 
 
 

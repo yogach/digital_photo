@@ -58,7 +58,7 @@ int main (int argc,char * *argv)
 	ptDispOpr->CleanScreen (0);
 
 	/* 打开BMP文件 */
-	iFdBmp = open (argv[1],O_RDWR);
+	iFdBmp = open (argv[1],O_RDWR); //无法使用只读模式打开？
 
 	if (iFdBmp == -1)
 	{
@@ -111,20 +111,31 @@ int main (int argc,char * *argv)
 	tPixelDatasFB.iWidth       = ptDispOpr->iXres;
 	tPixelDatasFB.iHigh        = ptDispOpr->iYres;
 	tPixelDatasFB.iBpp         = ptDispOpr->iBpp;
-	tPixelDatasFB.iBpp         = ptDispOpr->iBpp;
-	tPixelDatasFB.iLineBytes   = ptDispOpr->iYres *ptDispOpr->iBpp /8;
+	//tPixelDatasFB.iBpp         = ptDispOpr->iBpp;
+	tPixelDatasFB.iLineBytes   = ptDispOpr->iXres *ptDispOpr->iBpp /8;
 	tPixelDatasFB.aucPhotoData = ptDispOpr->pucDispMem;
 
     DBG_PRINTF("tPixelDatasFB.iBpp is %d!\n",tPixelDatasFB.iBpp);
 
 	//合并图标到主页面上
 	PicMerge(0,0,&tBMPDesc,&tPixelDatasFB);
+   // DBG_PRINTF("after PicMerge\n");
 
 	//设置bmp文件缩放
-    PicZoom(&tBMPDesc, &tBMPSmall,4);
+    tBMPSmall.iWidth = tBMPDesc.iWidth/2;
+	tBMPSmall.iHigh = tBMPDesc.iHigh/2;
+	
+	DBG_PRINTF("tBMPDesc.iWidth = %d tBMPDesc.iHigh =%d\r\n",tBMPDesc.iWidth,tBMPDesc.iHigh);
+    DBG_PRINTF("tBMPSmall.iWidth = %d tBMPSmall.iHigh =%d\r\n",tBMPSmall.iWidth,tBMPSmall.iHigh);
+
+	tBMPSmall.iBpp	= tBMPDesc.iBpp;
+	tBMPSmall.iLineBytes = tBMPSmall.iWidth * tBMPSmall.iBpp / 8;
+	tBMPSmall.aucPhotoData = malloc(tBMPSmall.iLineBytes * tBMPSmall.iHigh);
+
+    PicZoom(&tBMPDesc, &tBMPSmall);
 
 	//将小图也合并到主页面上
-	PicMerge(120,120,&tBMPSmall,&tPixelDatasFB);
+	PicMerge(160,160,&tBMPSmall,&tPixelDatasFB);
 
 	
 }

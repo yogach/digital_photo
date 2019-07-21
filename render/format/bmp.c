@@ -79,13 +79,13 @@ static int CovertOneLine(int iWidth,int iSrcBpp,int iDstBpp,unsigned char * pudS
 			dwGreen = pudSrcDatas[pos++];
 			dwRed = pudSrcDatas[pos++];
 
-			if (iDstBpp == 16)
+			if (iDstBpp == 32)
 			{
 				dwColor = (dwRed << 16) | (dwGreen << 8) | dwBlue;
 				*pwDstDatas32bpp = dwColor;
 				pwDstDatas32bpp++;//指针加1 与数据类型有关
 			}
-			else if (iDstBpp == 24)
+			else if (iDstBpp == 16)
 			{
 				/* 565 */
 				dwRed = dwRed >> 3;
@@ -129,9 +129,10 @@ static int GetPixelDatasFrmBMP(unsigned char * FileHead,PT_PhotoDesc ptPhotoDesc
 	iHeight = PBMPInfo->biHeight;
 	iBMPBpp = PBMPInfo->biBitCount;
 
+	DBG_PRINTF("Expect bpp: %d bpp\r\n",iexpBpp);
     if(iexpBpp!=16 && iexpBpp!=24 && iexpBpp!=32)
     {
-        DBG_PRINTF("can't support this %d bpp\r\n",iexpBpp);
+       
 		return -1;
 	}
 
@@ -146,7 +147,8 @@ static int GetPixelDatasFrmBMP(unsigned char * FileHead,PT_PhotoDesc ptPhotoDesc
 
 	if (iBMPBpp != 24)
 	{
-		DBG_PRINTF ("bmp file bpp not 24\r\n");
+		DBG_PRINTF ("bmp file bpp is %d\r\n",iBMPBpp);		
+		DBG_PRINTF("sizeof(BITMAPFILEHEADER) = %d\n", sizeof(BITMAPFILEHEADER));
 		return - 1;
 	}
 
@@ -186,14 +188,13 @@ static int GetPixelDatasFrmBMP(unsigned char * FileHead,PT_PhotoDesc ptPhotoDesc
 	{
 
 		CovertOneLine (iWidth,iBMPBpp,ptPhotoDesc->iBpp,pucSrc,pucDest);
-
 		if (!PixelDir)
 			pucSrc -= iLineWidthAlign;
+		
 		else 
 			pucSrc += iLineWidthAlign;
 
-		pucDest += iLineWidthReal;
-
+		pucDest += ptPhotoDesc->iLineBytes;
 	}
 
 	return 0;
