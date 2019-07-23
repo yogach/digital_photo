@@ -8,6 +8,7 @@ typedef struct PhotoDesc
   int iWidth;
   int iBpp;
   int iLineBytes;
+  int iTotalBytes;
   unsigned char *aucPhotoData;
 
 }T_PhotoDesc,*PT_PhotoDesc;
