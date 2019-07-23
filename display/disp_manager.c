@@ -194,7 +194,7 @@ int AllocVideoMem ( int iNum )
 			ptNew->PhotoDesc->iWidth =iXres;
 			ptNew->PhotoDesc->iLineBytes =iLineBytes;
 			ptNew->PhotoDesc->iTotalBytes =iVMSize;
-			ptNew->PhotoDesc->aucPhotoData =  ( unsigned char* ) ( ptNew+1 ); //
+			ptNew->PhotoDesc->aucPhotoData =  ( unsigned char* ) ( ptNew+1 ); //指针加一增加的长度与指针的数据类型有关
 
 			//将此节点放入链表中 相当将新节点放在头位置上
 			ptNew->ptnext = g_ptVideoMenListHead;
