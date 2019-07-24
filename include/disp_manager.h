@@ -37,7 +37,7 @@ typedef struct VideoMem
 {
 	int iID;//用于标识用途
 	int bDevFrameBuffer;//用于标识是否是设备的空间
-	E_VideoMemState VideoMemState;
+	E_VideoMemState VideoMemState; //表示是否被使用
 	E_PicState  PicState;
 	T_PhotoDesc PhotoDesc;
 	struct VideoMem* ptnext;
@@ -53,6 +53,9 @@ int SetDefaultDispDev ( char* name );
 PT_DispOpr GetDefaultDispDev ( void );
 int GetDispResolution ( int iXres,int iYres,int iBpp );
 int AllocVideoMem ( int iNum );
+PT_VideoMem GetVideoMem ( int iID, int bUseForCur );
+int PutVideoMem(PT_VideoMem ptVideoMem);
+
 
 
 #endif /* _DISP_MANAGER_H */

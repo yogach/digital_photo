@@ -209,6 +209,50 @@ int AllocVideoMem ( int iNum )
 }
 
 
+PT_VideoMem GetVideoMem ( int iID, int bUseForCur )
+{
+	PT_VideoMem ptTmp;
+	ptTmp = g_ptVideoMenListHead;
+
+	/* 1. 优先: 取出空闲的、ID相同的videomem */
+
+	while ( ptTmp )
+	{
+		if ( ( ptTmp->iID == iID ) && ( ptTmp->VideoMemState ==VMS_FREE )
+		{
+			ptTmp->VideoMemState = ( bUseForCur )? VMS_FOR_CUR : VMS_FOR_PREPARE;
+			return ptTmp;
+		}
+		ptTmp=ptTmp->ptnext;
+
+	}
+
+	ptTmp = g_ptVideoMenListHead;
+
+	/* 2. 如果没有则取出任意一个空闲videomem */
+	while (ptTmp)
+	{
+       if(ptTmp->VideoMemState ==VMS_FREE)
+       {
+         ptTmp->VideoMemState = ( bUseForCur )? VMS_FOR_CUR : VMS_FOR_PREPARE;
+         return ptTmp;
+	   }
+  
+	   ptTmp=ptTmp->ptnext;
+
+	
+	}
+
+}
+
+int PutVideoMem(PT_VideoMem ptVideoMem)
+{
+
+    ptVideoMem->VideoMemState = VMS_FREE;
+
+}
+
+
 int DisplayInit ( void )
 {
 	int iError;
