@@ -24,6 +24,8 @@ typedef struct Layout
    char *IconName;
 }T_Layout ,*PT_Layout;
 
+
+int ID(char * str);
 int RegisterPageAction ( PT_PageAction ptPageAction );
 void ShowPages ( void );
 PT_PageAction GetPage ( char* pcName );

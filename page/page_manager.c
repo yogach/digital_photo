@@ -63,6 +63,12 @@ PT_PageAction GetPage ( char* pcName )
 	return NULL;
 }
 
+int ID(char * str)
+{
+   return (int)(str[0]) + (int)(str[1]) + (int)(str[2]) + (int)(str[3]) ;
+
+}
+
 
 int PagesInit(void)
 {

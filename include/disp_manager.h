@@ -14,7 +14,7 @@ typedef struct DispOpr
 	struct DispOpr* ptNext;
 } T_DispOpr, *PT_DispOpr;
 
-
+//表示显存的使用状态
 typedef enum
 {
 	VMS_FREE,
@@ -23,7 +23,7 @@ typedef enum
 
 } E_VideoMemState;
 
-
+//表示显存块中图片的准备状态
 typedef enum
 {
 	PIC_BLANK,
@@ -32,15 +32,15 @@ typedef enum
 
 } E_PicState;
 
-
+//
 typedef struct VideoMem
 {
-	int iID;//用于标识用途
-	int bDevFrameBuffer;//用于标识是否是设备的空间
-	E_VideoMemState VideoMemState; //表示是否被使用
-	E_PicState  PicState;
-	T_PhotoDesc PhotoDesc;
-	struct VideoMem* ptnext;
+	int iID;                        //用于标识用途
+	int bDevFrameBuffer;            //用于标识是否是设备的空间
+ 	E_VideoMemState eVideoMemState;  //用于标识是否被使用
+ 	E_PicState  ePicState;           //用于标识图片数据是否已准备好
+	T_PhotoDesc tVideoMemDesc;          //用于标识
+	struct VideoMem* ptNext;
 } T_VideoMem,*PT_VideoMem;
 
 
@@ -49,9 +49,9 @@ void ShowDispOpr ( void );
 int DisplayInit ( void );
 int FBInit ( void );
 
-int SetDefaultDispDev ( char* name );
+int SelectAndInitDefaultDispDev ( char* name );
 PT_DispOpr GetDefaultDispDev ( void );
-int GetDispResolution ( int iXres,int iYres,int iBpp );
+int GetDispResolution ( int *iXres,int *iYres,int *iBpp );
 int AllocVideoMem ( int iNum );
 PT_VideoMem GetVideoMem ( int iID, int bUseForCur );
 int PutVideoMem(PT_VideoMem ptVideoMem);

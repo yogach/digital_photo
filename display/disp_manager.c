@@ -70,7 +70,7 @@ PT_DispOpr GetDispOpr ( char* pcName )
 
 
 //设置默认设备
-int SetDefaultDispDev ( char* name )
+int SelectAndInitDefaultDispDev ( char* name )
 {
 	g_ptDefaultDisp = GetDispOpr ( name );
 
@@ -80,6 +80,8 @@ int SetDefaultDispDev ( char* name )
 		return - 1;
 
 	}
+	g_ptDefaultDisp->DeviceInit();
+    g_ptDefaultDisp->CleanScreen(0);//使用黑色填充lcd
 
 
 }
@@ -95,15 +97,13 @@ PT_DispOpr GetDefaultDispDev ( void )
 }
 
 //获得默认显示设备的分辨率
-int GetDispResolution ( int iXres,int iYres,int iBpp )
+int GetDispResolution ( int *iXres,int *iYres,int *iBpp )
 {
 	if ( g_ptDefaultDisp != NULL )
 	{
-		iXres = g_ptDefaultDisp->iXres;
-		iYres = g_ptDefaultDisp->i;
-		iBpp = g_ptDefaultDisp->iXres;
-
-
+		*iXres = g_ptDefaultDisp->iXres;
+		*iYres = g_ptDefaultDisp->iYres;
+		*iBpp = g_ptDefaultDisp->iXres;
 	}
 	else
 	{
@@ -112,9 +112,7 @@ int GetDispResolution ( int iXres,int iYres,int iBpp )
 
 }
 
-
-
-
+//分配显存
 int AllocVideoMem ( int iNum )
 {
 	int iXres,iYres,iBpp;
@@ -122,11 +120,10 @@ int AllocVideoMem ( int iNum )
 	int iLineBytes;
 	int i;
 
-
 	PT_VideoMem ptNew;
 
-	//获得分辨率
-	GetDispResolution ( iXres, iYres, iBpp );
+	//获得选择的分辨率
+	GetDispResolution ( &iXres, &iYres, &iBpp );
 
 	iLineBytes = iXres * iBpp/8; //得到LCD一行数据占据的字节数
 
@@ -145,13 +142,13 @@ int AllocVideoMem ( int iNum )
 	//对结点内容进行初始化
 	ptNew->bDevFrameBuffer = 1;
 	ptNew->iID =0;
-	ptNew->PicState = PIC_BLANK;
-	ptNew->VideoMemState = VMS_FREE;
-	ptNew->PhotoDesc->iBpp =iBpp;
-	ptNew->PhotoDesc->iHigh =iYres;
-	ptNew->PhotoDesc->iWidth =iXres;
-	ptNew->PhotoDesc->iLineBytes =iLineBytes;
-	ptNew->PhotoDesc->iTotalBytes =iVMSize;
+	ptNew->ePicState = PIC_BLANK;
+	ptNew->eVideoMemState = VMS_FREE;
+	ptNew->tVideoMemDesc.iBpp =iBpp;
+	ptNew->tVideoMemDesc.iHigh =iYres;
+	ptNew->tVideoMemDesc.iWidth =iXres;
+	ptNew->tVideoMemDesc.iLineBytes =iLineBytes;
+	ptNew->tVideoMemDesc.iTotalBytes =iVMSize;
 
 	if ( g_ptDefaultDisp ==NULL )
 	{
@@ -159,17 +156,17 @@ int AllocVideoMem ( int iNum )
 		free ( ptNew );
 		return -1;
 	}
-	ptNew->PhotoDesc->aucPhotoData =  g_ptDefaultDisp->pucDispMem; //
+	ptNew->tVideoMemDesc->aucPhotoData =  g_ptDefaultDisp->pucDispMem; //
 
 
 	//将此节点放入链表中 相当将新节点放在头位置上
-	ptNew->ptnext = g_ptVideoMenListHead;
+	ptNew->ptNext = g_ptVideoMenListHead;
 	g_ptVideoMenListHead = ptNew;
 
 
 	if ( iNum ==0 )
 	{
-		ptNew->VideoMemState = VMS_FOR_CUR;
+		ptNew->eVideoMemState = VMS_FOR_CUR;
 
 	}
 	else
@@ -187,17 +184,17 @@ int AllocVideoMem ( int iNum )
 
 			ptNew->bDevFrameBuffer = 0;
 			ptNew->iID =0;
-			ptNew->PicState = PIC_BLANK;
-			ptNew->VideoMemState = VMS_FREE;
-			ptNew->PhotoDesc->iBpp =iBpp;
-			ptNew->PhotoDesc->iHigh =iYres;
-			ptNew->PhotoDesc->iWidth =iXres;
-			ptNew->PhotoDesc->iLineBytes =iLineBytes;
-			ptNew->PhotoDesc->iTotalBytes =iVMSize;
-			ptNew->PhotoDesc->aucPhotoData =  ( unsigned char* ) ( ptNew+1 ); //指针加一增加的长度与指针的数据类型有关
+			ptNew->ePicState = PIC_BLANK;
+			ptNew->eVideoMemState = VMS_FREE;
+			ptNew->tVideoMemDesc.iBpp =iBpp;
+			ptNew->tVideoMemDesc.iHigh =iYres;
+			ptNew->tVideoMemDesc.iWidth =iXres;
+			ptNew->tVideoMemDesc.iLineBytes =iLineBytes;
+			ptNew->tVideoMemDesc.iTotalBytes =iVMSize;
+			ptNew->tVideoMemDesc.aucPhotoData =  ( unsigned char* ) ( ptNew+1 ); //指针加一增加的长度与指针的数据类型有关
 
 			//将此节点放入链表中 相当将新节点放在头位置上
-			ptNew->ptnext = g_ptVideoMenListHead;
+			ptNew->ptNext = g_ptVideoMenListHead;
 			g_ptVideoMenListHead = ptNew;
 
 
@@ -208,7 +205,7 @@ int AllocVideoMem ( int iNum )
 
 }
 
-
+//获取指定的显存：如果指定id在使用中则挑选一个空闲的内存块
 PT_VideoMem GetVideoMem ( int iID, int bUseForCur )
 {
 	PT_VideoMem ptTmp;
@@ -218,12 +215,12 @@ PT_VideoMem GetVideoMem ( int iID, int bUseForCur )
 
 	while ( ptTmp )
 	{
-		if ( ( ptTmp->iID == iID ) && ( ptTmp->VideoMemState ==VMS_FREE )
+		if ( ( ptTmp->iID == iID ) && ( ptTmp->eVideoMemState ==VMS_FREE )
 		{
-			ptTmp->VideoMemState = ( bUseForCur )? VMS_FOR_CUR : VMS_FOR_PREPARE;
+			ptTmp->eVideoMemState = ( bUseForCur )? VMS_FOR_CUR : VMS_FOR_PREPARE;
 			return ptTmp;
 		}
-		ptTmp=ptTmp->ptnext;
+		ptTmp=ptTmp->ptNext;
 
 	}
 
@@ -232,25 +229,79 @@ PT_VideoMem GetVideoMem ( int iID, int bUseForCur )
 	/* 2. 如果没有则取出任意一个空闲videomem */
 	while (ptTmp)
 	{
-       if(ptTmp->VideoMemState ==VMS_FREE)
+       if(ptTmp->eVideoMemState ==VMS_FREE)
        {
-         ptTmp->VideoMemState = ( bUseForCur )? VMS_FOR_CUR : VMS_FOR_PREPARE;
+         ptTmp->eVideoMemState = ( bUseForCur )? VMS_FOR_CUR : VMS_FOR_PREPARE;
          return ptTmp;
 	   }
   
-	   ptTmp=ptTmp->ptnext;
+	   ptTmp=ptTmp->ptNext;
 
 	
 	}
+
+	return NULL;
 
 }
 
 int PutVideoMem(PT_VideoMem ptVideoMem)
 {
 
-    ptVideoMem->VideoMemState = VMS_FREE;
+    ptVideoMem->eVideoMemState = VMS_FREE;
 
 }
+
+int SetVideoMemColor(PT_VideoMem ptVideoMem ,unsigned int dwColor)
+{
+   unsigned char *pucVM;
+   unsigned short *pwVM16bpp;
+	unsigned int *pdwVM32bpp;
+	int iRed;
+		int iGreen;
+		int iBlue;
+		int i = 0;
+
+   pucVM = ptVideoMem->tVideoMemDesc.aucPhotoData; //得到显存的显示地址
+
+   pwVM16bpp = (unsigned short *)pucVM;
+   pdwVM32bpp = (unsigned int *)pucVM;
+
+
+   switch(ptVideoMem->tVideoMemDesc.iBpp)
+   {
+	   case 8:
+	   	{
+         memset(pucVM , dwColor , ptVideoMem->tVideoMemDesc.iTotalBytes);//按字节对内存进行初始化
+	    }
+		break;
+	   case 16:
+	   	{
+           //RGB 565
+		
+		   iRed = (dwColor>> (16+3)& 0x1f; // 
+		   iGreen = (dwColor>> (8+2)& 0x1f;
+		   iBlue = (dwColor >> 3) & 0x1f;;
+
+
+	    }
+		break;
+	   case 32:
+	   	{
+
+
+	    }
+		break;
+	   default:break;
+
+   
+
+   }
+
+
+
+
+}
+
 
 
 int DisplayInit ( void )
