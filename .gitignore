@@ -28,3 +28,5 @@ main.c.orig
 draw/draw.c.orig
 include/disp_manager.h.orig
 display/disp_manager.c.orig
+render/pic_manage.c.orig
+page/main_page.c.orig
