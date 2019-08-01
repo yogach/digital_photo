@@ -11,6 +11,7 @@
 static int FBDeviceInit(void);
 static int FBShowPixel(int iX, int iY, unsigned int dwColor);
 static int FBCleanScreen(unsigned int dwBackColor);
+static FBShowPage(PT_VideoMem ptVideoMem);
 
 
 static int g_fd;
@@ -28,7 +29,10 @@ static T_DispOpr g_tFBOpr = {
 	.DeviceInit  = FBDeviceInit,
 	.ShowPixel   = FBShowPixel,
 	.CleanScreen = FBCleanScreen,
+	.ShowPage    = FBShowPage,
 };
+
+
 
 //初始化fbmem
 static int FBDeviceInit(void)
@@ -73,6 +77,12 @@ static int FBDeviceInit(void)
 	g_dwPixelWidth = g_tFBVar.bits_per_pixel / 8; //每个像素点大小
 	
 	return 0;
+}
+
+//将数据拷贝到显存中去
+static FBShowPage(PT_VideoMem ptVideoMem)
+{
+     memcpy(g_tFBOpr.pucDispMem,ptVideoMem->tVideoMemDesc.aucPhotoData,ptVideoMem->tVideoMemDesc.iTotalBytes);
 }
 
 

@@ -74,8 +74,6 @@ int PagesInit(void)
 {
   int iError;
 
-  
-
   return iError;
 
 }

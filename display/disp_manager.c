@@ -3,8 +3,8 @@
 #include <disp_manager.h>
 #include <string.h>
 
-static PT_DispOpr g_ptDispOprHead;
-static PT_DispOpr g_ptDefaultDisp;
+static PT_DispOpr g_ptDispOprHead ;
+static PT_DispOpr g_ptDefaultDisp ;
 
 static PT_VideoMem g_ptVideoMenListHead;
 
@@ -81,7 +81,7 @@ int SelectAndInitDefaultDispDev ( char* name )
 
 	}
 	g_ptDefaultDisp->DeviceInit();
-    g_ptDefaultDisp->CleanScreen(0);//使用黑色填充lcd
+	g_ptDefaultDisp->CleanScreen ( 0 ); //使用黑色填充lcd
 
 
 }
@@ -97,7 +97,7 @@ PT_DispOpr GetDefaultDispDev ( void )
 }
 
 //获得默认显示设备的分辨率
-int GetDispResolution ( int *iXres,int *iYres,int *iBpp )
+int GetDispResolution ( int* iXres,int* iYres,int* iBpp )
 {
 	if ( g_ptDefaultDisp != NULL )
 	{
@@ -140,7 +140,7 @@ int AllocVideoMem ( int iNum )
 
 
 	//对结点内容进行初始化
-	ptNew->bDevFrameBuffer = 1;
+	ptNew->bDevFrameBuffer = 1; //等于1表示此块空间是显示设备显存
 	ptNew->iID =0;
 	ptNew->ePicState = PIC_BLANK;
 	ptNew->eVideoMemState = VMS_FREE;
@@ -216,8 +216,9 @@ PT_VideoMem GetVideoMem ( int iID, int bUseForCur )
 	while ( ptTmp )
 	{
 		if ( ( ptTmp->iID == iID ) && ( ptTmp->eVideoMemState ==VMS_FREE )
-		{
-			ptTmp->eVideoMemState = ( bUseForCur )? VMS_FOR_CUR : VMS_FOR_PREPARE;
+	{
+		ptTmp->eVideoMemState = ( bUseForCur )
+			                        ? VMS_FOR_CUR : VMS_FOR_PREPARE;
 			return ptTmp;
 		}
 		ptTmp=ptTmp->ptNext;
@@ -227,81 +228,106 @@ PT_VideoMem GetVideoMem ( int iID, int bUseForCur )
 	ptTmp = g_ptVideoMenListHead;
 
 	/* 2. 如果没有则取出任意一个空闲videomem */
-	while (ptTmp)
+	while ( ptTmp )
 	{
-       if(ptTmp->eVideoMemState ==VMS_FREE)
-       {
-         ptTmp->eVideoMemState = ( bUseForCur )? VMS_FOR_CUR : VMS_FOR_PREPARE;
-         return ptTmp;
-	   }
-  
-	   ptTmp=ptTmp->ptNext;
+		if ( ptTmp->eVideoMemState ==VMS_FREE )
+		{
+			ptTmp->eVideoMemState = ( bUseForCur ) ? VMS_FOR_CUR : VMS_FOR_PREPARE;
+			return ptTmp;
+		}
 
-	
+		ptTmp=ptTmp->ptNext;
+
+
 	}
 
 	return NULL;
 
 }
 
-int PutVideoMem(PT_VideoMem ptVideoMem)
+int PutVideoMem ( PT_VideoMem ptVideoMem )
 {
 
-    ptVideoMem->eVideoMemState = VMS_FREE;
+	ptVideoMem->eVideoMemState = VMS_FREE;
 
 }
 
-int SetVideoMemColor(PT_VideoMem ptVideoMem ,unsigned int dwColor)
+void FlushVideoMemToDev ( PT_VideoMem ptVideoMem )
 {
-   unsigned char *pucVM;
-   unsigned short *pwVM16bpp;
-	unsigned int *pdwVM32bpp;
+	if ( !ptVideoMem->bDevFrameBuffer ) //不等于1代表不是显存设备的内存
+	{
+		if ( g_ptDefaultDisp!=NULL )
+		{
+			g_ptDefaultDisp->ShowPage ( ptVideoMem );
+		}
+		else
+		{
+			DBG_PRINTF ( "not set DefaultDisp..\r\n" );
+		}
+
+	}
+
+}
+
+
+int SetVideoMemColor ( PT_VideoMem ptVideoMem,unsigned int dwColor )
+{
+	unsigned char* pucVM;
+	unsigned short* pwVM16bpp;
+	unsigned int* pdwVM32bpp;
 	int iRed;
-		int iGreen;
-		int iBlue;
-		int i = 0;
+	int iGreen;
+	int iBlue;
+	int i = 0;
 
-   pucVM = ptVideoMem->tVideoMemDesc.aucPhotoData; //得到显存的显示地址
+	pucVM = ptVideoMem->tVideoMemDesc.aucPhotoData; //得到显存的显示地址
 
-   pwVM16bpp = (unsigned short *)pucVM;
-   pdwVM32bpp = (unsigned int *)pucVM;
+	pwVM16bpp = ( unsigned short* ) pucVM;
+	pdwVM32bpp = ( unsigned int* ) pucVM;
 
 
-   switch(ptVideoMem->tVideoMemDesc.iBpp)
-   {
-	   case 8:
-	   	{
-         memset(pucVM , dwColor , ptVideoMem->tVideoMemDesc.iTotalBytes);//按字节对内存进行初始化
-	    }
+	switch ( ptVideoMem->tVideoMemDesc.iBpp )
+	{
+		case 8:
+		{
+			memset ( pucVM, dwColor, ptVideoMem->tVideoMemDesc.iTotalBytes ); //按字节对内存进行初始化
+		}
 		break;
-	   case 16:
-	   	{
-           //RGB 565
-		
-		   iRed = (dwColor>> (16+3)& 0x1f; // 
-		   iGreen = (dwColor>> (8+2)& 0x1f;
-		   iBlue = (dwColor >> 3) & 0x1f;;
+
+		case 16:
+		{
+			//RGB 565
+
+			iRed = ( dwColor>> ( 16+3 ) & 0x1f; //
+			         iGreen = ( dwColor>> ( 8+2 ) & 0x1f;
+			                    iBlue = ( dwColor >> 3 ) & 0x1f;
 
 
-	    }
+								
+
+
+		}
+		                  break;
+		       case 32:
+		{
+
+
+		}
 		break;
-	   case 32:
-	   	{
 
 
-	    }
-		break;
-	   default:break;
+		default:
 
-   
+			break;
 
-   }
+
+
+	}
 
 
 
 
 }
-
 
 
 int DisplayInit ( void )

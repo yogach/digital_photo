@@ -1,18 +1,7 @@
 #ifndef _DISP_MANAGER_H
 #define _DISP_MANAGER_H
 
-typedef struct DispOpr
-{
-	char* name;
-	int iXres;
-	int iYres;
-	int iBpp;
-	unsigned char* pucDispMem;
-	int ( *DeviceInit ) ( void );
-	int ( *ShowPixel ) ( int iPenX, int iPenY, unsigned int dwColor );
-	int ( *CleanScreen ) ( unsigned int dwBackColor );
-	struct DispOpr* ptNext;
-} T_DispOpr, *PT_DispOpr;
+
 
 //表示显存的使用状态
 typedef enum
@@ -44,6 +33,21 @@ typedef struct VideoMem
 } T_VideoMem,*PT_VideoMem;
 
 
+typedef struct DispOpr
+{
+	char* name;
+	int iXres;
+	int iYres;
+	int iBpp;
+	unsigned char* pucDispMem;
+	int ( *DeviceInit ) ( void );
+	int ( *ShowPixel ) ( int iPenX, int iPenY, unsigned int dwColor );
+	int ( *CleanScreen ) ( unsigned int dwBackColor );
+	int ( *ShowPage)(PT_VideoMem ptVideoMem);
+	struct DispOpr* ptNext;
+} T_DispOpr, *PT_DispOpr;
+
+
 int RegisterDispOpr ( PT_DispOpr ptDispOpr );
 void ShowDispOpr ( void );
 int DisplayInit ( void );
@@ -55,7 +59,8 @@ int GetDispResolution ( int *iXres,int *iYres,int *iBpp );
 int AllocVideoMem ( int iNum );
 PT_VideoMem GetVideoMem ( int iID, int bUseForCur );
 int PutVideoMem(PT_VideoMem ptVideoMem);
-
+void FlushVideoMemToDev(PT_VideoMem pt_VideoTmp);
+int SetVideoMemColor(PT_VideoMem ptVideoMem ,unsigned int dwColor);
 
 
 #endif /* _DISP_MANAGER_H */

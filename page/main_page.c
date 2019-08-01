@@ -28,7 +28,7 @@ static T_Layout g_MainPageLayout[]=
 };
 
 
-//主页面
+//主页面输入事件
 static int MainPageGetInputEvent ()
 {
 
@@ -112,9 +112,11 @@ static int showMainPage ( PT_Layout atLayout )
 		free(tPhotoNew.aucPhotoData); 
 	}
 
-	/* 3. 刷到设备上去 */
-
+	/* 3. 刷到设备上去       */
+	FlushVideoMemToDev(pt_VideoTmp);
+    
 	/* 4. 将显存的状态设置为free */
+	PutVideoMem(pt_VideoTmp);
 
 
 }
