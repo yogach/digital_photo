@@ -107,7 +107,7 @@ static int showMainPage ( PT_Layout atLayout )
 			  PicMerge(atLayout->iTopLeftX, atLayout->iTopLeftY, &tPhotoNew, &pt_VideoTmp->tVideoMemDesc);
 
               //释放图片分配的内存
-              //FreePixelDatasForIcon(&tPhotoOriData);
+              FreePixelDatasForIcon(&tPhotoOriData);
 
 			  //Y坐标往下递增
               IconY +=   iYres*3/10 ;

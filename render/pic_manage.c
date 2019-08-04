@@ -149,9 +149,9 @@ int GetPixelDatasForIcon ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
 void FreePixelDatasForIcon(PT_PhotoDesc ptPhotoDatas)
 {
 	//if(ptPhotoDatas->aucPhotoData)
-		//free(ptPhotoDatas->aucPhotoData); 
+		free(ptPhotoDatas->aucPhotoData); 
 
-	g_tBMPFileParser.FreePixelDatas(ptPhotoDatas);
+	//g_tBMPFileParser.FreePixelDatas(ptPhotoDatas);
     
 }
 
