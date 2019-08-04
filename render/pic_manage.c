@@ -68,7 +68,7 @@ PT_PicFileParser isSupport ( unsigned char* pucFileHead )
 	PT_PicFileParser ptTmp = g_ptPicFileParserHead;
 	while ( ptTmp )
 	{
-		if ( ptTmp->isSupport ( pucFileHead ) == 0 )
+		if ( ptTmp->isSupport ( pucFileHead ) == 1 )
 		{
 			return ptTmp;
 		}
@@ -85,7 +85,7 @@ PT_PicFileParser isSupport ( unsigned char* pucFileHead )
 int GetPixelDatasForIcon ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
 {
 	T_MapFile tMapFile;
-	//PT_PicFileParser ptTargetFileParser;
+	PT_PicFileParser ptTargetFileParser;
     int iXres,iYres,iBpp;
 
 	int iError;
@@ -100,7 +100,7 @@ int GetPixelDatasForIcon ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
 		DBG_PRINTF ( "MapFile %s error!\n", strFileName );
 		return -1;
 	}
-/*
+
 	//得到支持此文件的图片处理节点
 	ptTargetFileParser = isSupport ( tMapFile.pucFileMapMem );
 	if ( ptTargetFileParser == NULL )
@@ -122,8 +122,8 @@ int GetPixelDatasForIcon ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
 		DBG_PRINTF("GetPixelDatas for %s error!\n", tMapFile.FileName);
 		return -1;
 	}
-       */
-    
+       
+/*    
     iError = g_tBMPFileParser.isSupport(tMapFile.pucFileMapMem);
 	if (iError == 0)
 	{
@@ -139,6 +139,7 @@ int GetPixelDatasForIcon ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
 		DBG_PRINTF("GetPixelDatas for %s error!\n", strFileName);
 		return -1;
 	}
+	*/
 
 
     return 0;
