@@ -132,7 +132,7 @@ static int GetPixelDatasFrmBMP(unsigned char * FileHead,PT_PhotoDesc ptPhotoDesc
 	DBG_PRINTF("Expect bpp: %d bpp\r\n",iexpBpp);
     if(iexpBpp!=16 && iexpBpp!=24 && iexpBpp!=32)
     {
-       
+        DBG_PRINTF ("iexpBpp is %d\r\n",iexpBpp);	
 		return -1;
 	}
 

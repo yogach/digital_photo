@@ -6,7 +6,7 @@
 #include <stdarg.h>
 
 static PT_DebugOpr g_ptDebugOprHead;
-static int g_iDbgLevelLimit = 8;
+//static int g_iDbgLevelLimit = 8;
 
 //将DebugOpr放入链表中
 int RegisterDebugOpr (PT_DebugOpr ptDebugOpr)
@@ -119,12 +119,15 @@ int DebugPrint (const char * pcFormat,...)
 	char strTmpBuf[1000];
 	int iNum;
 	PT_DebugOpr ptTmp;
-
+    //char strFileName[200];
 
 	va_start (tArg,pcFormat);
 	iNum = vsprintf (strTmpBuf,pcFormat,tArg);		//获取可变参数中的值
 	va_end (tArg);
 	strTmpBuf[iNum] = '\0';
+
+	//sprintf(strFileName,"file:%s  line:%d   ",__FILE__,__LINE__);
+   // strcat(strTmpBuf,strFileName);
 
 
 	ptTmp = g_ptDebugOprHead;

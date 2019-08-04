@@ -2,6 +2,7 @@
 #define _DISP_MANAGER_H
 
 
+#include "pic_manager.h"
 
 //表示显存的使用状态
 typedef enum

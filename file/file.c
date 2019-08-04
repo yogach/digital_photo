@@ -1,8 +1,10 @@
-#include "file.c"
+#include <file.h>
+#include <config.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+#include <unistd.h>
 
 
 
@@ -38,7 +40,7 @@ int MapFile(PT_MapFile ptFileMap)
 
 void  unMapFile(PT_MapFile ptFileMap)
 {
-  unmap(ptFileMap->pucFileMapMem);
+  munmap(ptFileMap->pucFileMapMem,ptFileMap->iFileSize);
   close(ptFileMap->iFd);//╧ь╠унд╪Ч╬Д╠З
 }
 

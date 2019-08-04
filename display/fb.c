@@ -11,7 +11,7 @@
 static int FBDeviceInit(void);
 static int FBShowPixel(int iX, int iY, unsigned int dwColor);
 static int FBCleanScreen(unsigned int dwBackColor);
-static FBShowPage(PT_VideoMem ptVideoMem);
+static int FBShowPage(PT_VideoMem ptVideoMem);
 
 
 static int g_fd;
@@ -80,9 +80,10 @@ static int FBDeviceInit(void)
 }
 
 //将数据拷贝到显存中去
-static FBShowPage(PT_VideoMem ptVideoMem)
+static int FBShowPage(PT_VideoMem ptVideoMem)
 {
      memcpy(g_tFBOpr.pucDispMem,ptVideoMem->tVideoMemDesc.aucPhotoData,ptVideoMem->tVideoMemDesc.iTotalBytes);
+	 return 0;
 }
 
 

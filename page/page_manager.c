@@ -1,4 +1,8 @@
 #include <page_manager.h>
+#include <stdio.h>
+#include <stddef.h>
+#include <string.h>
+
 
 static PT_PageAction g_tPageActionHead;
 
@@ -46,7 +50,7 @@ void ShowPages ( void )
 
 
 //根据名字得到对应的节点
-PT_PageAction GetPage ( char* pcName )
+PT_PageAction Page ( char* pcName )
 {
 	PT_PageAction ptTmp = g_tPageActionHead;
 
@@ -72,7 +76,9 @@ int ID(char * str)
 
 int PagesInit(void)
 {
-  int iError;
+  int iError = 0;
+  
+  iError |= MainPageInit();
 
   return iError;
 

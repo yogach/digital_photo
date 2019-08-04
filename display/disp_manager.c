@@ -2,6 +2,8 @@
 #include <config.h>
 #include <disp_manager.h>
 #include <string.h>
+#include <stdlib.h>
+
 
 static PT_DispOpr g_ptDispOprHead ;
 static PT_DispOpr g_ptDefaultDisp ;
@@ -83,6 +85,7 @@ int SelectAndInitDefaultDispDev ( char* name )
 	g_ptDefaultDisp->DeviceInit();
 	g_ptDefaultDisp->CleanScreen ( 0 ); //使用黑色填充lcd
 
+    return 0;
 
 }
 
@@ -91,8 +94,10 @@ PT_DispOpr GetDefaultDispDev ( void )
 {
 	if ( g_ptDefaultDisp != NULL )
 	{
-		return PT_DispOpr;
+		return g_ptDefaultDisp;
 	}
+
+   return NULL;
 
 }
 
@@ -103,7 +108,8 @@ int GetDispResolution ( int* iXres,int* iYres,int* iBpp )
 	{
 		*iXres = g_ptDefaultDisp->iXres;
 		*iYres = g_ptDefaultDisp->iYres;
-		*iBpp = g_ptDefaultDisp->iXres;
+		*iBpp = g_ptDefaultDisp->iBpp;
+		return 0;
 	}
 	else
 	{
@@ -156,7 +162,7 @@ int AllocVideoMem ( int iNum )
 		free ( ptNew );
 		return -1;
 	}
-	ptNew->tVideoMemDesc->aucPhotoData =  g_ptDefaultDisp->pucDispMem; //
+	ptNew->tVideoMemDesc.aucPhotoData =  g_ptDefaultDisp->pucDispMem; //
 
 
 	//将此节点放入链表中 相当将新节点放在头位置上
@@ -203,6 +209,7 @@ int AllocVideoMem ( int iNum )
 
 	}
 
+   return 0;
 }
 
 //获取指定的显存：如果指定id在使用中则挑选一个空闲的内存块
@@ -215,10 +222,9 @@ PT_VideoMem GetVideoMem ( int iID, int bUseForCur )
 
 	while ( ptTmp )
 	{
-		if ( ( ptTmp->iID == iID ) && ( ptTmp->eVideoMemState ==VMS_FREE )
-	{
-		ptTmp->eVideoMemState = ( bUseForCur )
-			                        ? VMS_FOR_CUR : VMS_FOR_PREPARE;
+		if ( ( ptTmp->iID == iID ) && ( ptTmp->eVideoMemState ==VMS_FREE ))
+	    {
+		    ptTmp->eVideoMemState = ( bUseForCur )? VMS_FOR_CUR : VMS_FOR_PREPARE;
 			return ptTmp;
 		}
 		ptTmp=ptTmp->ptNext;
@@ -249,6 +255,7 @@ int PutVideoMem ( PT_VideoMem ptVideoMem )
 {
 
 	ptVideoMem->eVideoMemState = VMS_FREE;
+	return 0;
 
 }
 
@@ -270,64 +277,7 @@ void FlushVideoMemToDev ( PT_VideoMem ptVideoMem )
 }
 
 
-int SetVideoMemColor ( PT_VideoMem ptVideoMem,unsigned int dwColor )
-{
-	unsigned char* pucVM;
-	unsigned short* pwVM16bpp;
-	unsigned int* pdwVM32bpp;
-	int iRed;
-	int iGreen;
-	int iBlue;
-	int i = 0;
 
-	pucVM = ptVideoMem->tVideoMemDesc.aucPhotoData; //得到显存的显示地址
-
-	pwVM16bpp = ( unsigned short* ) pucVM;
-	pdwVM32bpp = ( unsigned int* ) pucVM;
-
-
-	switch ( ptVideoMem->tVideoMemDesc.iBpp )
-	{
-		case 8:
-		{
-			memset ( pucVM, dwColor, ptVideoMem->tVideoMemDesc.iTotalBytes ); //按字节对内存进行初始化
-		}
-		break;
-
-		case 16:
-		{
-			//RGB 565
-
-			iRed = ( dwColor>> ( 16+3 ) & 0x1f; //
-			         iGreen = ( dwColor>> ( 8+2 ) & 0x1f;
-			                    iBlue = ( dwColor >> 3 ) & 0x1f;
-
-
-								
-
-
-		}
-		                  break;
-		       case 32:
-		{
-
-
-		}
-		break;
-
-
-		default:
-
-			break;
-
-
-
-	}
-
-
-
-
-}
 
 
 int DisplayInit ( void )

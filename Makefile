@@ -33,8 +33,10 @@ obj-y += display/
 obj-y += encoding/
 obj-y += fonts/
 obj-y += Input/
-obj-y += dubug/
+obj-y += debug/
 obj-y += render/
+obj-y += page/
+obj-y += file/
 
 all : 
 	make -C ./ -f $(TOPDIR)/Makefile.build

@@ -28,6 +28,10 @@ typedef struct Layout
 int ID(char * str);
 int RegisterPageAction ( PT_PageAction ptPageAction );
 void ShowPages ( void );
-PT_PageAction GetPage ( char* pcName );
+PT_PageAction Page ( char* pcName );
+int PagesInit(void);
+
+int MainPageInit ( void );
+
 
 #endif /*_PAGE_MANAGER_H__*/

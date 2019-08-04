@@ -1,12 +1,16 @@
-
-#include <disp_manager.c>
+#include <config.h>
+#include <disp_manager.h>
 #include "page_manager.h"
 #include <pic_manager.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+
 
 static int MainPageGetInputEvent ();
 static int MainPagePrepare ();
 static int MainPageRun ( void );
-static PT_DispOpr g_tDispOpr;
+//static PT_DispOpr g_tDispOpr;
 
 
 static T_PageAction g_tMainPageAction =
@@ -15,7 +19,7 @@ static T_PageAction g_tMainPageAction =
 	.Run = MainPageRun,
 	.GetInputEvent = MainPageGetInputEvent,
 	.Prepare = MainPagePrepare,
-}
+};
 
 
 //本页需要显示的图标
@@ -24,7 +28,7 @@ static T_Layout g_MainPageLayout[]=
 	{0,0,0,0,"browse_mode.bmp"},
 	{0,0,0,0,"continue_mod.bmp"},
 	{0,0,0,0,"setting.bmp"},
-	{0,0,0,NULL},
+	{0,0,0,0},
 };
 
 
@@ -32,14 +36,14 @@ static T_Layout g_MainPageLayout[]=
 static int MainPageGetInputEvent ()
 {
 
-
+ return 0;
 }
 
 //主页面图片数据准备线程
 static int MainPagePrepare ()
 {
 
-
+ return 0;
 }
 
 //主页面显示
@@ -48,6 +52,7 @@ static int showMainPage ( PT_Layout atLayout )
 	PT_VideoMem pt_VideoTmp;
 	int iXres,iYres,iBpp;
 	int iIconWidth,iIconHight,IconX,IconY;
+    //int iError;
 
 	T_PhotoDesc tPhotoOriData;
 	T_PhotoDesc tPhotoNew;
@@ -102,7 +107,7 @@ static int showMainPage ( PT_Layout atLayout )
 			  PicMerge(atLayout->iTopLeftX, atLayout->iTopLeftY, &tPhotoNew, &pt_VideoTmp->tVideoMemDesc);
 
               //释放图片分配的内存
-              FreePixelDatasForIcon(&tPhotoOriData);
+              //FreePixelDatasForIcon(&tPhotoOriData);
 
 			  //Y坐标往下递增
               IconY +=   iYres*3/10 ;
@@ -118,6 +123,7 @@ static int showMainPage ( PT_Layout atLayout )
 	/* 4. 将显存的状态设置为free */
 	PutVideoMem(pt_VideoTmp);
 
+	return 0;
 
 }
 
@@ -129,7 +135,7 @@ static int MainPageRun ( void )
 	showMainPage (g_MainPageLayout);
 	/* 2. 创建Prepare线程 */
 
-	/* 3. 调用GetInputEvent获得输入事件，进而处理 */
+	/* 3. 调用GetInputEvent获得输入事件，进而处理 
 	while ( 1 )
 	{
 		//获取输入事件
@@ -149,7 +155,7 @@ static int MainPageRun ( void )
 		}
 
 
-	}
+	}*/
 
 	return 0;
 

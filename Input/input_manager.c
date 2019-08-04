@@ -42,7 +42,7 @@ static void* InputEventTreadFunction(void* pVoid)
    //定义函数指针
    int (*GetInputEvent)(PT_InputEvent ptInputEvent);
 
-   (int (*)(PT_InputEvent))pVoid;
+   //(int (*)(PT_InputEvent))pVoid;
 
    GetInputEvent = (int(*)(PT_InputEvent))pVoid;//转化void*指针
 
