@@ -28,7 +28,7 @@ static T_Layout g_MainPageLayout[]=
 	{0,0,0,0,"browse_mode.bmp"},
 	{0,0,0,0,"continue_mod.bmp"},
 	{0,0,0,0,"setting.bmp"},
-	{0,0,0,0},
+	{0,0,0,0,NULL},
 };
 
 
