@@ -18,7 +18,7 @@ static T_PageAction g_tMainPageAction =
 	.name = "main",
 	.Run = MainPageRun,
 	.GetInputEvent = MainPageGetInputEvent,
-	.Prepare = MainPagePrepare,
+	//.Prepare = MainPagePrepare,
 };
 
 
@@ -33,18 +33,21 @@ static T_Layout g_MainPageLayout[]=
 
 
 //主页面输入事件
-static int MainPageGetInputEvent ()
+static int MainPageGetInputEvent (void)
 {
+   //获得触摸屏原始数据
 
- return 0;
+
+
+   return 0;
 }
 
 //主页面图片数据准备线程
-static int MainPagePrepare ()
+/*static int MainPagePrepare ()
 {
 
  return 0;
-}
+}*/
 
 //主页面显示
 static int showMainPage ( PT_Layout atLayout )
@@ -66,7 +69,7 @@ static int showMainPage ( PT_Layout atLayout )
 	}
 
 	/* 2. 描画数据 */
-	if ( pt_VideoTmp->ePicState != PIC_GENERATED )
+	if ( pt_VideoTmp->ePicState != PIC_GENERATED )//如果图片未准备好
 	{
 
 		GetDispResolution ( &iXres,&iYres,&iBpp ); //获取分辨率
@@ -101,18 +104,18 @@ static int showMainPage ( PT_Layout atLayout )
 			  //获取图标的图片数据
 			  GetPixelDatasForIcon(atLayout->IconName ,&tPhotoOriData);
 
-              //缩放
+              //将原始图片数据缩放到指定大小
               PicZoom(&tPhotoOriData, &tPhotoNew);
 			  //将图片合并到显存中
 			  PicMerge(atLayout->iTopLeftX, atLayout->iTopLeftY, &tPhotoNew, &pt_VideoTmp->tVideoMemDesc);
 
-              //释放图片分配的内存
+              //释放图片分配的内存 防止内存泄露 
               FreePixelDatasForIcon(&tPhotoOriData);
 
 			  //Y坐标往下递增
               IconY +=   iYres*3/10 ;
    
-		      atLayout++; //指针+1 与指针的数据类型有关
+		      atLayout++; //指针+1 增加的长度与指针的数据类型有关
 		}
 		free(tPhotoNew.aucPhotoData); 
 	}
@@ -135,7 +138,7 @@ static int MainPageRun ( void )
 	showMainPage (g_MainPageLayout);
 	/* 2. 创建Prepare线程 */
 
-	/* 3. 调用GetInputEvent获得输入事件，进而处理 
+	/* 3. 调用GetInputEvent获得输入事件，进而处理 */
 	while ( 1 )
 	{
 		//获取输入事件
@@ -155,7 +158,7 @@ static int MainPageRun ( void )
 		}
 
 
-	}*/
+	}
 
 	return 0;
 

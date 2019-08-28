@@ -6,18 +6,14 @@
 #define INPUT_TYPE_STDIN        0 //标准输入
 #define INPUT_TYPE_TOUCHSCREEN  1
 
-#define INPUT_VALUE_UP          0   
-#define INPUT_VALUE_DOWN        1
-#define INPUT_VALUE_EXIT        2
-#define INPUT_VALUE_JUMP        3
-#define INPUT_VALUE_UNKNOWN     -1
-
 
 typedef struct InputEvent {
 	struct timeval tTime;
-	int iType;  /* stdin, touchsceen */
-	int iAction;   /*  */
-	int iVal;
+	int iType;  /* 输入事件类型 */
+	int iX;   /*X Y坐标  */
+	int iY;
+	int iPressure;//按下 or 松开
+	int iKeyValue;
 }T_InputEvent, *PT_InputEvent;
 
 
@@ -39,6 +35,7 @@ int AllInputDevicesInit(void);
 int InputInit(void);
 
 int StdinInit(void);
+int TouchScreenInit ( void );
 
 
 #endif /* _INPUT_MANAGER_H */

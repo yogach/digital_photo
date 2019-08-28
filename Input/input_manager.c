@@ -79,10 +79,12 @@ int AllInputDevicesInit(void)
 
 	while (ptTmp)
 	{
-       if(g_ptInputOprHead->DeviceInit() == 0)
+       if(ptTmp->DeviceInit() == 0)
        {
        	   //创建线程 将各设备的GetInputEvent 作为形参传入
-		   pthread_create(&g_ptInputOprHead->tTreadID,NULL,InputEventTreadFunction,ptTmp->GetInputEvent);
+		   iError = pthread_create(&ptTmp->tTreadID,NULL,InputEventTreadFunction,ptTmp->GetInputEvent);
+           if(!iError)
+		     DBG_PRINTF("create %s pthread Success... \r\n",ptTmp->name);
            iError = 0;
 	   }
 	   ptTmp = ptTmp->ptNext;
@@ -126,7 +128,9 @@ int InputInit(void)
 {
     int iError;
 
-	iError = StdinInit();
+	//iError = StdinInit();
+    iError = TouchScreenInit();
+
 
 	return iError;
 

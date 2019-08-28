@@ -71,7 +71,7 @@ int PicZoom (PT_PhotoDesc ptOriginPic,PT_PhotoDesc ptZoomPic,int scale)
 int PicZoom(PT_PhotoDesc ptOriginPic, PT_PhotoDesc ptZoomPic)
 {
     unsigned long dwDstWidth = ptZoomPic->iWidth;
-    unsigned long* pdwSrcXTable = malloc(sizeof(unsigned long) * dwDstWidth);
+    unsigned long* pdwSrcXTable;
 	unsigned long x;
 	unsigned long y;
 	unsigned long dwSrcY;
@@ -83,6 +83,9 @@ int PicZoom(PT_PhotoDesc ptOriginPic, PT_PhotoDesc ptZoomPic)
 	{
 		return -1;
 	}
+    
+    pdwSrcXTable = malloc(sizeof(unsigned long) * dwDstWidth);
+
 	
     for (x = 0; x < dwDstWidth; x++)//Éú³É±í pdwSrcXTable
     {

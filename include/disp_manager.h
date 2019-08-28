@@ -7,29 +7,29 @@
 //表示显存的使用状态
 typedef enum
 {
-	VMS_FREE,
-	VMS_FOR_CUR,
-	VMS_FOR_PREPARE,
+	VMS_FREE,       //空闲
+	VMS_FOR_CUR,    //用于当前图片显示
+	VMS_FOR_PREPARE,//用于准备图片
 
 } E_VideoMemState;
 
 //表示显存块中图片的准备状态
 typedef enum
 {
-	PIC_BLANK,
-	PIC_GENERATING,
-	PIC_GENERATED,
+	PIC_BLANK,     //没有图片
+	PIC_GENERATING,//图片正在准备
+	PIC_GENERATED, //图片已经准备好
 
 } E_PicState;
 
 //
 typedef struct VideoMem
 {
-	int iID;                        //用于标识用途
-	int bDevFrameBuffer;            //用于标识是否是设备的空间
+	int iID;                         //显存id
+	int bDevFrameBuffer;             //用于标识是否是设备的空间
  	E_VideoMemState eVideoMemState;  //用于标识是否被使用
  	E_PicState  ePicState;           //用于标识图片数据是否已准备好
-	T_PhotoDesc tVideoMemDesc;          //用于标识
+	T_PhotoDesc tVideoMemDesc;       //用于标识图片数据
 	struct VideoMem* ptNext;
 } T_VideoMem,*PT_VideoMem;
 

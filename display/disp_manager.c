@@ -137,7 +137,6 @@ int AllocVideoMem ( int iNum )
 
 
 	//将显示设备本身的MEN空间放入链表
-
 	ptNew = malloc ( sizeof ( T_VideoMem ) ); //分配空间
 	if ( ptNew == NULL )
 	{
@@ -145,8 +144,8 @@ int AllocVideoMem ( int iNum )
 	}
 
 
-	//对结点内容进行初始化
-	ptNew->bDevFrameBuffer = 1; //等于1表示此块空间是显示设备显存
+	//对节点内容进行初始化
+	ptNew->bDevFrameBuffer = 1; //等于1 表示此块空间是显示设备显存
 	ptNew->iID =0;
 	ptNew->ePicState = PIC_BLANK;
 	ptNew->eVideoMemState = VMS_FREE;
@@ -165,7 +164,7 @@ int AllocVideoMem ( int iNum )
 	ptNew->tVideoMemDesc.aucPhotoData =  g_ptDefaultDisp->pucDispMem; //
 
 
-	//将此节点放入链表中 相当将新节点放在头位置上
+	//将此节点放入链表中 相当每次都将新节点放在头位置上
 	ptNew->ptNext = g_ptVideoMenListHead;
 	g_ptVideoMenListHead = ptNew;
 
@@ -231,9 +230,8 @@ PT_VideoMem GetVideoMem ( int iID, int bUseForCur )
 
 	}
 
+	/* 2. 如果没有ID相同的显存 则取出任意一个空闲videomem */
 	ptTmp = g_ptVideoMenListHead;
-
-	/* 2. 如果没有则取出任意一个空闲videomem */
 	while ( ptTmp )
 	{
 		if ( ptTmp->eVideoMemState ==VMS_FREE )
@@ -243,14 +241,13 @@ PT_VideoMem GetVideoMem ( int iID, int bUseForCur )
 		}
 
 		ptTmp=ptTmp->ptNext;
-
-
 	}
 
 	return NULL;
 
 }
 
+//释放显示
 int PutVideoMem ( PT_VideoMem ptVideoMem )
 {
 
