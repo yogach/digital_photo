@@ -104,6 +104,7 @@ int GetDeviceInput(PT_InputEvent ptInputEvent)
 
 	/* 被唤醒后,返回数据 */
 	*ptInputEvent = g_tInputEvent;
+	
 	pthread_mutex_unlock(&g_tMutex);
 
 	return 0;

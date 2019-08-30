@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <string.h>
-
+#include <config.h>
 
 static PT_PageAction g_tPageActionHead;
 
@@ -86,13 +86,18 @@ int GenericGetInputEvent(PT_Layout ptLayout,PT_InputEvent ptInputEvent)
    T_InputEvent tInputEvent;
    int iRet , i = 0;
 
+   
+
    /*获取触摸屏原始数据*/
    iRet = GetDeviceInput(&tInputEvent);   
    if(iRet)
    {
+   
      return -1;
    }
-
+   
+   *ptInputEvent = tInputEvent;
+   
    //如果不是触摸屏事件           返回-1
    if(tInputEvent.iType !=INPUT_TYPE_TOUCHSCREEN)
    {
@@ -102,8 +107,8 @@ int GenericGetInputEvent(PT_Layout ptLayout,PT_InputEvent ptInputEvent)
    while(ptLayout[i].IconName)
    {
      //如果按下的触点在某个图标内 返回图标在数组内的位置
-     if((tInputEvent.iX >= ptLayout[i].iTopLeftX)&&(tInputEvent.iX <= ptLayout[i].iLowerRightX) \
-	 	&&(tInputEvent.iY >= ptLayout[i].iTopLeftY)&&(tInputEvent.iY >= ptLayout[i].iTopLeftY))
+     if((tInputEvent.iX >= ptLayout[i].iTopLeftX)&&(tInputEvent.iX <= ptLayout[i].iLowerRightX) &&\
+	 	(tInputEvent.iY >= ptLayout[i].iTopLeftY)&&(tInputEvent.iY <= ptLayout[i].iLowerRightY))
      	{
            return i;
 		}

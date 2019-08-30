@@ -2,6 +2,7 @@
 #define _PAGE_MANAGER_H__
 
 #include<pic_manager.h>
+#include <input_manager.h>
 
 typedef struct PageAction
 {

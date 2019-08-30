@@ -1,17 +1,15 @@
 #include <config.h>
 #include <disp_manager.h>
-#include "page_manager.h"
+#include <page_manager.h>
 #include <pic_manager.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <input_manager.h>
 
-
-static int MainPageGetInputEvent ();
-static int MainPagePrepare ();
+static int MainPageGetInputEvent (PT_Layout atLayout,PT_InputEvent ptInputEvent );
 static int MainPageRun ( void );
 //static PT_DispOpr g_tDispOpr;
-
 
 static T_PageAction g_tMainPageAction =
 {
@@ -33,10 +31,10 @@ static T_Layout g_atMainPageIconsLayout[]=
 
 
 //主页面输入事件
-static int MainPageGetInputEvent (PT_Layout ptLayout,PT_InputEvent ptInputEvent )
+static int MainPageGetInputEvent (PT_Layout atLayout,PT_InputEvent ptInputEvent )
 {
    //获得触摸屏原始数据
-   return GenericGetInputEvent(ptLayout,ptInputEvent);
+   return GenericGetInputEvent(atLayout,ptInputEvent);
 }
 
 //主页面图片数据准备线程
@@ -144,6 +142,8 @@ static int MainPageRun ( void )
         iIndex = MainPageGetInputEvent (g_atMainPageIconsLayout,&tInputEvent);
 		if (iIndex >= 0)
 			DBG_PRINTF("put\release status:%d , icon num:%d\r\n",tInputEvent.iPressure,iIndex);
+        else
+			DBG_PRINTF("don't touch icon\r\n");
 
 		if(tInputEvent.iPressure == 0)//如果是松开状态
 		{
@@ -194,6 +194,9 @@ static int MainPageRun ( void )
 	return 0;
 
 }
+
+
+
 
 
 int MainPageInit ( void )

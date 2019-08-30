@@ -6,12 +6,12 @@
 //#include <disp_manager.h>
 
 static struct tsdev* g_tTSDev;
-static int giXres,giYres;
+//static int giXres,giYres;
 
 static int TouchScreenDevInit ( void )
 {
 	char* pcTSName;
-    int iBpp;
+    //int iBpp;
  
 	if ( ( pcTSName = getenv ( "TSLIB_TSDEVICE" ) ) != NULL ) //从环境变量里确定触摸屏设备的名字
 	{
@@ -72,6 +72,12 @@ static int TouchScreenGetInputEvent ( PT_InputEvent ptInputEvent )
 		  ptInputEvent->iY = tSamp.y;
 		  ptInputEvent->tTime = tSamp.tv;
 		  ptInputEvent->iPressure = tSamp.pressure;
+		  return 0;
+		  //DBG_PRINTF("Ts event happen..\n");
+		}
+		else
+		{
+          return -1;
 		}
 
 	}
