@@ -29,7 +29,11 @@ int ID(char * str);
 int RegisterPageAction ( PT_PageAction ptPageAction );
 void ShowPages ( void );
 PT_PageAction Page ( char* pcName );
+int GenericGetInputEvent(PT_Layout ptLayout,PT_InputEvent ptInputEvent);
+
+
 int PagesInit(void);
+
 
 int MainPageInit ( void );
 

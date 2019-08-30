@@ -66,6 +66,7 @@ PT_PicFileParser GetPicFileParser ( char* pcName )
 PT_PicFileParser isSupport ( unsigned char* pucFileHead )
 {
 	PT_PicFileParser ptTmp = g_ptPicFileParserHead;
+	
 	while ( ptTmp )
 	{
 		if ( ptTmp->isSupport ( pucFileHead ) == 1 )
@@ -79,10 +80,15 @@ PT_PicFileParser isSupport ( unsigned char* pucFileHead )
 
 }
 
+/**********************************************************************
+ * 函数名称： GetPixelDatasFormIcon
+ * 功能描述： 取出BMP格式的图标文件中的象素数据
+ * 输入参数： strFileName - BMP格式的图标文件名,它位于 ICON_PATH 目录下
+ * 输出参数： ptPhotoDesc - 内含象素数据,它所占的空间是通过malloc分配的,
+ *                          不用时需要用FreePixelDatasForIcon来释放
+********************************************************************/
 
-
-
-int GetPixelDatasForIcon ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
+int GetPixelDatasFormIcon ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
 {
 	T_MapFile tMapFile;
 	PT_PicFileParser ptTargetFileParser;
@@ -90,10 +96,10 @@ int GetPixelDatasForIcon ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
 
 	int iError;
 	//根据文件名打开文件
-	//图标文件放置在"/etc/digitpic/icons"下
+	//图标文件放置在         ICON_PATH"/mnt/Icon/" 目录下
 	snprintf ( tMapFile.FileName,128,"%s%s", ICON_PATH,strFileName );
 
-	//mmap文件
+	//打开目标文件 并使用mmap映射到内存上
 	iError = MapFile ( &tMapFile );
 	if ( iError !=0 )
 	{
@@ -105,12 +111,10 @@ int GetPixelDatasForIcon ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
 	ptTargetFileParser = isSupport ( tMapFile.pucFileMapMem );
 	if ( ptTargetFileParser == NULL )
 	{
-		DBG_PRINTF ( "can't support :%s ",tMapFile.FileName );
+		DBG_PRINTF ( "can't support :%s\n ",tMapFile.FileName );
+		unMapFile(&tMapFile);//出错时 需释放mmap数据 以免造成内存泄漏
 		return -1;
-
 	}
-
-	
 
     //获得屏幕分辨率
     GetDispResolution ( &iXres,&iYres,&iBpp ); //获取分辨率
@@ -120,27 +124,11 @@ int GetPixelDatasForIcon ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
 	if (iError)
 	{
 		DBG_PRINTF("GetPixelDatas for %s error!\n", tMapFile.FileName);
+		unMapFile(&tMapFile);//出错时 需释放mmap数据 以免造成内存泄漏
 		return -1;
 	}
        
-/*    
-    iError = g_tBMPFileParser.isSupport(tMapFile.pucFileMapMem);
-	if (iError == 0)
-	{
-		DBG_PRINTF("%s is not bmp file\n", strFileName);
-		return -1;
-	}
-
-	GetDispResolution(&iXres, &iYres, &iBpp);
-	ptPhotoDesc->iBpp = iBpp;
-	iError = g_tBMPFileParser.GetPixelDatas(tMapFile.pucFileMapMem, ptPhotoDesc , iBpp);
-	if (iError)
-	{
-		DBG_PRINTF("GetPixelDatas for %s error!\n", strFileName);
-		return -1;
-	}
-	*/
-
+	unMapFile(&tMapFile);//完成处理任务之后 释放mmap空间
 
     return 0;
 

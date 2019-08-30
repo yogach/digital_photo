@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #include <tslib.h>
-#include <disp_manager.h>
+//#include <disp_manager.h>
 
 static struct tsdev* g_tTSDev;
 static int giXres,giYres;
@@ -35,10 +35,10 @@ static int TouchScreenDevInit ( void )
 		return -1;
 	}
 
-	if ( GetDispResolution ( &giXres, &giYres ,&iBpp ) ) //获取显示设备的X Y 分辨率 像素
-	{
-		return -1;
-	}
+	//if ( GetDispResolution ( &giXres, &giYres ,&iBpp ) ) //获取显示设备的X Y 分辨率 像素
+	//{
+	//	return -1;
+	//}
 
 	return 0;
 
@@ -55,7 +55,6 @@ static int TouchScreenGetInputEvent ( PT_InputEvent ptInputEvent )
 	int iRet ;
 	struct ts_sample tSamp;//采样值
 	
-
 	/*
 	*
 	static struct timeval tPreTime;

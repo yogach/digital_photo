@@ -70,6 +70,50 @@ PT_PageAction Page ( char* pcName )
 int ID(char * str)
 {
    return (int)(str[0]) + (int)(str[1]) + (int)(str[2]) + (int)(str[3]) ;
+}
+
+
+/**********************************************************************
+ * 函数名称： GenericGetInputEvent
+ * 功能描述： 读取输入数据,并判断它位于哪一个图标上
+ * 输入参数： ptPageLayout - 内含多个图标的显示区域
+ * 输出参数： ptInputEvent - 内含得到的输入数据
+ * 返 回 值： -1     - 输入数据不位于任何一个图标之上
+ *            其他值 - 输入数据所落在的图标(ptLayout数组的哪一项)
+**********************************************************************/
+int GenericGetInputEvent(PT_Layout ptLayout,PT_InputEvent ptInputEvent)
+{
+   T_InputEvent tInputEvent;
+   int iRet , i = 0;
+
+   /*获取触摸屏原始数据*/
+   iRet = GetDeviceInput(&tInputEvent);   
+   if(iRet)
+   {
+     return -1;
+   }
+
+   //如果不是触摸屏事件           返回-1
+   if(tInputEvent.iType !=INPUT_TYPE_TOUCHSCREEN)
+   {
+     return -1;
+   }
+
+   while(ptLayout[i].IconName)
+   {
+     //如果按下的触点在某个图标内 返回图标在数组内的位置
+     if((tInputEvent.iX >= ptLayout[i].iTopLeftX)&&(tInputEvent.iX <= ptLayout[i].iLowerRightX) \
+	 	&&(tInputEvent.iY >= ptLayout[i].iTopLeftY)&&(tInputEvent.iY >= ptLayout[i].iTopLeftY))
+     	{
+           return i;
+		}
+		else
+		{
+            i ++;  
+		}
+   }
+
+   return -1;
 
 }
 

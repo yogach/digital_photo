@@ -23,7 +23,7 @@ static T_PageAction g_tMainPageAction =
 
 
 //本页需要显示的图标
-static T_Layout g_MainPageLayout[]=
+static T_Layout g_atMainPageIconsLayout[]=
 {
 	{0,0,0,0,"browse_mode.bmp"},
 	{0,0,0,0,"continue_mod.bmp"},
@@ -33,13 +33,10 @@ static T_Layout g_MainPageLayout[]=
 
 
 //主页面输入事件
-static int MainPageGetInputEvent (void)
+static int MainPageGetInputEvent (PT_Layout ptLayout,PT_InputEvent ptInputEvent )
 {
    //获得触摸屏原始数据
-
-
-
-   return 0;
+   return GenericGetInputEvent(ptLayout,ptInputEvent);
 }
 
 //主页面图片数据准备线程
@@ -95,14 +92,14 @@ static int showMainPage ( PT_Layout atLayout )
 
 		while(atLayout->IconName)
 		{
-              //得到当前图标的起始结束地址
+              //设置当前图标的起始结束x y 坐标
               atLayout->iTopLeftX    = IconX;
 			  atLayout->iTopLeftY    = IconY;
 			  atLayout->iLowerRightX = IconX + iIconWidth - 1; //右下角X坐标
 			  atLayout->iLowerRightY = IconY + iIconHight - 1; //右下角Y坐标
 			  
 			  //获取图标的图片数据
-			  GetPixelDatasForIcon(atLayout->IconName ,&tPhotoOriData);
+			  GetPixelDatasFormIcon(atLayout->IconName ,&tPhotoOriData);
 
               //将原始图片数据缩放到指定大小
               PicZoom(&tPhotoOriData, &tPhotoNew);
@@ -133,39 +130,68 @@ static int showMainPage ( PT_Layout atLayout )
 
 static int MainPageRun ( void )
 {
+    T_InputEvent tInputEvent;
+    int iPage,bPressure = 0;
 
 	/* 1. 显示页面 */
-	showMainPage (g_MainPageLayout);
+	showMainPage (g_atMainPageIconsLayout);
 	/* 2. 创建Prepare线程 */
 
-	/* 3. 调用GetInputEvent获得输入事件，进而处理 */
+	/* 3. 获得输入事件得到按下的icon，进而处理 */
 	while ( 1 )
 	{
-		//获取输入事件
-		switch ( MainPageGetInputEvent () )
+		//获得在哪个图标中按下
+        iPage = MainPageGetInputEvent (g_atMainPageIconsLayout,&tInputEvent);
+		if (iPage >= 0)
+			DBG_PRINTF("put\release status:%d , icon num:%d\r\n",tInputEvent.iPressure,iPage);
+
+		if(tInputEvent.iPressure == 0)//如果是松开状态
 		{
-			case "浏览模式":
 
-				break;
 
-			case "联播模式":
 
-				break;
 
-			case "设置":
 
-				break;
+		}
+		else //如果是按下状态
+		{
+          if(!bPressure)// 未曾按下按钮 
+          {
+			  bPressure = 1;
+			  
+
+
+		  }
+
 		}
 
+
+
+		
+
+		switch ( iPage )
+		{
+			case 0://
+
+				break;
+
+			case 1://
+
+				break;
+
+			case 2://
+
+				break;
+
+			default:
+                break;
+		}
 
 	}
 
 	return 0;
 
 }
-
-
-
 
 
 int MainPageInit ( void )
