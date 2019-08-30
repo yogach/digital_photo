@@ -131,7 +131,7 @@ static int showMainPage ( PT_Layout atLayout )
 static int MainPageRun ( void )
 {
     T_InputEvent tInputEvent;
-    int iPage,bPressure = 0;
+    int iIndex,iIndexPressured=-1,bPressure = 0;
 
 	/* 1. 显示页面 */
 	showMainPage (g_atMainPageIconsLayout);
@@ -141,50 +141,52 @@ static int MainPageRun ( void )
 	while ( 1 )
 	{
 		//获得在哪个图标中按下
-        iPage = MainPageGetInputEvent (g_atMainPageIconsLayout,&tInputEvent);
-		if (iPage >= 0)
-			DBG_PRINTF("put\release status:%d , icon num:%d\r\n",tInputEvent.iPressure,iPage);
+        iIndex = MainPageGetInputEvent (g_atMainPageIconsLayout,&tInputEvent);
+		if (iIndex >= 0)
+			DBG_PRINTF("put\release status:%d , icon num:%d\r\n",tInputEvent.iPressure,iIndex);
 
 		if(tInputEvent.iPressure == 0)//如果是松开状态
 		{
+           if(bPressure)//如果曾经按下 
+           {
+            //改变按键区域的颜色
+
+			bPressure = 0;
+             if(iIndexPressured == iIndex)//如果按键和松开的是同一个按键
+             {
+
+                switch ( iIndexPressured )
+				{
+					case 0://
+
+						break;
+
+					case 1://
+
+						break;
+
+					case 2://
+
+						break;
+
+					default:
+		                break;
+				}
 
 
-
-
-
+			 }
+		   }
 		}
 		else //如果是按下状态
 		{
           if(!bPressure)// 未曾按下按钮 
           {
 			  bPressure = 1;
+              iIndexPressured = iIndex;
+			  //改变按键区域的颜色
 			  
-
-
 		  }
 
-		}
-
-
-
-		
-
-		switch ( iPage )
-		{
-			case 0://
-
-				break;
-
-			case 1://
-
-				break;
-
-			case 2://
-
-				break;
-
-			default:
-                break;
 		}
 
 	}
