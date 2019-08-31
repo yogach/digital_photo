@@ -273,7 +273,72 @@ void FlushVideoMemToDev ( PT_VideoMem ptVideoMem )
 
 }
 
+/**********************************************************************
+ * 函数名称： ClearVideoMem
+ * 功能描述： 把VideoMem中内存全部清为某种颜色
+ * 输入参数： ptVideoMem   - VideoMem结构体指针, 内含要操作的内存
+ *            dwBackColor  - 背景色
+ * 输出参数： 无
+ * 返 回 值： 无
+ ***********************************************************************/
+int ClearVideoMem(PT_VideoMem ptVideoMem,unsigned int dwBackColor)
+{
+	unsigned char *pucFB;
+	unsigned short *pwFB16bpp;
+	unsigned int *pdwFB32bpp;
+	unsigned short wColor16bpp; /* 565 */
+	int iRed;
+	int iGreen;
+	int iBlue;
+	int i = 0;
+    int iScreenSize;
 
+	pucFB      = ptVideoMem->tVideoMemDesc.aucPhotoData;
+	pwFB16bpp  = (unsigned short *)pucFB;
+	pdwFB32bpp = (unsigned int *)pucFB;
+    iScreenSize = ptVideoMem->tVideoMemDesc.iTotalBytes;
+
+    //根据不同的像素进行处理
+	switch (ptVideoMem->tVideoMemDesc.iBpp)
+	{
+		case 8:
+		{
+			memset(pucFB, dwBackColor, iScreenSize);
+			break;
+		}
+		case 16:
+		{
+			iRed   = (dwBackColor >> (16+3)) & 0x1f;
+			iGreen = (dwBackColor >> (8+2)) & 0x3f;
+			iBlue  = (dwBackColor >> 3) & 0x1f;
+			wColor16bpp = (iRed << 11) | (iGreen << 5) | iBlue;
+			while (i < iScreenSize)
+			{
+				*pwFB16bpp	= wColor16bpp;
+				pwFB16bpp++;
+				i += 2;
+			}
+			break;
+		}
+		case 32:
+		{
+			while (i < iScreenSize)
+			{
+				*pdwFB32bpp	= dwBackColor;
+				pdwFB32bpp++;
+				i += 4;
+			}
+			break;
+		}
+		default :
+		{
+			DBG_PRINTF("can't support %d bpp\n", ptVideoMem->tVideoMemDesc.iBpp);
+			return -1;
+		}
+	}
+
+	return 0;
+}
 
 
 

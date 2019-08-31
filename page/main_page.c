@@ -7,7 +7,7 @@
 #include <stddef.h>
 #include <input_manager.h>
 
-static int MainPageGetInputEvent (PT_Layout atLayout,PT_InputEvent ptInputEvent );
+static int MainPageGetInputEvent ( PT_Layout atLayout,PT_InputEvent ptInputEvent );
 static int MainPageRun ( void );
 //static PT_DispOpr g_tDispOpr;
 
@@ -31,29 +31,67 @@ static T_Layout g_atMainPageIconsLayout[]=
 
 
 //主页面输入事件
-static int MainPageGetInputEvent (PT_Layout atLayout,PT_InputEvent ptInputEvent )
+static int MainPageGetInputEvent ( PT_Layout atLayout,PT_InputEvent ptInputEvent )
 {
-   //获得触摸屏原始数据
-   return GenericGetInputEvent(atLayout,ptInputEvent);
+	//获得触摸屏原始数据
+	return GenericGetInputEvent ( atLayout,ptInputEvent );
 }
 
-//主页面图片数据准备线程
-/*static int MainPagePrepare ()
-{
+/**********************************************************************
+ * 函数名称： CalcMainPageLayout
+ * 功能描述： 计算页面中各图标座标值
+ * 输入参数： 无
+ * 输出参数： atLayout - 内含各图标的左上角/右下角座标值
+ * 返 回 值： 无
 
- return 0;
-}*/
+ ***********************************************************************/
+static int CalcMainPageLayout ( PT_Layout atLayout )
+{
+	int iXres,iYres,iBpp;
+	int iIconWidth,iIconHight,IconX,IconY;
+	GetDispResolution ( &iXres,&iYres,&iBpp ); //获取分辨率
+
+	/*   每个图标高度为2/10 Y分辨率
+	 *   宽度为高度的两倍
+	 *    ----------------------
+	 *                           1/10 * iYres
+	 *         browse_mode.bmp   2/10 * iYres
+	 *                           1/10 * iYres
+	 *         continue_mod.bmp  2/10 * iYres
+	 *                           1/10 * iYres
+	 *         setting.bmp       2/10 * iYres
+	 *                           1/10 * iYres
+	 *    ----------------------
+	 *
+	 */
+
+	iIconHight =  iYres*2/10 ;   //图标高度
+	iIconWidth =  iIconHight*2;  //图标宽度
+
+	IconX =  ( iXres-iIconWidth ) /2; //图标居中 
+	IconY =  iYres /10 ;
+
+	while ( atLayout->IconName )
+	{
+		//设置本页所有图标的起始结束x y 坐标
+		atLayout->iTopLeftX    = IconX;                  //左上角X坐标     
+		atLayout->iTopLeftY    = IconY;                  //左上角X坐标
+		atLayout->iLowerRightX = IconX + iIconWidth - 1; //右下角X坐标
+		atLayout->iLowerRightY = IconY + iIconHight - 1; //右下角Y坐标
+		
+		//Y坐标往下递增
+		IconY +=   iYres*3/10 ;
+		atLayout++; //指针+1 指向数组下一项
+	}
+
+}
+
 
 //主页面显示
 static int showMainPage ( PT_Layout atLayout )
 {
 	PT_VideoMem pt_VideoTmp;
-	int iXres,iYres,iBpp;
-	int iIconWidth,iIconHight,IconX,IconY;
-    //int iError;
-
-	T_PhotoDesc tPhotoOriData;
-	T_PhotoDesc tPhotoNew;
+	int iError;
 
 	/* 1. 获得显存 */
 	pt_VideoTmp = GetVideoMem ( ID ( g_tMainPageAction.name ),VMS_FOR_CUR ); //获取显存用于当前页面显示
@@ -63,63 +101,20 @@ static int showMainPage ( PT_Layout atLayout )
 		return -1 ;
 	}
 
-	/* 2. 描画数据 */
-	if ( pt_VideoTmp->ePicState != PIC_GENERATED )//如果图片未准备好
-	{
-
-		GetDispResolution ( &iXres,&iYres,&iBpp ); //获取分辨率
-		//首先确定首个图标的坐标
-		iIconHight =  iYres*2/10 ;   //图标高度
-		iIconWidth =  iIconHight*2;  //图标宽度
-
-		IconX =  ( iXres-iIconWidth ) /2; //图标居中
-		IconY =  iYres /10 ;
-
-		//根据以上信息设置
-		tPhotoNew.iBpp = iBpp;
-		tPhotoNew.iHigh = iIconHight;
-		tPhotoNew.iWidth = iIconWidth;
-		tPhotoNew.iLineBytes = tPhotoNew.iWidth * tPhotoNew.iBpp / 8;
-		tPhotoNew.iTotalBytes = tPhotoNew.iHigh * tPhotoNew.iLineBytes;
-		tPhotoNew.aucPhotoData = malloc ( tPhotoNew.iTotalBytes );
-		if ( tPhotoNew.aucPhotoData == NULL )
-		{
-			DBG_PRINTF ( "malloc tPhotoNew error\r\n" );
-			return -1;
-		}
-
-		while(atLayout->IconName)
-		{
-              //设置当前图标的起始结束x y 坐标
-              atLayout->iTopLeftX    = IconX;
-			  atLayout->iTopLeftY    = IconY;
-			  atLayout->iLowerRightX = IconX + iIconWidth - 1; //右下角X坐标
-			  atLayout->iLowerRightY = IconY + iIconHight - 1; //右下角Y坐标
-			  
-			  //获取图标的图片数据
-			  GetPixelDatasFormIcon(atLayout->IconName ,&tPhotoOriData);
-
-              //将原始图片数据缩放到指定大小
-              PicZoom(&tPhotoOriData, &tPhotoNew);
-			  //将图片合并到显存中
-			  PicMerge(atLayout->iTopLeftX, atLayout->iTopLeftY, &tPhotoNew, &pt_VideoTmp->tVideoMemDesc);
-
-              //释放图片分配的内存 防止内存泄露 
-              FreePixelDatasForIcon(&tPhotoOriData);
-
-			  //Y坐标往下递增
-              IconY +=   iYres*3/10 ;
-   
-		      atLayout++; //指针+1 增加的长度与指针的数据类型有关
-		}
-		free(tPhotoNew.aucPhotoData); 
+    /* 2. 生成图标坐标 */
+    if(atLayout->iTopLeftX == 0)
+    {
+       CalcMainPageLayout(atLayout);
 	}
 
+	/* 3. 描画数据 */
+	iError = GeneratePage(atLayout,pt_VideoTmp);
+
 	/* 3. 刷到设备上去       */
-	FlushVideoMemToDev(pt_VideoTmp);
-    
+	FlushVideoMemToDev ( pt_VideoTmp );
+
 	/* 4. 将显存的状态设置为free */
-	PutVideoMem(pt_VideoTmp);
+	PutVideoMem ( pt_VideoTmp );
 
 	return 0;
 
@@ -128,64 +123,67 @@ static int showMainPage ( PT_Layout atLayout )
 
 static int MainPageRun ( void )
 {
-    T_InputEvent tInputEvent;
-    int iIndex,iIndexPressured=-1,bPressure = 0;
+	T_InputEvent tInputEvent;
+	int iIndex,iIndexPressured=-1,bPressure = 0;
 
 	/* 1. 显示页面 */
-	showMainPage (g_atMainPageIconsLayout);
+	showMainPage ( g_atMainPageIconsLayout );
 	/* 2. 创建Prepare线程 */
 
-	/* 3. 获得输入事件得到按下的icon，进而处理 */
+	/* 3. 通过输入事件获得按下的icon 进而处理 */
 	while ( 1 )
 	{
 		//获得在哪个图标中按下
-        iIndex = MainPageGetInputEvent (g_atMainPageIconsLayout,&tInputEvent);
-		if (iIndex >= 0)
+		iIndex = MainPageGetInputEvent ( g_atMainPageIconsLayout,&tInputEvent );
+		/*if (iIndex >= 0)
 			DBG_PRINTF("put\release status:%d , icon num:%d\r\n",tInputEvent.iPressure,iIndex);
-        else
-			DBG_PRINTF("don't touch icon\r\n");
+		else
+			DBG_PRINTF("don't touch icon\r\n");*/
 
-		if(tInputEvent.iPressure == 0)//如果是松开状态
+		if ( tInputEvent.iPressure == 0 ) //如果是松开状态
 		{
-           if(bPressure)//如果曾经按下 
-           {
-            //改变按键区域的颜色
+			if ( bPressure ) //如果曾经按下
+			{
+				//改变按键区域的颜色
+				ReleaseButton ( &g_atMainPageIconsLayout[iIndex] );
+				bPressure = 0;
 
-			bPressure = 0;
-             if(iIndexPressured == iIndex)//如果按键和松开的是同一个按键
-             {
 
-                switch ( iIndexPressured )
+				if ( iIndexPressured == iIndex ) //如果按键和松开的是同一个按键
 				{
-					case 0://
 
-						break;
+					switch ( iIndexPressured )
+					{
+						case 0://浏览模式
 
-					case 1://
+							break;
 
-						break;
+						case 1://连播页面
 
-					case 2://
+							break;
 
-						break;
+						case 2://设置页面
 
-					default:
-		                break;
+							break;
+
+						default:
+							break;
+					}
+
 				}
 
-
-			 }
-		   }
+				iIndexPressured = -1;
+			}
 		}
 		else //如果是按下状态
 		{
-          if(!bPressure)// 未曾按下按钮 
-          {
-			  bPressure = 1;
-              iIndexPressured = iIndex;
-			  //改变按键区域的颜色
-			  
-		  }
+			if ( !bPressure ) // 未曾按下按钮
+			{
+				bPressure = 1;
+				iIndexPressured = iIndex;
+				//改变按键区域的颜色
+				PressButton ( &g_atMainPageIconsLayout[iIndex] );
+			}
 
 		}
 
@@ -194,9 +192,6 @@ static int MainPageRun ( void )
 	return 0;
 
 }
-
-
-
 
 
 int MainPageInit ( void )

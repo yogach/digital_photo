@@ -29,7 +29,7 @@ typedef struct VideoMem
 	int bDevFrameBuffer;             //用于标识是否是设备的空间
  	E_VideoMemState eVideoMemState;  //用于标识是否被使用
  	E_PicState  ePicState;           //用于标识图片数据是否已准备好
-	T_PhotoDesc tVideoMemDesc;       //用于标识图片数据
+	T_PhotoDesc tVideoMemDesc;       //显存数据
 	struct VideoMem* ptNext;
 } T_VideoMem,*PT_VideoMem;
 
@@ -40,6 +40,7 @@ typedef struct DispOpr
 	int iXres;
 	int iYres;
 	int iBpp;
+	int iLineWidth;
 	unsigned char* pucDispMem;
 	int ( *DeviceInit ) ( void );
 	int ( *ShowPixel ) ( int iPenX, int iPenY, unsigned int dwColor );
@@ -62,6 +63,7 @@ PT_VideoMem GetVideoMem ( int iID, int bUseForCur );
 int PutVideoMem(PT_VideoMem ptVideoMem);
 void FlushVideoMemToDev(PT_VideoMem pt_VideoTmp);
 int SetVideoMemColor(PT_VideoMem ptVideoMem ,unsigned int dwColor);
+int ClearVideoMem(PT_VideoMem ptVideoMem,unsigned int dwBackColor);
 
 
 #endif /* _DISP_MANAGER_H */
