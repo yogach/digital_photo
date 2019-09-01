@@ -7,17 +7,8 @@
 #include <stddef.h>
 #include <input_manager.h>
 
-static int MainPageGetInputEvent ( PT_Layout atLayout,PT_InputEvent ptInputEvent );
 static int MainPageRun ( void );
-//static PT_DispOpr g_tDispOpr;
-
-static T_PageAction g_tMainPageAction =
-{
-	.name = "main",
-	.Run = MainPageRun,
-	.GetInputEvent = MainPageGetInputEvent,
-	//.Prepare = MainPagePrepare,
-};
+static int CalcMainPageLayout ( PT_Layout atLayout );
 
 
 //本页需要显示的图标
@@ -30,12 +21,14 @@ static T_Layout g_atMainPageIconsLayout[]=
 };
 
 
-//主页面输入事件
-static int MainPageGetInputEvent ( PT_Layout atLayout,PT_InputEvent ptInputEvent )
+static T_PageDesc g_tMainPageDesc = 
 {
-	//获得触摸屏原始数据
-	return GenericGetInputEvent ( atLayout,ptInputEvent );
-}
+	.name = "main",
+	.Run = MainPageRun,
+    .atPageLayout = g_atMainPageIconsLayout,
+    .CalcPageLayout = CalcMainPageLayout,
+};
+
 
 /**********************************************************************
  * 函数名称： CalcMainPageLayout
@@ -83,42 +76,45 @@ static int CalcMainPageLayout ( PT_Layout atLayout )
 		IconY +=   iYres*3/10 ;
 		atLayout++; //指针+1 指向数组下一项
 	}
-
+	
+   return 0;
 }
 
 
 //主页面显示
+/*
 static int showMainPage ( PT_Layout atLayout )
 {
 	PT_VideoMem pt_VideoTmp;
 	int iError;
 
-	/* 1. 获得显存 */
-	pt_VideoTmp = GetVideoMem ( ID ( g_tMainPageAction.name ),VMS_FOR_CUR ); //获取显存用于当前页面显示
+	// 1. 获得显存 
+	pt_VideoTmp = GetVideoMem ( ID ( g_tMainPageDesc.name ),VMS_FOR_CUR ); //获取显存用于当前页面显示
 	if ( pt_VideoTmp == NULL )
 	{
 		DBG_PRINTF ( "GetVideoMem error!\r\n" );
 		return -1 ;
 	}
 
-    /* 2. 生成图标坐标 */
+    // 2. 生成图标坐标 
     if(atLayout->iTopLeftX == 0)
     {
        CalcMainPageLayout(atLayout);
 	}
 
-	/* 3. 描画数据 */
+	// 3. 描画数据 
 	iError = GeneratePage(atLayout,pt_VideoTmp);
 
-	/* 3. 刷到设备上去       */
+	// 3. 刷到设备上去 
 	FlushVideoMemToDev ( pt_VideoTmp );
 
-	/* 4. 将显存的状态设置为free */
+	// 4. 将显存的状态设置为free 
 	PutVideoMem ( pt_VideoTmp );
 
 	return 0;
 
 }
+*/
 
 
 static int MainPageRun ( void )
@@ -127,18 +123,14 @@ static int MainPageRun ( void )
 	int iIndex,iIndexPressured=-1,bPressure = 0;
 
 	/* 1. 显示页面 */
-	showMainPage ( g_atMainPageIconsLayout );
-	/* 2. 创建Prepare线程 */
+	//showMainPage ( g_atMainPageIconsLayout );
+	ShowPage ( &g_tMainPageDesc);
 
-	/* 3. 通过输入事件获得按下的icon 进而处理 */
+	/* 2. 通过输入事件获得按下的icon 进而处理 */
 	while ( 1 )
 	{
 		//获得在哪个图标中按下
-		iIndex = MainPageGetInputEvent ( g_atMainPageIconsLayout,&tInputEvent );
-		/*if (iIndex >= 0)
-			DBG_PRINTF("put\release status:%d , icon num:%d\r\n",tInputEvent.iPressure,iIndex);
-		else
-			DBG_PRINTF("don't touch icon\r\n");*/
+		iIndex = GenericGetInputEvent ( g_atMainPageIconsLayout,&tInputEvent );
 
 		if ( tInputEvent.iPressure == 0 ) //如果是松开状态
 		{
@@ -196,7 +188,7 @@ static int MainPageRun ( void )
 
 int MainPageInit ( void )
 {
-	return RegisterPageAction ( &g_tMainPageAction );
+	return RegisterPageAction ( &g_tMainPageDesc );
 }
 
 

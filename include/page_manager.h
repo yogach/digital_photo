@@ -16,26 +16,26 @@ typedef struct Layout
 }T_Layout ,*PT_Layout;
 
 
-typedef struct PageAction
+typedef struct PageDesc
 {
   char * name;
+  PT_Layout atPageLayout;
   int (*Run)(void);
-  int (*GetInputEvent)(PT_Layout atLayout,PT_InputEvent ptInputEvent);
-  //int (*Prepare)();
-  struct PageAction *ptNext;
-}T_PageAction , *PT_PageAction;
-
+  int (*CalcPageLayout)(PT_Layout atLayout);  
+  struct PageDesc *ptNext;
+}T_PageDesc , *PT_PageDesc;
 
 
 
 int ID(char * str);
-int RegisterPageAction ( PT_PageAction ptPageAction );
+int RegisterPageAction ( PT_PageDesc ptPageAction );
 void ShowPages ( void );
-PT_PageAction Page ( char* pcName );
+PT_PageDesc Page ( char* pcName );
 int GenericGetInputEvent(PT_Layout ptLayout,PT_InputEvent ptInputEvent);
 void ReleaseButton(PT_Layout ptLayout);
 void PressButton(PT_Layout ptLayout);
 int GeneratePage(PT_Layout atLayout , PT_VideoMem pt_VideoMem);
+int ShowPage ( PT_PageDesc ptPageDesc);
 
 
 int PagesInit(void);

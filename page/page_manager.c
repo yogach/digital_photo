@@ -6,19 +6,19 @@
 #include <disp_manager.h>
 #include <stdlib.h>
 
-static PT_PageAction g_tPageActionHead;
+static PT_PageDesc g_tPageActionHead;
 
 
 
 //向DispOpr新增节点
-int RegisterPageAction ( PT_PageAction ptPageAction )
+int RegisterPageAction ( PT_PageDesc ptPageDesc)
 {
-	PT_PageAction ptTmp;
+	PT_PageDesc ptTmp;
 
 	if ( !g_tPageActionHead ) //如果是头节点
 	{
-		g_tPageActionHead = ptPageAction;
-		ptPageAction->ptNext = NULL;
+		g_tPageActionHead = ptPageDesc;
+		ptPageDesc->ptNext = NULL;
 	}
 	else
 	{
@@ -29,8 +29,8 @@ int RegisterPageAction ( PT_PageAction ptPageAction )
 			ptTmp = ptTmp->ptNext;
 		}
 
-		ptTmp->ptNext = ptPageAction;
-		ptPageAction->ptNext = NULL;
+		ptTmp->ptNext = ptPageDesc;
+		ptPageDesc->ptNext = NULL;
 	}
 
 	return 0;
@@ -41,7 +41,7 @@ int RegisterPageAction ( PT_PageAction ptPageAction )
 void ShowPages ( void )
 {
 	int i = 0;
-	PT_PageAction ptTmp = g_tPageActionHead;
+	PT_PageDesc ptTmp = g_tPageActionHead;
 
 	while ( ptTmp )
 	{
@@ -51,10 +51,18 @@ void ShowPages ( void )
 }
 
 
-//根据名字得到对应的节点
-PT_PageAction Page ( char* pcName )
+/**********************************************************************
+ * 函数名称： Page
+ * 功能描述： 根据名字取出指定的"页面模块"
+ * 输入参数： pcName - 名字
+ * 输出参数： 无
+ * 返 回 值： NULL   - 失败,没有指定的模块, 
+ *            非NULL - "页面模块"的PT_PageAction结构体指针
+ ***********************************************************************/
+
+PT_PageDesc Page ( char* pcName )
 {
-	PT_PageAction ptTmp = g_tPageActionHead;
+	PT_PageDesc ptTmp = g_tPageActionHead;
 
 	while ( ptTmp )
 	{
@@ -83,12 +91,10 @@ int ID ( char* str )
  * 返 回 值： -1     - 输入数据不位于任何一个图标之上
  *            其他值 - 输入数据所落在的图标(ptLayout数组的哪一项)
 **********************************************************************/
-int GenericGetInputEvent ( PT_Layout ptLayout,PT_InputEvent ptInputEvent )
+int GenericGetInputEvent ( PT_Layout atLayout,PT_InputEvent ptInputEvent )
 {
 	T_InputEvent tInputEvent;
 	int iRet, i = 0;
-
-
 
 	/*获取触摸屏原始数据*/
 	iRet = GetDeviceInput ( &tInputEvent );
@@ -106,13 +112,13 @@ int GenericGetInputEvent ( PT_Layout ptLayout,PT_InputEvent ptInputEvent )
 		return -1;
 	}
 
-	while ( ptLayout[i].IconName )
+	while ( atLayout[i].IconName )
 	{
 		//如果按下的触点在某个图标内 返回图标在数组内的位置
-		if ( ( tInputEvent.iX >= ptLayout[i].iTopLeftX ) && ( tInputEvent.iX <= ptLayout[i].iLowerRightX ) &&\
-		        ( tInputEvent.iY >= ptLayout[i].iTopLeftY ) && ( tInputEvent.iY <= ptLayout[i].iLowerRightY ) )
+		if ( ( tInputEvent.iX >= atLayout[i].iTopLeftX ) && ( tInputEvent.iX <= atLayout[i].iLowerRightX ) &&\
+		        ( tInputEvent.iY >= atLayout[i].iTopLeftY ) && ( tInputEvent.iY <= atLayout[i].iLowerRightY ) )
 		{
-			DBG_PRINTF ( "put\release status:%d , icon name:%s\r\n",tInputEvent.iPressure,ptLayout[i].IconName );
+			DBG_PRINTF ( "put\release status:%d , icon name:%s\r\n",tInputEvent.iPressure,atLayout[i].IconName );
 			return i;
 		}
 		else
@@ -247,7 +253,7 @@ int GeneratePage ( PT_Layout atLayout, PT_VideoMem pt_VideoMem )
 			//释放图片分配的内存 防止内存泄露
 			FreePixelDatasForIcon ( &tPhotoIconOriData );
 			free ( tPhotoIconData.aucPhotoData );
-			atLayout++; //指针+1 增加的长度与指针的数据类型有关
+			atLayout++; //指针+1 指向数组下一项
 		}
 
 		pt_VideoMem->ePicState = PIC_GENERATED;
@@ -255,6 +261,42 @@ int GeneratePage ( PT_Layout atLayout, PT_VideoMem pt_VideoMem )
 
 	return 0;
 }
+
+
+//主页面显示
+int ShowPage ( PT_PageDesc ptPageDesc)
+{
+	PT_VideoMem pt_VideoTmp;
+	int iError;
+
+	/* 1. 获得显存 */
+	pt_VideoTmp = GetVideoMem ( ID ( ptPageDesc->name ),VMS_FOR_CUR ); //获取显存用于当前页面显示
+	if ( pt_VideoTmp == NULL )
+	{
+		DBG_PRINTF ( "GetVideoMem error!\r\n" );
+		return -1 ;
+	}
+
+    /* 2. 生成图标坐标 */
+    if(ptPageDesc->atPageLayout->iTopLeftX == 0)
+    {
+      // CalcMainPageLayout(atLayout);
+      ptPageDesc->CalcPageLayout(ptPageDesc->atPageLayout);//调用各模块的计算图标坐标函数
+	}
+
+	/* 3. 描画数据 */
+	iError = GeneratePage(ptPageDesc->atPageLayout,pt_VideoTmp);
+
+	/* 3. 刷到设备上去       */
+	FlushVideoMemToDev ( pt_VideoTmp );
+
+	/* 4. 将显存的状态设置为free */
+	PutVideoMem ( pt_VideoTmp );
+
+	return 0;
+
+}
+
 
 
 int PagesInit ( void )
