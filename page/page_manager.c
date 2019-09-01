@@ -100,7 +100,6 @@ int GenericGetInputEvent ( PT_Layout atLayout,PT_InputEvent ptInputEvent )
 	iRet = GetDeviceInput ( &tInputEvent );
 	if ( iRet )
 	{
-
 		return -1;
 	}
 
@@ -118,7 +117,7 @@ int GenericGetInputEvent ( PT_Layout atLayout,PT_InputEvent ptInputEvent )
 		if ( ( tInputEvent.iX >= atLayout[i].iTopLeftX ) && ( tInputEvent.iX <= atLayout[i].iLowerRightX ) &&\
 		        ( tInputEvent.iY >= atLayout[i].iTopLeftY ) && ( tInputEvent.iY <= atLayout[i].iLowerRightY ) )
 		{
-			DBG_PRINTF ( "put\release status:%d , icon name:%s\r\n",tInputEvent.iPressure,atLayout[i].IconName );
+			//DBG_PRINTF ( "put\release status:%d , icon name:%s\r\n",tInputEvent.iPressure,atLayout[i].IconName );
 			return i;
 		}
 		else
@@ -127,7 +126,7 @@ int GenericGetInputEvent ( PT_Layout atLayout,PT_InputEvent ptInputEvent )
 		}
 	}
 
-	DBG_PRINTF ( "don't touch icon\r\n" );
+	//DBG_PRINTF ( "don't touch icon\r\n" );
 	return -1;
 
 }
@@ -217,6 +216,7 @@ int GeneratePage ( PT_Layout atLayout, PT_VideoMem pt_VideoMem )
 	int iError , iBpp;
     iBpp = pt_VideoMem->tVideoMemDesc.iBpp;
 
+    DBG_PRINTF("PicState :%d,VideoMem id:%d\r\n",pt_VideoMem->ePicState , pt_VideoMem->iID);
 	if ( pt_VideoMem->ePicState != PIC_GENERATED ) //如果图片未准备好
 	{
 
@@ -269,8 +269,10 @@ int ShowPage ( PT_PageDesc ptPageDesc)
 	PT_VideoMem pt_VideoTmp;
 	int iError;
 
+    DBG_PRINTF("show page name :%s\r\n",ptPageDesc->name);
 	/* 1. 获得显存 */
 	pt_VideoTmp = GetVideoMem ( ID ( ptPageDesc->name ),VMS_FOR_CUR ); //获取显存用于当前页面显示
+	DBG_PRINTF("get videomen ID is %d\r\n",pt_VideoTmp->iID);
 	if ( pt_VideoTmp == NULL )
 	{
 		DBG_PRINTF ( "GetVideoMem error!\r\n" );
@@ -303,8 +305,10 @@ int PagesInit ( void )
 {
 	int iError = 0;
 
-	iError |= MainPageInit();
-
+  	iError |= MainPageInit();
+    iError |= SettingPageInit();
+     
+ 
 	return iError;
 
 }

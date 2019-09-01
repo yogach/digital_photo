@@ -85,7 +85,7 @@ int SelectAndInitDefaultDispDev ( char* name )
 	g_ptDefaultDisp->DeviceInit();
 	g_ptDefaultDisp->CleanScreen ( 0 ); //使用黑色填充lcd
 
-    return 0;
+	return 0;
 
 }
 
@@ -97,7 +97,7 @@ PT_DispOpr GetDefaultDispDev ( void )
 		return g_ptDefaultDisp;
 	}
 
-   return NULL;
+	return NULL;
 
 }
 
@@ -208,7 +208,7 @@ int AllocVideoMem ( int iNum )
 
 	}
 
-   return 0;
+	return 0;
 }
 
 //获取指定的显存：如果指定id在使用中则挑选一个空闲的内存块
@@ -221,26 +221,51 @@ PT_VideoMem GetVideoMem ( int iID, int bUseForCur )
 
 	while ( ptTmp )
 	{
-		if ( ( ptTmp->iID == iID ) && ( ptTmp->eVideoMemState ==VMS_FREE ))
-	    {
-		    ptTmp->eVideoMemState = ( bUseForCur )? VMS_FOR_CUR : VMS_FOR_PREPARE;
+		if ( ( ptTmp->iID == iID ) && ( ptTmp->eVideoMemState ==VMS_FREE ) )
+		{
+			ptTmp->eVideoMemState = ( bUseForCur ) ? VMS_FOR_CUR : VMS_FOR_PREPARE;
 			return ptTmp;
 		}
 		ptTmp=ptTmp->ptNext;
-
 	}
 
-	/* 2. 如果没有ID相同的显存 则取出任意一个空闲videomem */
+	/* 2. 如果没有ID相同的显存 则取出一个没有图片数据的videomem */
 	ptTmp = g_ptVideoMenListHead;
 	while ( ptTmp )
 	{
-		if ( ptTmp->eVideoMemState ==VMS_FREE )
+		if ( ( ptTmp->eVideoMemState ==VMS_FREE ) && ( ptTmp->ePicState == PIC_BLANK ) )
 		{
+			ptTmp->iID = iID;
 			ptTmp->eVideoMemState = ( bUseForCur ) ? VMS_FOR_CUR : VMS_FOR_PREPARE;
 			return ptTmp;
 		}
 
 		ptTmp=ptTmp->ptNext;
+	}
+
+	/* 3. 如果没有ID相同的显存 也没有图片数据为空的videomem 则取出任意一个空闲videomem */
+	ptTmp = g_ptVideoMenListHead;
+	while ( ptTmp )
+	{
+		if ( ptTmp->eVideoMemState ==VMS_FREE )
+		{
+			ptTmp->iID = iID;
+			ptTmp->ePicState = PIC_BLANK;
+			ptTmp->eVideoMemState = ( bUseForCur ) ? VMS_FOR_CUR : VMS_FOR_PREPARE;
+			return ptTmp;
+		}
+
+		ptTmp=ptTmp->ptNext;
+	}
+
+	/* 4. 如果什么都没有        则随意取出一个 */
+	if ( bUseForCur )
+	{
+		ptTmp = g_ptVideoMenListHead;
+		ptTmp->iID = iID;
+		ptTmp->ePicState = PIC_BLANK;
+		ptTmp->eVideoMemState = ( bUseForCur ) ? VMS_FOR_CUR : VMS_FOR_PREPARE;
+		return ptTmp;
 	}
 
 	return NULL;
@@ -281,38 +306,38 @@ void FlushVideoMemToDev ( PT_VideoMem ptVideoMem )
  * 输出参数： 无
  * 返 回 值： 无
  ***********************************************************************/
-int ClearVideoMem(PT_VideoMem ptVideoMem,unsigned int dwBackColor)
+int ClearVideoMem ( PT_VideoMem ptVideoMem,unsigned int dwBackColor )
 {
-	unsigned char *pucFB;
-	unsigned short *pwFB16bpp;
-	unsigned int *pdwFB32bpp;
+	unsigned char* pucFB;
+	unsigned short* pwFB16bpp;
+	unsigned int* pdwFB32bpp;
 	unsigned short wColor16bpp; /* 565 */
 	int iRed;
 	int iGreen;
 	int iBlue;
 	int i = 0;
-    int iScreenSize;
+	int iScreenSize;
 
 	pucFB      = ptVideoMem->tVideoMemDesc.aucPhotoData;
-	pwFB16bpp  = (unsigned short *)pucFB;
-	pdwFB32bpp = (unsigned int *)pucFB;
-    iScreenSize = ptVideoMem->tVideoMemDesc.iTotalBytes;
+	pwFB16bpp  = ( unsigned short* ) pucFB;
+	pdwFB32bpp = ( unsigned int* ) pucFB;
+	iScreenSize = ptVideoMem->tVideoMemDesc.iTotalBytes;
 
-    //根据不同的像素进行处理
-	switch (ptVideoMem->tVideoMemDesc.iBpp)
+	//根据不同的像素进行处理
+	switch ( ptVideoMem->tVideoMemDesc.iBpp )
 	{
 		case 8:
 		{
-			memset(pucFB, dwBackColor, iScreenSize);
+			memset ( pucFB, dwBackColor, iScreenSize );
 			break;
 		}
 		case 16:
 		{
-			iRed   = (dwBackColor >> (16+3)) & 0x1f;
-			iGreen = (dwBackColor >> (8+2)) & 0x3f;
-			iBlue  = (dwBackColor >> 3) & 0x1f;
-			wColor16bpp = (iRed << 11) | (iGreen << 5) | iBlue;
-			while (i < iScreenSize)
+			iRed   = ( dwBackColor >> ( 16+3 ) ) & 0x1f;
+			iGreen = ( dwBackColor >> ( 8+2 ) ) & 0x3f;
+			iBlue  = ( dwBackColor >> 3 ) & 0x1f;
+			wColor16bpp = ( iRed << 11 ) | ( iGreen << 5 ) | iBlue;
+			while ( i < iScreenSize )
 			{
 				*pwFB16bpp	= wColor16bpp;
 				pwFB16bpp++;
@@ -322,7 +347,7 @@ int ClearVideoMem(PT_VideoMem ptVideoMem,unsigned int dwBackColor)
 		}
 		case 32:
 		{
-			while (i < iScreenSize)
+			while ( i < iScreenSize )
 			{
 				*pdwFB32bpp	= dwBackColor;
 				pdwFB32bpp++;
@@ -332,7 +357,7 @@ int ClearVideoMem(PT_VideoMem ptVideoMem,unsigned int dwBackColor)
 		}
 		default :
 		{
-			DBG_PRINTF("can't support %d bpp\n", ptVideoMem->tVideoMemDesc.iBpp);
+			DBG_PRINTF ( "can't support %d bpp\n", ptVideoMem->tVideoMemDesc.iBpp );
 			return -1;
 		}
 	}

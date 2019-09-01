@@ -7,7 +7,7 @@
 #include <stddef.h>
 #include <input_manager.h>
 
-static int MainPageRun ( void );
+static void MainPageRun ( void );
 static int CalcMainPageLayout ( PT_Layout atLayout );
 
 
@@ -21,12 +21,12 @@ static T_Layout g_atMainPageIconsLayout[]=
 };
 
 
-static T_PageDesc g_tMainPageDesc = 
+static T_PageDesc g_tMainPageDesc =
 {
 	.name = "main",
 	.Run = MainPageRun,
-    .atPageLayout = g_atMainPageIconsLayout,
-    .CalcPageLayout = CalcMainPageLayout,
+	.atPageLayout = g_atMainPageIconsLayout,
+	.CalcPageLayout = CalcMainPageLayout,
 };
 
 
@@ -42,7 +42,7 @@ static int CalcMainPageLayout ( PT_Layout atLayout )
 {
 	int iXres,iYres,iBpp;
 	int iIconWidth,iIconHight,IconX,IconY;
-	GetDispResolution ( &iXres,&iYres,&iBpp ); //获取分辨率
+	GetDispResolution ( &iXres,&iYres,&iBpp ); //获取LCD分辨率
 
 	/*   每个图标高度为2/10 Y分辨率
 	 *   宽度为高度的两倍
@@ -61,23 +61,23 @@ static int CalcMainPageLayout ( PT_Layout atLayout )
 	iIconHight =  iYres*2/10 ;   //图标高度
 	iIconWidth =  iIconHight*2;  //图标宽度
 
-	IconX =  ( iXres-iIconWidth ) /2; //图标居中 
+	IconX =  ( iXres-iIconWidth ) /2; //图标居中
 	IconY =  iYres /10 ;
 
 	while ( atLayout->IconName )
 	{
 		//设置本页所有图标的起始结束x y 坐标
-		atLayout->iTopLeftX    = IconX;                  //左上角X坐标     
+		atLayout->iTopLeftX    = IconX;                  //左上角X坐标
 		atLayout->iTopLeftY    = IconY;                  //左上角X坐标
 		atLayout->iLowerRightX = IconX + iIconWidth - 1; //右下角X坐标
 		atLayout->iLowerRightY = IconY + iIconHight - 1; //右下角Y坐标
-		
+
 		//Y坐标往下递增
 		IconY +=   iYres*3/10 ;
 		atLayout++; //指针+1 指向数组下一项
 	}
-	
-   return 0;
+
+	return 0;
 }
 
 
@@ -88,7 +88,7 @@ static int showMainPage ( PT_Layout atLayout )
 	PT_VideoMem pt_VideoTmp;
 	int iError;
 
-	// 1. 获得显存 
+	// 1. 获得显存
 	pt_VideoTmp = GetVideoMem ( ID ( g_tMainPageDesc.name ),VMS_FOR_CUR ); //获取显存用于当前页面显示
 	if ( pt_VideoTmp == NULL )
 	{
@@ -96,19 +96,19 @@ static int showMainPage ( PT_Layout atLayout )
 		return -1 ;
 	}
 
-    // 2. 生成图标坐标 
+    // 2. 生成图标坐标
     if(atLayout->iTopLeftX == 0)
     {
        CalcMainPageLayout(atLayout);
 	}
 
-	// 3. 描画数据 
+	// 3. 描画数据
 	iError = GeneratePage(atLayout,pt_VideoTmp);
 
-	// 3. 刷到设备上去 
+	// 3. 刷到设备上去
 	FlushVideoMemToDev ( pt_VideoTmp );
 
-	// 4. 将显存的状态设置为free 
+	// 4. 将显存的状态设置为free
 	PutVideoMem ( pt_VideoTmp );
 
 	return 0;
@@ -117,14 +117,14 @@ static int showMainPage ( PT_Layout atLayout )
 */
 
 
-static int MainPageRun ( void )
+static void MainPageRun ( void )
 {
 	T_InputEvent tInputEvent;
 	int iIndex,iIndexPressured=-1,bPressure = 0;
 
 	/* 1. 显示页面 */
 	//showMainPage ( g_atMainPageIconsLayout );
-	ShowPage ( &g_tMainPageDesc);
+	ShowPage ( &g_tMainPageDesc );
 
 	/* 2. 通过输入事件获得按下的icon 进而处理 */
 	while ( 1 )
@@ -155,7 +155,10 @@ static int MainPageRun ( void )
 							break;
 
 						case 2://设置页面
-
+							//显示设置界面
+							Page ( "setting" )->Run();
+							//从设置界面返回后需重新刷新显示
+							ShowPage ( &g_tMainPageDesc );
 							break;
 
 						default:
@@ -181,7 +184,6 @@ static int MainPageRun ( void )
 
 	}
 
-	return 0;
 
 }
 
