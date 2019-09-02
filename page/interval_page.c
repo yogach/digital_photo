@@ -7,29 +7,31 @@
 #include <stddef.h>
 #include <input_manager.h>
 
-static void SettingPageRun ( void );
-static int CalcSettingPageLayout ( PT_Layout atLayout );
+static void IntervalPageRun ( void );
+static int CalcIntervalPageLayout ( PT_Layout atLayout );
 
 
-static T_Layout g_atSettingPageIconsLayout[] =
+static T_Layout g_atIntervalPageIconsLayout[] =
 {
-	{0, 0, 0, 0, "select_fold.bmp"},
-	{0, 0, 0, 0, "interval.bmp"},
-	{0, 0, 0, 0, "return.bmp"},
+	{0, 0, 0, 0, "inc.bmp"},
+	{0, 0, 0, 0, "time.bmp"},
+	{0, 0, 0, 0, "dec.bmp"},
+	{0, 0, 0, 0, "ok.bmp"},
+	{0, 0, 0, 0, "cancel.bmp"},
 	{0, 0, 0, 0, NULL},
 };
 
 
-static T_PageDesc g_tSettingPageDesc =
+static T_PageDesc g_tIntervalPageDesc =
 {
 	.name   = "setting",
-	.Run    = SettingPageRun,
-	.CalcPageLayout = CalcSettingPageLayout,
-	.atPageLayout = g_atSettingPageIconsLayout,
+	.Run    = IntervalPageRun,
+	.CalcPageLayout = CalcIntervalPageLayout,
+	.atPageLayout = g_atIntervalPageIconsLayout,
 };
 
 
-static int CalcSettingPageLayout ( PT_Layout atLayout )
+static int CalcIntervalPageLayout ( PT_Layout atLayout )
 {
 	int iXres,iYres,iBpp;
 	int iIconWidth,iIconHight,IconX,IconY;
@@ -49,50 +51,33 @@ static int CalcSettingPageLayout ( PT_Layout atLayout )
 	 *
 	 */
 
-	iIconHight =  iYres*2/10 ;	 //图标高度
-	iIconWidth =  iIconHight*2;  //图标宽度
 
-	IconX =  ( iXres-iIconWidth ) /2; //图标居中
-	IconY =  iYres /10 ;
-
-	while ( atLayout->IconName )
-	{
-		//设置本页所有图标的起始结束x y 坐标
-		atLayout->iTopLeftX    = IconX; 				 //左上角X坐标
-		atLayout->iTopLeftY    = IconY; 				 //左上角X坐标
-		atLayout->iLowerRightX = IconX + iIconWidth - 1; //右下角X坐标
-		atLayout->iLowerRightY = IconY + iIconHight - 1; //右下角Y坐标
-
-		//Y坐标往下递增
-		IconY +=   iYres*3/10 ;
-		atLayout++; //指针+1 指向数组下一项
-	}
 
 	return 0;
 
 }
 
 
-static void SettingPageRun ( void )
+static void IntervalPageRun ( void )
 {
     T_InputEvent tInputEvent;
 	int iIndex,iIndexPressured=-1,bPressure = 0;
 
 	/* 1. 显示页面 */
-	ShowPage ( &g_tSettingPageDesc );
+	ShowPage ( &g_tIntervalPageDesc );
 
 	/* 2. 通过输入事件获得按下的icon 进而处理 */
 	while ( 1 )
 	{
 		//获得在哪个图标中按下
-		iIndex = GenericGetInputEvent ( g_atSettingPageIconsLayout,&tInputEvent );
+		iIndex = GenericGetInputEvent ( g_atIntervalPageIconsLayout,&tInputEvent );
 
 		if ( tInputEvent.iPressure == 0 ) //如果是松开状态
 		{
 			if ( bPressure ) //如果曾经按下
 			{
 				//改变按键区域的颜色
-				ReleaseButton ( &g_atSettingPageIconsLayout[iIndex] );
+				ReleaseButton ( &g_atIntervalPageIconsLayout[iIndex] );
 				bPressure = 0;
 
 
@@ -101,19 +86,19 @@ static void SettingPageRun ( void )
 
 					switch ( iIndexPressured )
 					{
-						case 0://设置连播文件夹页面
+						case 0://
 						{
 						
 						}
 						break;
 
-						case 1://设置连播间隔页面
+						case 1://
 						{
 						
 						}
 						break;
 
-						case 2://返回
+						case 2://
 						{
                             return;
 						}
@@ -135,7 +120,7 @@ static void SettingPageRun ( void )
 				bPressure = 1;
 				iIndexPressured = iIndex;
 				//改变按键区域的颜色
-				PressButton ( &g_atSettingPageIconsLayout[iIndex] );
+				PressButton ( &g_atIntervalPageIconsLayout[iIndex] );
 			}
 
 		}
@@ -147,9 +132,9 @@ static void SettingPageRun ( void )
 }
 
 
-int SettingPageInit ( void )
+int IntervalPageInit ( void )
 {
-	return RegisterPageAction ( &g_tSettingPageDesc );
+	return RegisterPageAction ( &g_tIntervalPageDesc );
 
 }
 

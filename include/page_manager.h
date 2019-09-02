@@ -39,6 +39,7 @@ int ShowPage ( PT_PageDesc ptPageDesc);
 
 
 int PagesInit(void);
+int IntervalPageInit ( void );
 
 
 int MainPageInit ( void );
