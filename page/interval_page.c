@@ -37,20 +37,69 @@ static int CalcIntervalPageLayout ( PT_Layout atLayout )
 	int iIconWidth,iIconHight,IconX,IconY;
 	GetDispResolution ( &iXres,&iYres,&iBpp ); //获取LCD分辨率
 
-	/*	 每个图标高度为2/10 Y分辨率
-	 *	 宽度为高度的两倍
-	 *	  ----------------------
-	 *							 1/10 * iYres
-	 *		   select_fold.bmp	 2/10 * iYres
-	 *							 1/10 * iYres
-	 *		   interval.bmp      2/10 * iYres
-	 *							 1/10 * iYres
-	 *		   return.bmp		 2/10 * iYres
-	 *							 1/10 * iYres
-	 *	  ----------------------
-	 *
+
+	/*	     
+	 *    ----------------------
+  	 *                          1/6 iYres             1/2 * iHeight   
+  	 *          inc.bmp         1/3 iYres  * 28 / 128 iHeight * 28 / 128     
+  	 *         time.bmp         1/3 iYres  * 72 / 128 iHeight * 72 / 128
+  	 *          dec.bmp         1/3 iYres  * 28 / 128 iHeight * 28 / 128     
+  	 *                          1/6 iYres             1/2 * iHeight
+  	 *    ok.bmp     cancel.bmp 1/6 iYres             1/2 * iHeight
+  	 *                          1/6 iYres             1/2 * iHeight
+ 	 *    ----------------------
 	 */
 
+    //1、inc.bmp
+    iIconHight = iYres/3 *28 /128;
+	iIconWidth = iIconHight; 
+	IconX =  ( iXres-iIconWidth ) /2; //图标居中
+	IconY =  iYres /6 ;
+    atLayout[0]->iTopLeftX    = IconX;                  
+	atLayout[0]->iTopLeftY    = IconY;                  
+	atLayout[0]->iLowerRightX = IconX + iIconWidth - 1; 
+	atLayout[0]->iLowerRightY = IconY + iIconHight - 1; 
+
+
+    //2、time.bmp
+    iIconHight = iYres/3 *72 /128;
+	iIconWidth = iIconHight; 
+	IconX =  ( iXres-iIconWidth ) /2; //图标居中
+	//IconY =  iYres /6 ;
+    atLayout[1]->iTopLeftX    = IconX;                  
+	atLayout[1]->iTopLeftY    = atLayout[0]->iLowerRightY + 1;                  
+	atLayout[1]->iLowerRightX = IconX + iIconWidth - 1; 
+	atLayout[1]->iLowerRightY = atLayout[1]->iTopLeftY + iIconHight - 1; 
+
+    //3、dec.bmp
+    iIconHight = iYres/3 *28 /128;
+	iIconWidth = iIconHight; 
+	IconX =  ( iXres-iIconWidth ) /2; //图标居中
+	//IconY =  iYres /6 ;
+    atLayout[2]->iTopLeftX    = IconX;                  
+	atLayout[2]->iTopLeftY    = atLayout[1]->iLowerRightY + 1;                  
+	atLayout[2]->iLowerRightX = IconX + iIconWidth - 1; 
+	atLayout[2]->iLowerRightY = atLayout[2]->iTopLeftY + iIconHight - 1; 
+
+	//4、ok.bmp
+    iIconHight = iYres/6;
+	iIconWidth = iIconHight; 
+	IconX =  iXres /6; //
+	//IconY =  iYres /6 ;
+    atLayout[3]->iTopLeftX    = IconX;                  
+	atLayout[3]->iTopLeftY    = atLayout[2]->iLowerRightY + iYres/6;                  
+	atLayout[3]->iLowerRightX = IconX + iIconWidth - 1; 
+	atLayout[3]->iLowerRightY = atLayout[3]->iTopLeftY + iIconHight - 1;
+
+
+	//5、cancel.bmp
+    atLayout[4]->iTopLeftX    = atLayout[3]->iLowerRightX + iXres/3;                  
+	atLayout[4]->iTopLeftY    = atLayout[3]->iTopLeftY;                  
+	atLayout[4]->iLowerRightX = atLayout[4]->iTopLeftX + iIconWidth - 1; 
+	atLayout[4]->iLowerRightY = atLayout[3]->iLowerRightY;
+
+
+	//显示数字方框的特殊处理
 
 
 	return 0;
