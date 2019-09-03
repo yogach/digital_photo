@@ -30,7 +30,16 @@ static T_PageDesc g_tIntervalPageDesc =
 	.atPageLayout = g_atIntervalPageIconsLayout,
 };
 
+static T_Layout g_NumDispLayout; //用于表示数字显示内框的起始结束坐标
+static int g_iIntervalSecond = 1;//用于显示时间间隔
 
+/**********************************************************************
+ * 函数名称： CalcIntervalPageLayout
+ * 功能描述： 计算页面中各图标座标值
+ * 输入参数： 无
+ * 输出参数： ptPageLayout - 内含各图标的左上角/右下角座标值
+ * 返 回 值： 无
+ ***********************************************************************/
 static int CalcIntervalPageLayout ( PT_Layout atLayout )
 {
 	int iXres,iYres,iBpp;
@@ -99,13 +108,30 @@ static int CalcIntervalPageLayout ( PT_Layout atLayout )
 	atLayout[4]->iLowerRightY = atLayout[3]->iLowerRightY;
 
 
-	//显示数字方框的特殊处理
+	/* 用来显示数字的区域比较特殊, 单独处理
+	 * time.bmp原图大小为128x72, 里面的两个数字大小为52x40
+	 * 经过CalcIntervalPageLayout后有所缩放
+	 */
+    iIconHight = atLayout[1]->iLowerRightY - atLayout[1]->iTopLeftY + 1;
+	iIconWidth = atLayout[1]->iLowerRightX - atLayout[1]->iTopLeftX + 1;
 
+    g_NumDispLayout.iTopLeftX    = atLayout[1]->iTopLeftX + (128 - 52 )/2 *iIconWidth/128;
+	g_NumDispLayout.iLowerRightX = atLayout[1]->iLowerRightX - (128 - 52 )/2 *iIconWidth/128 + 1;
+
+	g_NumDispLayout.iTopLeftY    = atLayout[1]->iTopLeftY + (72 -	40 )/2 *iIconHight/72;
+	g_NumDispLayout.iLowerRightY = atLayout[1]->iLowerRightY - (72 -  40 )/2 *iIconHight/72 + 1;
+	
 
 	return 0;
 
 }
 
+//用于特殊数据的显示
+static int GenerateIntervalPageSpecialIcon(int dwNumber, PT_VideoMem ptVideoMem)
+{
+
+
+}
 
 static void IntervalPageRun ( void )
 {
@@ -141,15 +167,10 @@ static void IntervalPageRun ( void )
 						}
 						break;
 
-						case 1://
-						{
-						
-						}
-						break;
 
 						case 2://
 						{
-                            return;
+                            //return;
 						}
 						break;
 

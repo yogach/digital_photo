@@ -57,11 +57,15 @@ PT_FontOpr GetFontOpr(char *pcName)
 	return NULL;
 }
 
+int SetFontsDetail()
+{
+
+}
 
 int FontsInit(void)
 {
 	int iError;
-	
+	/*
 	iError = ASCIIInit();
 	if (iError)
 	{
@@ -75,7 +79,7 @@ int FontsInit(void)
 		DBG_PRINTF("GBKInit error!\n");
 		return -1;
 	}
-	
+	*/
 	iError = FreeTypeInit();
 	if (iError)
 	{
