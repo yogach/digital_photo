@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <input_manager.h>
+#include <render.h>
+
 
 static void MainPageRun ( void );
 static int CalcMainPageLayout ( PT_Layout atLayout );

@@ -7,11 +7,14 @@
 
 static int FreeTypeFontInit(char *pcFontFile, unsigned int dwFontSize);
 static int FreeTypeGetFontBitmap(unsigned int dwCode, PT_FontBitMap ptFontBitMap);
+static int FreeTypeSetFontSize(unsigned int dwFontsize);
+
 
 static T_FontOpr g_tFreeTypeFontOpr = {
 	.name          = "freetype",
 	.FontInit      = FreeTypeFontInit,
 	.GetFontBitmap = FreeTypeGetFontBitmap,
+	.SetFontSize   = FreeTypeSetFontSize,
 };
 
 static FT_Library g_tLibrary;
@@ -51,6 +54,19 @@ static int FreeTypeFontInit(char *pcFontFile, unsigned int dwFontSize)
 	
 	return 0;
 }
+
+/**********************************************************************
+ * 函数名称： FreeTypeSetFontSize
+ * 功能描述： 设置字符的尺寸(单位:色素)
+ * 输入参数： dwFontSize - 字符的尺寸(单位:色素)
+ * 输出参数： 无
+ * 返 回 值： 无
+ ***********************************************************************/
+static int FreeTypeSetFontSize(unsigned int dwFontSize)
+{
+    FT_Set_Pixel_Sizes(g_tFace, dwFontSize, 0);//设置要显示的字体大小
+}
+
 
 static int FreeTypeGetFontBitmap(unsigned int dwCode, PT_FontBitMap ptFontBitMap)
 {

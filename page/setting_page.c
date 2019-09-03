@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <input_manager.h>
+#include <render.h>
 
 static void SettingPageRun ( void );
 static int CalcSettingPageLayout ( PT_Layout atLayout );
@@ -109,7 +110,8 @@ static void SettingPageRun ( void )
 
 						case 1://设置连播间隔页面
 						{
-						
+						   Page("setting")->Run();
+						   ShowPage ( &g_tSettingPageDesc );
 						}
 						break;
 

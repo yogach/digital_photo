@@ -32,8 +32,7 @@ int RegisterPageAction ( PT_PageDesc ptPageAction );
 void ShowPages ( void );
 PT_PageDesc Page ( char* pcName );
 int GenericGetInputEvent(PT_Layout ptLayout,PT_InputEvent ptInputEvent);
-void ReleaseButton(PT_Layout ptLayout);
-void PressButton(PT_Layout ptLayout);
+
 int GeneratePage(PT_Layout atLayout , PT_VideoMem pt_VideoMem);
 int ShowPage ( PT_PageDesc ptPageDesc);
 
