@@ -25,6 +25,9 @@ int AsciiEncodingInit(void);
 int  Utf16beEncodingInit(void);
 int  Utf16leEncodingInit(void);
 int  Utf8EncodingInit(void);
+int GetCodeFrmBuf(unsigned char *pucBufStart, unsigned char *pucBufEnd, unsigned int *pdwCode);
+PT_EncodingOpr GetEncodingOpr(unsigned char *pucName);
+
 
 #endif /* _ENCODING_MANAGER_H */
 

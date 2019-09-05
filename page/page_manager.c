@@ -195,7 +195,14 @@ int GeneratePage ( PT_Layout atLayout, PT_VideoMem pt_VideoMem )
 }
 
 
-//主页面显示
+/**********************************************************************
+ * 函数名称： 显示页面
+ * 功能描述： 从图标文件中解析出图像数据并放在指定区域,从而生成页面数据
+ * 输入参数： ptPageDesc - 内含页面名 页面内显示图标名 以及回调函数
+ * 输出参数： 无
+ * 返 回 值： 0      - 成功
+ *            其他值 - 失败
+ ***********************************************************************/
 int ShowPage ( PT_PageDesc ptPageDesc)
 {
 	PT_VideoMem pt_VideoTmp;
@@ -232,14 +239,21 @@ int ShowPage ( PT_PageDesc ptPageDesc)
 }
 
 
-
+/**********************************************************************
+ * 函数名称： 页面初始化
+ * 功能描述： 将需要显示的页面加入到制定链表中
+ * 输入参数： 无
+ * 输出参数： 无
+ * 返 回 值： 0      - 成功
+ *            其他值 - 失败
+ ***********************************************************************/
 int PagesInit ( void )
 {
 	int iError = 0;
 
   	iError |= MainPageInit();
     iError |= SettingPageInit();
-     
+    iError |= IntervalPageInit();
  
 	return iError;
 

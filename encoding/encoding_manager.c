@@ -57,6 +57,28 @@ PT_EncodingOpr SelectEncodingOprForFile(unsigned char *pucFileBufHead)
 	}
 	return NULL;
 }
+/**********************************************************************
+ * 函数名称： GetEncodingOpr
+ * 功能描述： 从encoding处理链表中根据名字找出指定模块
+ * 输入参数： pucName - 模块名字
+ * 输出参数： 无
+ * 返 回 值： ptTmp--可用的处理模块
+ *            NULL--未找到可用结点
+ ***********************************************************************/
+PT_EncodingOpr GetEncodingOpr(unsigned char *pucName)
+{
+	PT_EncodingOpr ptTmp = g_ptEncodingOprHead; //得到EncodingOpr链表头
+	
+	while (ptTmp)
+	{	
+		if (strcmp ( ptTmp->name,pucName ) == 0)
+			return ptTmp;
+		else
+			ptTmp = ptTmp->ptNext;
+	}
+	return NULL;
+}
+
 
 //
 int AddFontOprForEncoding(PT_EncodingOpr ptEncodingOpr, PT_FontOpr ptFontOpr)
@@ -126,7 +148,41 @@ int DelFontOprFrmEncoding(PT_EncodingOpr ptEncodingOpr, PT_FontOpr ptFontOpr)
 		return -1;
 	}
 }
+/**********************************************************************
+ * 函数名称： GetCodeFrmBuf
+ * 功能描述： 从字符串中取出编码值,这是一个简单的版本, 只能处理ASCII/GBK字符串
+ * 输入参数： pucBufStart - 字符串起始位置
+ *            pucBufEnd   - 字符串结束位置(这个位置的字符不处理)
+ * 输出参数： pdwCode     - 所取出的编码值存在这里
+ * 返 回 值： 0 - 字符串处理完毕,没有获得编码值
+ *            1 - 得到一个ASCII码
+ *            2 - 得过一个GBK码
+ ***********************************************************************/
+int GetCodeFrmBuf(unsigned char *pucBufStart, unsigned char *pucBufEnd, unsigned int *pdwCode)
+{
+  PT_EncodingOpr ptEncodingOpr;
+  
 
+  //获得支持ascii的编码处理模块
+  ptEncodingOpr = GetEncodingOpr("ascii");
+
+  //如果能成功获得
+  if(ptEncodingOpr==NULL)
+  {
+   DBG_PRINTF("SelectEncodingOprForFile error..\r\n");
+   return 0;
+  }
+  
+  return ptEncodingOpr->GetCodeFrmBuf(pucBufStart,pucBufEnd,pdwCode);
+}
+
+/**********************************************************************
+ * 函数名称： EncodingInit
+ * 功能描述： 调用各种编码方式的初始化函数
+ * 输入参数： 无
+ * 输出参数： 无
+ * 返 回 值： 0 - 成功, 其他值 - 失败
+ ***********************************************************************/
 int EncodingInit(void)
 {
 	int iError;

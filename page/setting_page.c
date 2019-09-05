@@ -110,7 +110,7 @@ static void SettingPageRun ( void )
 
 						case 1://设置连播间隔页面
 						{
-						   Page("setting")->Run();
+						   Page("interval")->Run();
 						   ShowPage ( &g_tSettingPageDesc );
 						}
 						break;

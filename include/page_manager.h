@@ -22,6 +22,7 @@ typedef struct PageDesc
   PT_Layout atPageLayout;                    //页面描述 包括每个图标4角坐标 以及图片名
   void (*Run)(void);                          //页面运行函数--运行后会显示图片
   int (*CalcPageLayout)(PT_Layout atLayout); //计算每个图标坐标函数 
+  int (*DispSpecialIcon)(PT_VideoMem ptVideoMem);
   struct PageDesc *ptNext;
 }T_PageDesc , *PT_PageDesc;
 

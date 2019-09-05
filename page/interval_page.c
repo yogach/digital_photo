@@ -26,7 +26,7 @@ static T_Layout g_atIntervalPageIconsLayout[] =
 
 static T_PageDesc g_tIntervalPageDesc =
 {
-	.name   = "setting",
+	.name   = "interval",
 	.Run    = IntervalPageRun,
 	.CalcPageLayout = CalcIntervalPageLayout,
 	.atPageLayout = g_atIntervalPageIconsLayout,
@@ -135,10 +135,10 @@ static int GenerateIntervalPageSpecialIcon ( int dwNumber, PT_VideoMem ptVideoMe
     char strNumber[3];
     int iError;
 
-    //获得数字的高度
+    //获得显示数字的高度
 	dwFontSize = g_NumDispLayout.iLowerRightY - g_NumDispLayout.iTopLeftY;
 
-	SetFontSize(dwFontSize); //设置字体带下
+	SetFontSize(dwFontSize); //设置字体大小
 
     //限制数字的大小
     if(dwNumber > 59)
@@ -146,8 +146,9 @@ static int GenerateIntervalPageSpecialIcon ( int dwNumber, PT_VideoMem ptVideoMe
        // dwNumber = 59;
        return -1;
 	}
-
-	snprintf(strNumber, 3, "%02d", dwNumber);//将数字转化为字符串 如果数字小于10前面补0 
+	
+	//将数字转化为字符串 长度为3 如果数字小于10前面补0 
+	snprintf(strNumber, 3, "%02d", dwNumber);
 
 	//在指定区域内居中显示
 	iError = MergerStringToCenterOfRectangleInVideoMem(g_NumDispLayout.iTopLeftX,g_NumDispLayout.iTopLeftY,g_NumDispLayout.iLowerRightX,\
@@ -185,21 +186,22 @@ static void IntervalPageRun ( void )
 
 					switch ( iIndexPressured )
 					{
-						case 0://
+						case 0://数字增加
 						{
 
 						}
 						break;
 
 
-						case 2://
+						case 2://数字减少
 						{
-							//return;
+							
 						}
 						break;
-						case 3://
+						
+						case 3://确认按键
 						{
-							//return;
+							
 						}
 						break;
 
@@ -231,9 +233,7 @@ static void IntervalPageRun ( void )
 
 		}
 
-
 	}
-
 
 }
 

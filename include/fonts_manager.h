@@ -35,6 +35,7 @@ PT_FontOpr GetFontOpr(char *pcName);
 int SetFontsDetail(char *pcFontsName,char *pcFontFile,int dwFontSize);
 int SetFontSize ( unsigned int dwFontSize );
 unsigned int GetFontSize(void);
+int GetFontBitmap(unsigned int dwCode,PT_FontBitMap ptFontBitMap);
 
 
 #endif /* _FONTS_MANAGER_H */

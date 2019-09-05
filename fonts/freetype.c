@@ -68,6 +68,14 @@ static int FreeTypeSetFontSize(unsigned int dwFontSize)
 }
 
 
+/**********************************************************************
+ * 函数名称： ASCIIGetFontBitmap
+ * 功能描述： 获得UNICODE字符的FreeType位图
+ * 输入参数： dwCode       - 字符的UNICODE编码值
+ * 输出参数： ptFontBitMap - 内含位图信息
+ * 返 回 值： 0  - 成功
+ *            -1 - 失败 
+ ***********************************************************************/
 static int FreeTypeGetFontBitmap(unsigned int dwCode, PT_FontBitMap ptFontBitMap)
 {
 	int iError;

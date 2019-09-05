@@ -81,7 +81,6 @@ int SetFontSize ( unsigned int dwFontSize )
 		ptTmp = ptTmp->ptNext;
 	}
 	return NULL;
-
 }
 
 /**********************************************************************
@@ -97,6 +96,31 @@ unsigned int GetFontSize(void)
 
 }
 
+/**********************************************************************
+ * 函数名称： GetFontBitmap
+ * 功能描述： 获得字体文件位图
+ * 输入参数： dwCode - 字符的编码值(可能是ASCII/GBK/UNICODE)
+ * 输出参数： ptFontBitMap - 内含位图信息
+ * 返 回 值： 0      - 成功
+ *            -1     - 失败
+ ***********************************************************************/
+int GetFontBitmap(unsigned int dwCode,PT_FontBitMap ptFontBitMap)
+{
+	PT_FontOpr ptTmp = g_ptFontOprHead;
+    int iError;
+
+	while ( ptTmp )
+	{
+        iError = ptTmp->GetFontBitmap(dwCode,ptFontBitMap);
+		if ( iError == 0)
+		{
+			return 0;
+		}
+		ptTmp = ptTmp->ptNext;
+		
+	}
+	return -1;
+}
 
 /**********************************************************************
  * 函数名称： SetFontsDetail
