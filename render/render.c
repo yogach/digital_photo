@@ -15,7 +15,7 @@
  * 输出参数： 无
  * 返 回 值： 这个象素占据多少字节
  ***********************************************************************/
-int SetColorForPixelInVideoMem(int iX,int iY,PT_VideoMem ptVideoMem, unsigned int dwBackColor)
+int SetColorForPixelInVideoMem ( int iX,int iY,PT_VideoMem ptVideoMem, unsigned int dwBackColor )
 {
 	unsigned char* pucFB;
 	unsigned short* pwFB16bpp;
@@ -31,13 +31,13 @@ int SetColorForPixelInVideoMem(int iX,int iY,PT_VideoMem ptVideoMem, unsigned in
 
 	pwFB16bpp  = ( unsigned short* ) pucFB;
 	pdwFB32bpp = ( unsigned int* ) pucFB;
-	
+
 	//根据不同的像素深度进行处理
 	switch ( ptVideoMem->tVideoMemDesc.iBpp )
 	{
 		case 8:
 		{
-			*pucFB = (unsigned char) dwBackColor;
+			*pucFB = ( unsigned char ) dwBackColor;
 			return 1;
 			break;
 		}
@@ -47,7 +47,7 @@ int SetColorForPixelInVideoMem(int iX,int iY,PT_VideoMem ptVideoMem, unsigned in
 			iGreen = ( dwBackColor >> ( 8+2 ) ) & 0x3f;
 			iBlue  = ( dwBackColor >> 3 ) & 0x1f;
 			wColor16bpp = ( iRed << 11 ) | ( iGreen << 5 ) | iBlue;
-			
+
 			*pwFB16bpp	= wColor16bpp;
 
 			return 2;
@@ -55,9 +55,9 @@ int SetColorForPixelInVideoMem(int iX,int iY,PT_VideoMem ptVideoMem, unsigned in
 		}
 		case 32:
 		{
-			
+
 			*pdwFB32bpp = dwBackColor;
-			
+
 			return 4;
 			break;
 		}
@@ -69,7 +69,7 @@ int SetColorForPixelInVideoMem(int iX,int iY,PT_VideoMem ptVideoMem, unsigned in
 	}
 	return -1;
 
-	
+
 }
 
 /**********************************************************************
@@ -83,13 +83,15 @@ int SetColorForPixelInVideoMem(int iX,int iY,PT_VideoMem ptVideoMem, unsigned in
  * 输出参数： 无
  * 返 回 值： 0 - 成功,  其他值 - 失败
  ***********************************************************************/
-int SetColorForAppointArea(int iTopLeftX, int iTopLeftY, int iBotRightX, int iBotRightY,  PT_VideoMem ptVideoMem, unsigned int dwBackColor)
+int SetColorForAppointArea ( int iTopLeftX, int iTopLeftY, int iBotRightX, int iBotRightY,  PT_VideoMem ptVideoMem, unsigned int dwBackColor )
 {
-   int x,y;
+	int x,y;
 
-   for(y=iTopLeftY;y<=iBotRightY;y++)
-   	for(x=iTopLeftX;x<=iBotRightX;x++)
-		SetColorForPixelInVideoMem(x,y,ptVideoMem,dwBackColor);
+	for ( y=iTopLeftY; y<=iBotRightY; y++ )
+		for ( x=iTopLeftX; x<=iBotRightX; x++ )
+		{
+			SetColorForPixelInVideoMem ( x,y,ptVideoMem,dwBackColor );
+		}
 }
 /**********************************************************************
  * 函数名称： MergerStringToCenterOfRectangleInVideoMem
@@ -102,94 +104,230 @@ int SetColorForAppointArea(int iTopLeftX, int iTopLeftY, int iBotRightX, int iBo
  * 输出参数： 无
  * 返 回 值： 0 - 成功,  其他值 - 失败
  ***********************************************************************/
-int MergerStringToCenterOfRectangleInVideoMem(int iTopLeftX, int iTopLeftY, int iBotRightX, int iBotRightY, unsigned char *pucTextString, PT_VideoMem ptVideoMem)
+int MergerStringToCenterOfRectangleInVideoMem ( int iTopLeftX, int iTopLeftY, int iBotRightX, int iBotRightY, unsigned char* pucTextString, PT_VideoMem ptVideoMem )
 {
-  unsigned char * pucStrStart;
-  unsigned char * pucStrEnd;
-  int ilen,bHasGetCode = 0,iError;
-  unsigned int dwCode;
-  T_FontBitMap tFontBitMap;
-  int iMinX = 32000,iMinY = 32000 ;
-  int iMaxX = -1,iMaxY =-1;
-  int iWidth , iHight;
-  
+	unsigned char* pucStrStart;
+	unsigned char* pucStrEnd;
+	int ilen,bHasGetCode = 0,iError;
+	unsigned int dwCode;
+	T_FontBitMap tFontBitMap;
+	int iMinX = 32000,iMinY = 32000 ;
+	int iMaxX = -1,iMaxY =-1;
+	int iWidth, iHight;
+	int iStartY,iStartX;
 
-  /* 1. 设置这个区域的底色 */
-  SetColorForAppointArea(iTopLeftX,iTopLeftY,iBotRightX,iBotRightY,ptVideoMem,COLOR_BACKGROUND);
-  
-  /* 2.先计算字符串位图的总体宽度、高度 */
-  pucStrStart = pucTextString;
-  pucStrEnd = pucStrStart + strlen(pucTextString);
+	/* 1. 设置这个区域的底色 */
+	SetColorForAppointArea ( iTopLeftX,iTopLeftY,iBotRightX,iBotRightY,ptVideoMem,COLOR_BACKGROUND );
 
-  while(1)
-  {
-    ilen = GetCodeFrmBuf(pucStrStart,pucStrEnd,&dwCode);
-	if(ilen == 0)
+	/* 2.先计算字符串位图的总体宽度、高度 */
+	pucStrStart = pucTextString;
+	pucStrEnd = pucStrStart + strlen ( pucTextString );
+
+	while ( 1 )
 	{
-     
-      if(bHasGetCode)
-      {
-       //进入此处代表字符串已结束
-        DBG_PRINTF("string end ..\r\n");
-		break;
-	  }
-	  else
-	  {
-	    // 进入此处代表获取dwCode 失败
-	    DBG_PRINTF("GetCodeFrmBuf error..\r\n");
-		return -1;
-	  }
-	  
+		ilen = GetCodeFrmBuf ( pucStrStart,pucStrEnd,&dwCode );
+		if ( ilen == 0 )
+		{
+
+			if ( bHasGetCode )
+			{
+				//进入此处代表字符串已结束
+				DBG_PRINTF ( "string end ..\r\n" );
+				break;
+			}
+			else
+			{
+				// 进入此处代表获取dwCode 失败
+				DBG_PRINTF ( "GetCodeFrmBuf error..\r\n" );
+				return -1;
+			}
+
+		}
+
+		bHasGetCode = 1;
+		pucStrStart +=ilen;
+
+		//获得字符位图
+		iError = GetFontBitmap ( dwCode,&tFontBitMap );
+		if ( iError == 0 )
+		{
+			//得到整个字符串所占据的大小
+			if ( iMinX > tFontBitMap.iXLeft )
+			{
+				iMinX = tFontBitMap.iXLeft;
+			}
+			if ( iMaxX < tFontBitMap.iXMax )
+			{
+				iMaxX = tFontBitMap.iXMax;
+			}
+
+			if ( iMinY > tFontBitMap.iYTop )
+			{
+				iMinY = tFontBitMap.iYTop;
+			}
+			if ( iMaxY < tFontBitMap.iYMax )
+			{
+				iMaxY = tFontBitMap.iYMax;
+			}
+
+			//得到下一个显示字符的位置
+			tFontBitMap.iCurOriginX = tFontBitMap.iNextOriginX;
+			tFontBitMap.iCurOriginY = tFontBitMap.iNextOriginY;
+
+		}
+		else
+		{
+			DBG_PRINTF ( "GetFontBitmap Error...\r\n" );
+		}
+
 	}
 
-    bHasGetCode = 1;
-	pucStrStart +=ilen;
+	DBG_PRINTF ( "iMinx = %d , iMax = %d, iMinY = %d , iMaxY = %d",iMinX,iMaxX,iMinY,iMaxY );
+	/*3.判断要显示的字符串是否超过显示区域*/
+	//得到字符串大小
+	iWidth = iMaxX - iMinX;
+	iHight = iMaxY - iMinY;
 
-	//获得字符位图
-	iError = GetFontBitmap(dwCode,&tFontBitMap);
-    if(iError == 0)
-    {
-      //得到整个字符串所占据的大小 
-      if(iMinX > tFontBitMap.iXLeft)
-	  	iMinX = tFontBitMap.iXLeft;
-	  if(iMaxX < tFontBitMap.iXMax)
-	  	iMaxX = tFontBitMap.iXMax;
+	if ( iWidth > ( iBotRightX -iTopLeftX ) )
+	{
+		iWidth = iBotRightX -iTopLeftX;
+	}
 
-	  if(iMinY > tFontBitMap.iYTop)
-	    iMinY = tFontBitMap.iYTop;
-	  if(iMaxY < tFontBitMap.iYMax)
-	    iMaxY = tFontBitMap.iYMax;
+	if ( iHight > iBotRightY -iTopLeftY )
+	{
+		DBG_PRINTF ( "string hight exceed the limit ..\r\n " );
+		return -1;
+	}
 
-      //得到下一个显示字符的位置
-	  tFontBitMap.iCurOriginX = tFontBitMap.iNextOriginX;
-      tFontBitMap.iCurOriginY = tFontBitMap.iNextOriginY;
+	/*4.确定第一个字符的原点坐标*/
+	iStartX = iTopLeftX+ ( iBotRightX - iTopLeftX - iWidth ) /2; //区域起始地址 加除显示框之后剩下的一半 其实就是居中显示
+	iStartY = iTopLeftY+ ( iBotRightY - iTopLeftY - iHight ) /2;
 
+	/*	 
+	 * 2.2 再计算第1个字符原点坐标
+	 * iMinX - 原来的iCurOriginX(0) = iStrTopLeftX - 新的iCurOriginX
+	 * iMinY - 原来的iCurOriginY(0) = iStrTopLeftY - 新的iCurOriginY
+	 */
+	tFontBitMap.iCurOriginX = iStartX -iMinX;
+	tFontBitMap.iCurOriginY = iStartY -iMinY;
+
+	DBG_PRINTF ( "iCurOriginX = %d, iCurOriginY = %d\n", tFontBitMap.iCurOriginX, tFontBitMap.iCurOriginY );
+
+	bHasGetCode = 0;
+	pucStrStart = pucTextString;
+
+	while ( 1 )
+	{
+		ilen = GetCodeFrmBuf ( pucStrStart,pucStrEnd,&dwCode );
+		if ( ilen == 0 )
+		{
+
+			if ( bHasGetCode )
+			{
+				//进入此处代表字符串已结束
+				DBG_PRINTF ( "string end ..\r\n" );
+				break;
+			}
+			else
+			{
+				// 进入此处代表获取dwCode 失败
+				DBG_PRINTF ( "GetCodeFrmBuf error..\r\n" );
+				return -1;
+			}
+
+		}
+
+		bHasGetCode = 1;
+		pucStrStart +=ilen;
+		//获得字符位图
+		iError = GetFontBitmap ( dwCode,&tFontBitMap );
+		if ( iError == 0 )
+		{
+			/* 显示一个字符 */
+			//判断是否当前矩形内还能否显示内容
+			if ( isFontInArea ( iTopLeftX, iTopLeftY, iBotRightX, iBotRightY, &tFontBitMap ) )
+			{
+				if ( MergeOneFontToVideoMem ( &tFontBitMap, ptVideoMem ) ) //将位图合并和指定位置
+				{
+					return -1;
+				}
+			}
+			else
+			{
+				return 0;
+			}
+
+			tFontBitMap.iCurOriginX = tFontBitMap.iNextOriginX;
+			tFontBitMap.iCurOriginY = tFontBitMap.iNextOriginY;
+		}
+		else
+		{
+			DBG_PRINTF ( "GetFontBitmap Error...\r\n" );
+		}
+
+	}
+
+	return 0;
+}
+
+int MergeOneFontToVideoMem ( PT_FontBitMap ptFontBitMap, PT_VideoMem ptVideoMem )
+{
+	int iBpp = ptFontBitMap->iBpp;
+    int x,y,i;
+
+    //根据不同的像素分类处理
+	switch ( iBpp )
+	{
+		case 1:
+		{
+
+		
+
+		}
+
+		break;
+
+
+		case 8:
+		{
+
+		}
+
+		break;
+
+		default:
+			DBG_PRINTF ( "can't support %d bpp",iBpp );
+			break;
+
+	}
+
+
+
+
+}
+/**********************************************************************
+ * 函数名称： isFontInArea
+  * 功能描述： 要显示的字符是否完全在指定矩形区域内
+  * 输入参数： iTopLeftX,iTopLeftY   - 矩形区域的左上角座标
+  * 		   iBotRightX,iBotRightY - 矩形区域的右下角座标
+  * 		   ptFontBitMap 		 - 内含字符的位图信息
+  * 输出参数： 无
+  * 返 回 值： 0 - 超出了矩形区域,  1 - 完全在区域内
+  * 修改日期		版本号	  修改人 	   修改内容
+ * -----------------------------------------------
+**********************************************************************/
+int isFontInArea ( int iTopLeftX, int iTopLeftY,int iBotRightX, int iBotRightY,PT_FontBitMap ptFontBitMap )
+{
+	if ( ( ptFontBitMap->iXLeft >= iTopLeftX ) && ( ptFontBitMap->iXMax <= iBotRightX ) \
+	        && ( ptFontBitMap->iYTop >= iTopLeftY ) && ( ptFontBitMap->iYMax<= iBotRightY ) )
+	{
+		return 1;
 	}
 	else
 	{
-      DBG_PRINTF("GetFontBitmap Error...\r\n");
+
+		return 0;
 	}
-
-  }
-
-  /*3.判断要显示的字符串是否超过显示区域*/
-  //得到字符串大小
-  iWidth = iMaxX - iMinX;
-  iHight = iMaxY - iMinY;
-
-  if(iWidth > (iBotRightX -iTopLeftX))
-  {
-     iWidth = iBotRightX -iTopLeftX;
-  }
-
-  if(iHight > iBotRightY -iTopLeftY )
-  {
-     DBG_PRINTF("string hight exceed the limit ..\r\n ");
-     return -1;
-  }
-
-  /*4.确定第一个字符的原点坐标*/
-  
 
 
 }
@@ -200,7 +338,6 @@ int MergerStringToCenterOfRectangleInVideoMem(int iTopLeftX, int iTopLeftY, int 
  * 输入参数： ptLayout   - 矩形区域
  * 输出参数： 无
  * 返 回 值： 无
- * 修改日期        版本号     修改人          修改内容
  * -----------------------------------------------
 **********************************************************************/
 static void InvertButton ( PT_Layout ptLayout )

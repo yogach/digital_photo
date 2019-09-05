@@ -102,7 +102,7 @@ static int FreeTypeGetFontBitmap(unsigned int dwCode, PT_FontBitMap ptFontBitMap
 
 	//DBG_PRINTF("iPenX = %d, iPenY = %d, bitmap_left = %d, bitmap_top = %d, width = %d, rows = %d\n", iPenX, iPenY, g_tSlot->bitmap_left, g_tSlot->bitmap_top, g_tSlot->bitmap.width, g_tSlot->bitmap.rows);
 	ptFontBitMap->iXLeft    = iPenX + g_tSlot->bitmap_left;
-	ptFontBitMap->iYTop     = iPenY - g_tSlot->bitmap_top;
+	ptFontBitMap->iYTop     = iPenY - g_tSlot->bitmap_top;  
 	ptFontBitMap->iXMax     = ptFontBitMap->iXLeft + g_tSlot->bitmap.width;
 	ptFontBitMap->iYMax     = ptFontBitMap->iYTop  + g_tSlot->bitmap.rows;
 	ptFontBitMap->iBpp      = 1;
