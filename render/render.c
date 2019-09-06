@@ -203,13 +203,13 @@ int MergerStringToCenterOfRectangleInVideoMem ( int iTopLeftX, int iTopLeftY, in
 	iStartX = iTopLeftX+ ( iBotRightX - iTopLeftX - iWidth ) /2; //区域起始地址 加除显示框之后剩下的一半 其实就是居中显示
 	iStartY = iTopLeftY+ ( iBotRightY - iTopLeftY - iHight ) /2;
 
-	/*	 
+	/*
 	 * 2.2 再计算第1个字符原点坐标
 	 * iMinX - 原来的iCurOriginX(0) = iStrTopLeftX - 新的iCurOriginX
 	 * iMinY - 原来的iCurOriginY(0) = iStrTopLeftY - 新的iCurOriginY
 	 */
 	tFontBitMap.iCurOriginX = iStartX -iMinX;
-	tFontBitMap.iCurOriginY = iStartY -iMinY;
+	tFontBitMap.iCurOriginY = iStartY -iMinY; //此处需要关心
 
 	DBG_PRINTF ( "iCurOriginX = %d, iCurOriginY = %d\n", tFontBitMap.iCurOriginX, tFontBitMap.iCurOriginY );
 
@@ -249,6 +249,7 @@ int MergerStringToCenterOfRectangleInVideoMem ( int iTopLeftX, int iTopLeftY, in
 			{
 				if ( MergeOneFontToVideoMem ( &tFontBitMap, ptVideoMem ) ) //将位图合并和指定位置
 				{
+				    DBG_PRINTF("MergeOneFontToVideoMem error for code 0x%x\n", dwCode);
 					return -1;
 				}
 			}
@@ -273,26 +274,84 @@ int MergerStringToCenterOfRectangleInVideoMem ( int iTopLeftX, int iTopLeftY, in
 int MergeOneFontToVideoMem ( PT_FontBitMap ptFontBitMap, PT_VideoMem ptVideoMem )
 {
 	int iBpp = ptFontBitMap->iBpp;
-    int x,y,i;
+	int x,y,i;
+	int bit;
+	int iNum;
+	unsigned char ucByte;
 
-    //根据不同的像素分类处理
+    DBG_PRINTF("fontBpp:%d",iBpp);
+	//根据不同的像素分类处理
 	switch ( iBpp )
 	{
 		case 1:
 		{
+			for ( y=ptFontBitMap->iYTop; y<ptFontBitMap->iYMax; y++ )
+			{
+				i = ( y - ptFontBitMap->iYTop ) * ptFontBitMap->iPitch; //得到当前处理哪一排
+				for ( x=ptFontBitMap->iXLeft,bit = 7; x<ptFontBitMap->iXMax; x++ )
+				{
+					if ( bit == 7 )
+					{
+						ucByte = ptFontBitMap->pucBuffer[i++]; //得到要处理的行
+					}
 
-		
+					//如果位图上的此位有数据 则设置此像素位置上的颜色
+					if ( ucByte & ( 1<<bit ) )
+					{
+						iNum = SetColorForPixelInVideoMem ( x,y,ptVideoMem,COLOR_FOREGROUND );
+					}
+					else
+					{
+						iNum = SetColorForPixelInVideoMem ( x,y,ptVideoMem,COLOR_BACKGROUND );
+					}
+
+					if ( iNum == -1 )
+					{
+						DBG_PRINTF ( "SetColorForPixelInVideoMem error..\r\n" );
+						return -1;
+					}
+
+					bit--;
+					if ( bit == -1 )
+					{
+						bit = 7;
+					}
+
+
+				}
+			}
 
 		}
 
 		break;
 
-
 		case 8:
 		{
+			for ( y=ptFontBitMap->iYTop; y<ptFontBitMap->iYMax; y++ )
+			{
+				i = ( y - ptFontBitMap->iYTop ) * ptFontBitMap->iPitch; //得到当前处理哪一排
+				for ( x=ptFontBitMap->iXLeft; x<ptFontBitMap->iXMax; x++ )
+				{	
+					//如果位图上的该字节上有数据 则设置此像素位置上的颜色
+					if ( ptFontBitMap->pucBuffer[i++] )
+					{
+						iNum = SetColorForPixelInVideoMem ( x,y,ptVideoMem,COLOR_FOREGROUND );
+					}
+					else
+					{
+						iNum = SetColorForPixelInVideoMem ( x,y,ptVideoMem,COLOR_BACKGROUND );
+					}
+
+					if ( iNum == -1 )
+					{
+						DBG_PRINTF ( "SetColorForPixelInVideoMem error..\r\n" );
+						return -1;
+					}
+
+				}
+			}
 
 		}
-
 		break;
 
 		default:
@@ -300,9 +359,6 @@ int MergeOneFontToVideoMem ( PT_FontBitMap ptFontBitMap, PT_VideoMem ptVideoMem 
 			break;
 
 	}
-
-
-
 
 }
 /**********************************************************************

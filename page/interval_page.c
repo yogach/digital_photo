@@ -11,6 +11,7 @@
 
 static void IntervalPageRun ( void );
 static int CalcIntervalPageLayout ( PT_Layout atLayout );
+static int IntervalPageSpecialDis(PT_VideoMem ptVideoMem);
 
 
 static T_Layout g_atIntervalPageIconsLayout[] =
@@ -30,6 +31,7 @@ static T_PageDesc g_tIntervalPageDesc =
 	.Run    = IntervalPageRun,
 	.CalcPageLayout = CalcIntervalPageLayout,
 	.atPageLayout = g_atIntervalPageIconsLayout,
+	.DispSpecialIcon = IntervalPageSpecialDis,
 };
 
 static T_Layout g_NumDispLayout; //用于表示数字显示内框的起始结束坐标
@@ -128,6 +130,8 @@ static int CalcIntervalPageLayout ( PT_Layout atLayout )
 
 }
 
+
+
 //用于刷新数字显示框
 static int GenerateIntervalPageSpecialIcon ( int dwNumber, PT_VideoMem ptVideoMem )
 {
@@ -157,6 +161,12 @@ static int GenerateIntervalPageSpecialIcon ( int dwNumber, PT_VideoMem ptVideoMe
   
 
 }
+
+static int IntervalPageSpecialDis(PT_VideoMem ptVideoMem)
+{
+   return GenerateIntervalPageSpecialIcon(g_iIntervalSecond,ptVideoMem);
+}
+
 
 static void IntervalPageRun ( void )
 {
