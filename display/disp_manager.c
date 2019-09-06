@@ -117,6 +117,30 @@ int GetDispResolution ( int* iXres,int* iYres,int* iBpp )
 	}
 
 }
+/**********************************************************************
+ * 函数名称： GetDevVideoMem
+ * 功能描述： 获得显示设备的显存, 在该显存上操作就可以直接在LCD上显示出来
+ * 输入参数： 无
+ * 输出参数： 无
+ * 返 回 值： 显存对应的VideoMem结构体指针 NULL-未找到
+ ***********************************************************************/
+PT_VideoMem GetDevVideoMen ( void )
+{
+	PT_VideoMem ptTmp = g_ptVideoMenListHead;
+
+	while ( ptTmp )
+	{
+		if ( ptTmp->bDevFrameBuffer )
+		{
+			return ptTmp;
+		}
+
+		ptTmp = ptTmp->ptNext;
+
+	}
+	return 0;
+}
+
 
 //分配显存
 int AllocVideoMem ( int iNum )

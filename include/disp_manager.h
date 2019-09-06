@@ -64,6 +64,7 @@ int PutVideoMem(PT_VideoMem ptVideoMem);
 void FlushVideoMemToDev(PT_VideoMem pt_VideoTmp);
 int SetVideoMemColor(PT_VideoMem ptVideoMem ,unsigned int dwColor);
 int ClearVideoMem(PT_VideoMem ptVideoMem,unsigned int dwBackColor);
+PT_VideoMem GetDevVideoMen ( void );
 
 
 #endif /* _DISP_MANAGER_H */

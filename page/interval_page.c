@@ -180,6 +180,12 @@ static void IntervalPageRun ( void )
 {
 	T_InputEvent tInputEvent;
 	int iIndex,iIndexPressured=-1,bPressure = 0;
+    int iIntervalNum;
+    PT_VideoMem ptDeviceMen;
+
+    //获得显示设备显存
+	ptDeviceMen = GetDevVideoMen();
+ 
 
 	/* 1. 显示页面 */
 	ShowPage ( &g_tIntervalPageDesc );
@@ -206,14 +212,20 @@ static void IntervalPageRun ( void )
 					{
 						case 0://数字增加
 						{
-
+						   iIntervalNum++;
+						   if(iIntervalNum == 60)
+						   	 iIntervalNum = 0;	   
+                           GenerateIntervalPageSpecialIcon(iIntervalNum,ptDeviceMen);
 						}
 						break;
 
 
 						case 2://数字减少
 						{
-							
+						   iIntervalNum--;
+						   if(iIntervalNum == -1)
+						   	 iIntervalNum = 59;	   
+                           GenerateIntervalPageSpecialIcon(iIntervalNum,ptDeviceMen);	
 						}
 						break;
 						
