@@ -119,10 +119,15 @@ int MergerStringToCenterOfRectangleInVideoMem ( int iTopLeftX, int iTopLeftY, in
 	/* 1. 设置这个区域的底色 */
 	SetColorForAppointArea ( iTopLeftX,iTopLeftY,iBotRightX,iBotRightY,ptVideoMem,COLOR_BACKGROUND );
 
-	/* 2.先计算字符串位图的总体宽度、高度 */
+	//得到字符串起始结束地址
 	pucStrStart = pucTextString;
 	pucStrEnd = pucStrStart + strlen ( pucTextString );
 
+    //设置位图起始位置
+	tFontBitMap.iCurOriginX = 0;
+	tFontBitMap.iCurOriginY = 0; 
+	
+	/* 2.先计算字符串位图的总体宽度、高度 */
 	while ( 1 )
 	{
 		ilen = GetCodeFrmBuf ( pucStrStart,pucStrEnd,&dwCode );
@@ -132,7 +137,7 @@ int MergerStringToCenterOfRectangleInVideoMem ( int iTopLeftX, int iTopLeftY, in
 			if ( bHasGetCode )
 			{
 				//进入此处代表字符串已结束
-				DBG_PRINTF ( "string end ..\r\n" );
+				//DBG_PRINTF ( "string end ..\r\n" );
 				break;
 			}
 			else
@@ -151,7 +156,7 @@ int MergerStringToCenterOfRectangleInVideoMem ( int iTopLeftX, int iTopLeftY, in
 		iError = GetFontBitmap ( dwCode,&tFontBitMap );
 		if ( iError == 0 )
 		{
-			//得到整个字符串所占据的大小
+			//得到整个字符串所占据的大小 tFontBitMap 内含每个字符的起始位置 结束位置
 			if ( iMinX > tFontBitMap.iXLeft )
 			{
 				iMinX = tFontBitMap.iXLeft;
@@ -183,6 +188,7 @@ int MergerStringToCenterOfRectangleInVideoMem ( int iTopLeftX, int iTopLeftY, in
 	}
 
 	DBG_PRINTF ( "iMinx = %d , iMax = %d, iMinY = %d , iMaxY = %d",iMinX,iMaxX,iMinY,iMaxY );
+	
 	/*3.判断要显示的字符串是否超过显示区域*/
 	//得到字符串大小
 	iWidth = iMaxX - iMinX;
@@ -209,7 +215,7 @@ int MergerStringToCenterOfRectangleInVideoMem ( int iTopLeftX, int iTopLeftY, in
 	 * iMinY - 原来的iCurOriginY(0) = iStrTopLeftY - 新的iCurOriginY
 	 */
 	tFontBitMap.iCurOriginX = iStartX -iMinX;
-	tFontBitMap.iCurOriginY = iStartY -iMinY; //此处需要关心
+	tFontBitMap.iCurOriginY = iStartY -iMinY; //此处需要关心 涉及到坐标系转换
 
 	DBG_PRINTF ( "iCurOriginX = %d, iCurOriginY = %d\n", tFontBitMap.iCurOriginX, tFontBitMap.iCurOriginY );
 

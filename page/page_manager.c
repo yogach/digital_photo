@@ -230,10 +230,10 @@ int ShowPage ( PT_PageDesc ptPageDesc )
 	if ( ptPageDesc->DispSpecialIcon )
 	{
 		iError |= ptPageDesc->DispSpecialIcon ( pt_VideoTmp );
-		if ( iError == -1 )
-		{
-			return -1;
-		}
+	}
+	if ( iError != 0 )
+	{
+		return -1;
 	}
 	/* 3. 刷到设备上去       */
 	FlushVideoMemToDev ( pt_VideoTmp );

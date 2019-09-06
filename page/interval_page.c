@@ -132,7 +132,15 @@ static int CalcIntervalPageLayout ( PT_Layout atLayout )
 
 
 
-//用于刷新数字显示框
+/**********************************************************************
+ * 函数名称： GenerateIntervalPageSpecialIcon
+ * 功能描述： 为"interval页面"生成特殊图标: 绘制图标中的数字
+ * 输入参数： dwNumber   - 要显示出来的数字
+ *            ptVideoMem - 在这个VideoMem中显示
+ * 输出参数： 无
+ * 返 回 值： 0      - 成功
+ *            其他值 - 失败
+ ***********************************************************************/
 static int GenerateIntervalPageSpecialIcon ( int dwNumber, PT_VideoMem ptVideoMem )
 {
     unsigned int dwFontSize;
@@ -151,7 +159,7 @@ static int GenerateIntervalPageSpecialIcon ( int dwNumber, PT_VideoMem ptVideoMe
        return -1;
 	}
 	
-	//将数字转化为字符串 长度为3 如果数字小于10前面补0 
+	//将数字转化为字符串 长度为3 如果数字小于10前面补0 包含结束符
 	snprintf(strNumber, 3, "%02d", dwNumber);
 
 	//在指定区域内居中显示
