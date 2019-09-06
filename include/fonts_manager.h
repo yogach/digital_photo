@@ -20,7 +20,7 @@ typedef struct FontOpr {
 	char *name;
 	int (*FontInit)(char *pcFontFile, unsigned int dwFontSize); //×Ö¿â³õÊ¼»¯
 	int (*GetFontBitmap)(unsigned int dwCode, PT_FontBitMap ptFontBitMap);
-	int (*SetFontSize)(unsigned int dwFontSize);
+	void (*SetFontSize)(unsigned int dwFontSize);
 	struct FontOpr *ptNext;
 }T_FontOpr, *PT_FontOpr;
 

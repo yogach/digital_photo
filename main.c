@@ -27,6 +27,12 @@ int main ( int argc,char * *argv )
 	DebugInit ();
 	InitDebugChanel ();
 
+    if(argc < 2)
+    {
+		DBG_PRINTF("Usage: %s  [-f font_file] \r\n",argv[0]);
+		return 0;
+    }
+
 	//初始化显示
 	DisplayInit ();
 	//选择默认显示设备
@@ -39,6 +45,8 @@ int main ( int argc,char * *argv )
 	//根据输入设备分配线程
 	AllInputDevicesInit();
 
+    //编码方式初始化
+    EncodingInit();
 	//注册字库模块
 	iError = FontsInit();
 	if ( iError )

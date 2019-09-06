@@ -68,10 +68,10 @@ static int CalcIntervalPageLayout ( PT_Layout atLayout )
 	iIconWidth = iIconHight;
 	IconX =  ( iXres-iIconWidth ) /2; //图标居中
 	IconY =  iYres /6 ;
-	atLayout[0]->iTopLeftX    = IconX;
-	atLayout[0]->iTopLeftY    = IconY;
-	atLayout[0]->iLowerRightX = IconX + iIconWidth - 1;
-	atLayout[0]->iLowerRightY = IconY + iIconHight - 1;
+	atLayout[0].iTopLeftX    = IconX;
+	atLayout[0].iTopLeftY    = IconY;
+	atLayout[0].iLowerRightX = IconX + iIconWidth - 1;
+	atLayout[0].iLowerRightY = IconY + iIconHight - 1;
 
 
 	//2、time.bmp
@@ -79,51 +79,51 @@ static int CalcIntervalPageLayout ( PT_Layout atLayout )
 	iIconWidth = iIconHight;
 	IconX =  ( iXres-iIconWidth ) /2; //图标居中
 	//IconY =  iYres /6 ;
-	atLayout[1]->iTopLeftX    = IconX;
-	atLayout[1]->iTopLeftY    = atLayout[0]->iLowerRightY + 1;
-	atLayout[1]->iLowerRightX = IconX + iIconWidth - 1;
-	atLayout[1]->iLowerRightY = atLayout[1]->iTopLeftY + iIconHight - 1;
+	atLayout[1].iTopLeftX    = IconX;
+	atLayout[1].iTopLeftY    = atLayout[0].iLowerRightY + 1;
+	atLayout[1].iLowerRightX = IconX + iIconWidth - 1;
+	atLayout[1].iLowerRightY = atLayout[1].iTopLeftY + iIconHight - 1;
 
 	//3、dec.bmp
 	iIconHight = iYres/3 *28 /128;
 	iIconWidth = iIconHight;
 	IconX =  ( iXres-iIconWidth ) /2; //图标居中
 	//IconY =  iYres /6 ;
-	atLayout[2]->iTopLeftX    = IconX;
-	atLayout[2]->iTopLeftY    = atLayout[1]->iLowerRightY + 1;
-	atLayout[2]->iLowerRightX = IconX + iIconWidth - 1;
-	atLayout[2]->iLowerRightY = atLayout[2]->iTopLeftY + iIconHight - 1;
+	atLayout[2].iTopLeftX    = IconX;
+	atLayout[2].iTopLeftY    = atLayout[1].iLowerRightY + 1;
+	atLayout[2].iLowerRightX = IconX + iIconWidth - 1;
+	atLayout[2].iLowerRightY = atLayout[2].iTopLeftY + iIconHight - 1;
 
 	//4、ok.bmp
 	iIconHight = iYres/6;
 	iIconWidth = iIconHight;
 	IconX =  iXres /6; //
 	//IconY =  iYres /6 ;
-	atLayout[3]->iTopLeftX    = IconX;
-	atLayout[3]->iTopLeftY    = atLayout[2]->iLowerRightY + iYres/6;
-	atLayout[3]->iLowerRightX = IconX + iIconWidth - 1;
-	atLayout[3]->iLowerRightY = atLayout[3]->iTopLeftY + iIconHight - 1;
+	atLayout[3].iTopLeftX    = IconX;
+	atLayout[3].iTopLeftY    = atLayout[2].iLowerRightY + iYres/6;
+	atLayout[3].iLowerRightX = IconX + iIconWidth - 1;
+	atLayout[3].iLowerRightY = atLayout[3].iTopLeftY + iIconHight - 1;
 
 
 	//5、cancel.bmp
-	atLayout[4]->iTopLeftX    = atLayout[3]->iLowerRightX + iXres/3;
-	atLayout[4]->iTopLeftY    = atLayout[3]->iTopLeftY;
-	atLayout[4]->iLowerRightX = atLayout[4]->iTopLeftX + iIconWidth - 1;
-	atLayout[4]->iLowerRightY = atLayout[3]->iLowerRightY;
+	atLayout[4].iTopLeftX    = atLayout[3].iLowerRightX + iXres/3;
+	atLayout[4].iTopLeftY    = atLayout[3].iTopLeftY;
+	atLayout[4].iLowerRightX = atLayout[4].iTopLeftX + iIconWidth - 1;
+	atLayout[4].iLowerRightY = atLayout[3].iLowerRightY;
 
 
 	/* 用来显示数字的区域比较特殊, 单独处理
 	 * time.bmp原图大小为128x72, 里面的两个数字大小为52x40
 	 * 经过CalcIntervalPageLayout后有所缩放 设置它的对应大小
 	 */
-	iIconHight = atLayout[1]->iLowerRightY - atLayout[1]->iTopLeftY + 1;
-	iIconWidth = atLayout[1]->iLowerRightX - atLayout[1]->iTopLeftX + 1;
+	iIconHight = atLayout[1].iLowerRightY - atLayout[1].iTopLeftY + 1;
+	iIconWidth = atLayout[1].iLowerRightX - atLayout[1].iTopLeftX + 1;
 
-	g_NumDispLayout.iTopLeftX    = atLayout[1]->iTopLeftX + ( 128 - 52 ) /2 *iIconWidth/128;
-	g_NumDispLayout.iLowerRightX = atLayout[1]->iLowerRightX - ( 128 - 52 ) /2 *iIconWidth/128 + 1;
+	g_NumDispLayout.iTopLeftX    = atLayout[1].iTopLeftX + ( 128 - 52 ) /2 *iIconWidth/128;
+	g_NumDispLayout.iLowerRightX = atLayout[1].iLowerRightX - ( 128 - 52 ) /2 *iIconWidth/128 + 1;
 
-	g_NumDispLayout.iTopLeftY    = atLayout[1]->iTopLeftY + ( 72 -	40 ) /2 *iIconHight/72;
-	g_NumDispLayout.iLowerRightY = atLayout[1]->iLowerRightY - ( 72 -  40 ) /2 *iIconHight/72 + 1;
+	g_NumDispLayout.iTopLeftY    = atLayout[1].iTopLeftY + ( 72 -	40 ) /2 *iIconHight/72;
+	g_NumDispLayout.iLowerRightY = atLayout[1].iLowerRightY - ( 72 -  40 ) /2 *iIconHight/72 + 1;
 
 
 	return 0;
@@ -180,7 +180,7 @@ static void IntervalPageRun ( void )
 {
 	T_InputEvent tInputEvent;
 	int iIndex,iIndexPressured=-1,bPressure = 0;
-    int iIntervalNum;
+    int iIntervalNum = 0;
     PT_VideoMem ptDeviceMen;
 
     //获得显示设备显存

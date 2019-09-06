@@ -7,7 +7,7 @@
 
 static int FreeTypeFontInit(char *pcFontFile, unsigned int dwFontSize);
 static int FreeTypeGetFontBitmap(unsigned int dwCode, PT_FontBitMap ptFontBitMap);
-static int FreeTypeSetFontSize(unsigned int dwFontsize);
+static void FreeTypeSetFontSize(unsigned int dwFontsize);
 
 
 static T_FontOpr g_tFreeTypeFontOpr = {
@@ -62,9 +62,10 @@ static int FreeTypeFontInit(char *pcFontFile, unsigned int dwFontSize)
  * 输出参数： 无
  * 返 回 值： 无
  ***********************************************************************/
-static int FreeTypeSetFontSize(unsigned int dwFontSize)
+static void FreeTypeSetFontSize(unsigned int dwFontSize)
 {
     FT_Set_Pixel_Sizes(g_tFace, dwFontSize, 0);//设置要显示的字体大小
+    
 }
 
 

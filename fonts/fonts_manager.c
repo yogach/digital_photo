@@ -80,7 +80,7 @@ int SetFontSize ( unsigned int dwFontSize )
 		}
 		ptTmp = ptTmp->ptNext;
 	}
-	return NULL;
+	return 0;
 }
 
 /**********************************************************************

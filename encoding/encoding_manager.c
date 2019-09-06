@@ -75,7 +75,7 @@ PT_EncodingOpr GetEncodingOpr ( unsigned char* pucName )
 
 	while ( ptTmp )
 	{
-		if ( strcmp ( ptTmp->name,pucName ) == 0 )
+		if ( strcmp ( ptTmp->name, pucName ) == 0 )
 		{
 			return ptTmp;
 		}
@@ -168,8 +168,10 @@ int DelFontOprFrmEncoding ( PT_EncodingOpr ptEncodingOpr, PT_FontOpr ptFontOpr )
  ***********************************************************************/
 int GetCodeFrmBuf ( unsigned char* pucBufStart, unsigned char* pucBufEnd, unsigned int* pdwCode )
 {
+
 	PT_EncodingOpr ptEncodingOpr;
 
+	//ShowEncodingOpr();
 
 	//获得支持ascii的编码处理模块
 	ptEncodingOpr = GetEncodingOpr ( "ascii" );
@@ -182,6 +184,36 @@ int GetCodeFrmBuf ( unsigned char* pucBufStart, unsigned char* pucBufEnd, unsign
 	}
 
 	return ptEncodingOpr->GetCodeFrmBuf ( pucBufStart,pucBufEnd,pdwCode );
+#if 0	
+	unsigned char *pucBuf = pucBufStart;
+	unsigned char c = *pucBuf;
+	
+	if ((pucBuf < pucBufEnd) && (c < (unsigned char)0x80))
+	{
+		/* 返回ASCII码 */
+		*pdwCode = (unsigned int)c;
+		return 1;
+	}
+
+	if (((pucBuf + 1) < pucBufEnd) && (c >= (unsigned char)0x80))
+	{
+		/* 返回GBK码 */
+		*pdwCode = pucBuf[0] + (((unsigned int)pucBuf[1])<<8);
+		return 2;
+	}
+
+	if (pucBuf < pucBufEnd)
+	{
+		/* 可能文件有损坏, 但是还是返回一个码, 即使它是错误的 */
+		*pdwCode = (unsigned int)c;
+		return 1;
+	}
+	else
+	{
+		/* 字符串处理完毕 */
+		return 0;
+	}
+#endif
 }
 
 /**********************************************************************

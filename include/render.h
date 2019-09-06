@@ -1,7 +1,7 @@
 #ifndef __RENDER__H__
 #define __RENDER__H__
 #include <page_manager.h>
-#include <display_manager.h>
+#include <disp_manager.h>
 #include <fonts_manager.h>
 
 void ReleaseButton ( PT_Layout ptLayout );
