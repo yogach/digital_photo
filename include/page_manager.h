@@ -4,6 +4,7 @@
 #include <pic_manager.h>
 #include <input_manager.h>
 #include <disp_manager.h>
+#include <sys/time.h>
 
 //用于确定需要显示的图标在页面上的位置
 typedef struct Layout
@@ -33,6 +34,9 @@ int RegisterPageAction ( PT_PageDesc ptPageAction );
 void ShowPages ( void );
 PT_PageDesc Page ( char* pcName );
 int GenericGetInputEvent(PT_Layout ptLayout,PT_InputEvent ptInputEvent);
+int GenericGetPressedIcon ( PT_Layout atLayout );
+int TimeMSBetween(struct timeval tTimeStart, struct timeval tTimeEnd);
+
 
 int GeneratePage(PT_Layout atLayout , PT_VideoMem pt_VideoMem);
 int ShowPage ( PT_PageDesc ptPageDesc);

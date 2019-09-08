@@ -5,7 +5,8 @@
 #include <config.h>
 #include <disp_manager.h>
 #include <stdlib.h>
-
+#include <sys/time.h>
+#include <render.h>
 static PT_PageDesc g_tPageActionHead;
 
 
@@ -244,6 +245,92 @@ int ShowPage ( PT_PageDesc ptPageDesc )
 	return 0;
 
 }
+
+/**********************************************************************
+ * 函数名称： TimeMSBetween
+ * 功能描述： 两个时间点的间隔:单位ms
+ * 输入参数： tTimeStart - 起始时间点
+ *            tTimeEnd   - 结束时间点
+ * 输出参数： 无
+ * 返 回 值： 间隔,单位ms
+ ***********************************************************************/
+int TimeMSBetween(struct timeval tTimeStart, struct timeval tTimeEnd)
+{
+   int iMs;
+   //秒转毫秒 微秒转毫秒
+   iMs = (tTimeEnd.tv_sec - tTimeStart.tv_sec)*1000 - (tTimeEnd.tv_usec - tTimeStart.tv_usec) / 1000;
+   return iMs;
+}
+
+
+
+int GenericGetPressedIcon ( PT_Layout atLayout )
+{
+    T_InputEvent tInputEvent;
+	static T_InputEvent tPreInputEvent;
+	static int iIndex,iIndexPressured=-1,bPressure = 0, bFast = 0;
+
+	while ( 1 )
+	{
+        //获得在哪个图标中按下
+		iIndex = GenericGetInputEvent ( atLayout,&tInputEvent );
+		if ( tInputEvent.iPressure == 0 ) //如果是松开状态
+		{
+			if ( bPressure ) //如果曾经按下
+			{
+				//改变按键区域的颜色
+				ReleaseButton ( &atLayout[iIndex] );
+				bPressure = 0;
+				bFast = 0;
+               // *bLongPress = 0;
+
+				if ( iIndexPressured == iIndex ) //如果按键和松开的是同一个按键
+				{
+					iIndexPressured = -1;
+					return iIndex;//返回此次按键有效
+				}
+
+				//iIndexPressured = -1;
+			}
+		}
+		else //如果是按下状态
+		{
+		    
+			if ( !bPressure ) // 未曾按下按钮
+			{
+				bPressure = 1;
+				iIndexPressured = iIndex;
+				tPreInputEvent = tInputEvent;
+				//改变按键区域的颜色
+				PressButton ( &atLayout[iIndex] );
+			}
+			else //如果一直处于按下状态
+			{
+              //比较前一次与本次的按下时的间隔时间
+              if(TimeMSBetween(tPreInputEvent.tTime,tInputEvent.tTime)  > 2000)//如果2s之后还是处于按下状态
+              {
+                bFast = 1;//进入按下状态
+				tPreInputEvent = tInputEvent;
+				DBG_PRINTF("bFast:%d \r\n" ,bFast);
+			  }
+
+              if((bFast)&&(TimeMSBetween(tPreInputEvent.tTime,tInputEvent.tTime)  > 50))//进入长按状态之后每50ms返回一个值
+              {
+                //*bLongPress = 1;
+				tPreInputEvent = tInputEvent;
+				
+				return iIndex;
+
+			  }
+			}
+
+		}
+	}
+
+	return -1;
+
+}
+
 
 
 /**********************************************************************

@@ -128,7 +128,7 @@ int MergerStringToCenterOfRectangleInVideoMem ( int iTopLeftX, int iTopLeftY, in
 	tFontBitMap.iCurOriginX = 0;
 	tFontBitMap.iCurOriginY = 0;
 
-	/* 2.先计算字符串位图的总体宽度、高度 */
+	/* 2.先计算字符串位图的总体宽度、高度  此处生成的 iMinX iMinY iMaxX iMaxY 代表的是原点在左下角的坐标系*/
 	while ( 1 )
 	{
 		ilen = GetCodeFrmBuf ( pucStrStart,pucStrEnd,&dwCode );
@@ -188,7 +188,7 @@ int MergerStringToCenterOfRectangleInVideoMem ( int iTopLeftX, int iTopLeftY, in
 
 	}
 
-	DBG_PRINTF ( "iMinx = %d , iMax = %d, iMinY = %d , iMaxY = %d \r\n",iMinX,iMaxX,iMinY,iMaxY );
+	//DBG_PRINTF ( "iMinx = %d , iMax = %d, iMinY = %d , iMaxY = %d \r\n",iMinX,iMaxX,iMinY,iMaxY );
 
 	/*3.判断要显示的字符串是否超过显示区域*/
 	//得到字符串大小
@@ -212,13 +212,11 @@ int MergerStringToCenterOfRectangleInVideoMem ( int iTopLeftX, int iTopLeftY, in
 
 	/*
 	 * 2.2 再计算第1个字符原点坐标
-	 * iMinX - 原来的iCurOriginX(0) = iStrTopLeftX - 新的iCurOriginX
-	 * iMinY - 原来的iCurOriginY(0) = iStrTopLeftY - 新的iCurOriginY
 	 */
-	tFontBitMap.iCurOriginX = iStartX -iMinX;
-	tFontBitMap.iCurOriginY = iStartY -iMinY; //此处需要关心 涉及到坐标系转换
+	tFontBitMap.iCurOriginX = iStartX -iMinX; //x轴无需转化
+	tFontBitMap.iCurOriginY = iStartY -iMinY; //此处相当于 左下角坐标系坐标 转化为 左上角坐标系坐标
 
-	DBG_PRINTF ( "iCurOriginX = %d, iCurOriginY = %d\n", tFontBitMap.iCurOriginX, tFontBitMap.iCurOriginY );
+	//DBG_PRINTF ( "iCurOriginX = %d, iCurOriginY = %d\n", tFontBitMap.iCurOriginX, tFontBitMap.iCurOriginY );
 
 	bHasGetCode = 0;
 	pucStrStart = pucTextString;
@@ -232,7 +230,7 @@ int MergerStringToCenterOfRectangleInVideoMem ( int iTopLeftX, int iTopLeftY, in
 			if ( bHasGetCode )
 			{
 				//进入此处代表字符串已结束
-				DBG_PRINTF ( "string end ..\r\n" );
+				//DBG_PRINTF ( "string end ..\r\n" );
 				break;
 			}
 			else
@@ -286,7 +284,7 @@ int MergeOneFontToVideoMem ( PT_FontBitMap ptFontBitMap, PT_VideoMem ptVideoMem 
 	int iNum;
 	unsigned char ucByte = 0;
 
-	DBG_PRINTF ( "fontBpp:%d",iBpp );
+	//DBG_PRINTF ( "fontBpp:%d",iBpp );
 	//根据不同的像素分类处理
 	switch ( iBpp )
 	{

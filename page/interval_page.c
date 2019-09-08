@@ -11,7 +11,7 @@
 
 static void IntervalPageRun ( void );
 static int CalcIntervalPageLayout ( PT_Layout atLayout );
-static int IntervalPageSpecialDis(PT_VideoMem ptVideoMem);
+static int IntervalPageSpecialDis ( PT_VideoMem ptVideoMem );
 
 
 static T_Layout g_atIntervalPageIconsLayout[] =
@@ -65,9 +65,10 @@ static int CalcIntervalPageLayout ( PT_Layout atLayout )
 
 	//1、inc.bmp
 	iIconHight = iYres/3 *28 /128;
-	iIconWidth = iIconHight;
+	iIconWidth = iIconHight*2;
 	IconX =  ( iXres-iIconWidth ) /2; //图标居中
 	IconY =  iYres /6 ;
+
 	atLayout[0].iTopLeftX    = IconX;
 	atLayout[0].iTopLeftY    = IconY;
 	atLayout[0].iLowerRightX = IconX + iIconWidth - 1;
@@ -76,7 +77,7 @@ static int CalcIntervalPageLayout ( PT_Layout atLayout )
 
 	//2、time.bmp
 	iIconHight = iYres/3 *72 /128;
-	iIconWidth = iIconHight;
+	iIconWidth = iIconHight*2;
 	IconX =  ( iXres-iIconWidth ) /2; //图标居中
 	//IconY =  iYres /6 ;
 	atLayout[1].iTopLeftX    = IconX;
@@ -86,7 +87,7 @@ static int CalcIntervalPageLayout ( PT_Layout atLayout )
 
 	//3、dec.bmp
 	iIconHight = iYres/3 *28 /128;
-	iIconWidth = iIconHight;
+	iIconWidth = iIconHight*2;
 	IconX =  ( iXres-iIconWidth ) /2; //图标居中
 	//IconY =  iYres /6 ;
 	atLayout[2].iTopLeftX    = IconX;
@@ -96,8 +97,8 @@ static int CalcIntervalPageLayout ( PT_Layout atLayout )
 
 	//4、ok.bmp
 	iIconHight = iYres/6;
-	iIconWidth = iIconHight;
-	IconX =  iXres /6; //
+	iIconWidth = iIconHight ;
+	IconX =  ( iXres - iIconWidth ) / 3; //
 	//IconY =  iYres /6 ;
 	atLayout[3].iTopLeftX    = IconX;
 	atLayout[3].iTopLeftY    = atLayout[2].iLowerRightY + iYres/6;
@@ -143,49 +144,51 @@ static int CalcIntervalPageLayout ( PT_Layout atLayout )
  ***********************************************************************/
 static int GenerateIntervalPageSpecialIcon ( int dwNumber, PT_VideoMem ptVideoMem )
 {
-    unsigned int dwFontSize;
-    char strNumber[3];
-    int iError;
+	unsigned int dwFontSize;
+	char strNumber[3];
+	int iError;
 
-    //获得显示数字的高度
+	//获得显示数字的高度
 	dwFontSize = g_NumDispLayout.iLowerRightY - g_NumDispLayout.iTopLeftY;
 
-	SetFontSize(dwFontSize); //设置字体大小
+	SetFontSize ( dwFontSize ); //设置字体大小
 
-    //限制数字的大小
-    if(dwNumber > 59)
-    {
-       // dwNumber = 59;
-       return -1;
+	//限制数字的大小
+	if ( dwNumber > 59 )
+	{
+		// dwNumber = 59;
+		return -1;
 	}
-	
+
 	//将数字转化为字符串 长度为3 如果数字小于10前面补0 包含结束符
-	snprintf(strNumber, 3, "%02d", dwNumber);
+	snprintf ( strNumber, 3, "%02d", dwNumber );
 
 	//在指定区域内居中显示
-	iError = MergerStringToCenterOfRectangleInVideoMem(g_NumDispLayout.iTopLeftX,g_NumDispLayout.iTopLeftY,g_NumDispLayout.iLowerRightX,\
-	                                                   g_NumDispLayout.iLowerRightY,(unsigned char* )strNumber,ptVideoMem);
+	iError = MergerStringToCenterOfRectangleInVideoMem ( g_NumDispLayout.iTopLeftX,g_NumDispLayout.iTopLeftY,g_NumDispLayout.iLowerRightX,\
+	                                                     g_NumDispLayout.iLowerRightY, ( unsigned char* ) strNumber,ptVideoMem );
 	return iError;
-  
+
 
 }
 
-static int IntervalPageSpecialDis(PT_VideoMem ptVideoMem)
+static int IntervalPageSpecialDis ( PT_VideoMem ptVideoMem )
 {
-   return GenerateIntervalPageSpecialIcon(g_iIntervalSecond,ptVideoMem);
+	return GenerateIntervalPageSpecialIcon ( g_iIntervalSecond,ptVideoMem );
 }
 
 
 static void IntervalPageRun ( void )
 {
-	T_InputEvent tInputEvent;
-	int iIndex,iIndexPressured=-1,bPressure = 0;
-    int iIntervalNum = 0;
-    PT_VideoMem ptDeviceMen;
+	T_InputEvent tInputEvent ,tInputEventPrePress;
+	int iIndex,iIndexPressed=-1,bPressed = 0 ,bFast = 0;
+	int iIntervalSecond = g_iIntervalSecond ;//, bLongPress;
+	PT_VideoMem ptDevVideoMem;
+    
+	//获得显示设备显存
+	ptDevVideoMem = GetDevVideoMen();
 
-    //获得显示设备显存
-	ptDeviceMen = GetDevVideoMen();
- 
+
+
 
 	/* 1. 显示页面 */
 	ShowPage ( &g_tIntervalPageDesc );
@@ -193,75 +196,152 @@ static void IntervalPageRun ( void )
 	/* 2. 通过输入事件获得按下的icon 进而处理 */
 	while ( 1 )
 	{
-		//获得在哪个图标中按下
-		iIndex = GenericGetInputEvent ( g_atIntervalPageIconsLayout,&tInputEvent );
-
-		if ( tInputEvent.iPressure == 0 ) //如果是松开状态
+#if 0
+		//int GenericGetPressedIcon ( g_atIntervalPageIconsLayout );
+		switch ( GenericGetPressedIcon ( g_atIntervalPageIconsLayout) )
 		{
-			if ( bPressure ) //如果曾经按下
+			case 0://数字增加
 			{
-				//改变按键区域的颜色
-				ReleaseButton ( &g_atIntervalPageIconsLayout[iIndex] );
-				bPressure = 0;
-
-
-				if ( iIndexPressured == iIndex ) //如果按键和松开的是同一个按键
+				iIntervalNum++;
+				if ( iIntervalNum == 60 )
 				{
+					iIntervalNum = 0;
+				}
+				GenerateIntervalPageSpecialIcon ( iIntervalNum,ptDeviceMen );
+			}
+			break;
 
-					switch ( iIndexPressured )
+
+			case 2://数字减少
+			{
+				iIntervalNum--;
+				if ( iIntervalNum == -1 )
+				{
+					iIntervalNum = 59;
+				}
+				GenerateIntervalPageSpecialIcon ( iIntervalNum,ptDeviceMen );
+			}
+			break;
+
+			case 3://确认按键
+			{
+
+			}
+			break;
+
+			case 4://返回按键
+			{
+				return;
+			}
+			break;
+
+
+			default:
+				break;
+		}
+#else 
+		iIndex = GenericGetInputEvent(g_atIntervalPageIconsLayout, &tInputEvent);
+ 		if (tInputEvent.iPressure == 0)
+		{
+			/* 如果是松开 */
+			if (bPressed)
+			{
+				bFast = 0;
+				
+				/* 曾经有按钮被按下 */
+				ReleaseButton(&g_atIntervalPageIconsLayout[iIndexPressed]);
+				bPressed = 0;
+
+				if (iIndexPressed == iIndex) /* 按下和松开都是同一个按钮 */
+				{
+					switch (iIndexPressed)
 					{
-						case 0://数字增加
+						case 0: /* inc按钮 */
 						{
-						   iIntervalNum++;
-						   if(iIntervalNum == 60)
-						   	 iIntervalNum = 0;	   
-                           GenerateIntervalPageSpecialIcon(iIntervalNum,ptDeviceMen);
+							iIntervalSecond++;
+							if (iIntervalSecond == 60)
+							{
+								iIntervalSecond = 0;
+							}
+							GenerateIntervalPageSpecialIcon(iIntervalSecond, ptDevVideoMem);
+							break;
 						}
-						break;
-
-
-						case 2://数字减少
+						case 2: /* dec按钮 */
 						{
-						   iIntervalNum--;
-						   if(iIntervalNum == -1)
-						   	 iIntervalNum = 59;	   
-                           GenerateIntervalPageSpecialIcon(iIntervalNum,ptDeviceMen);	
+							iIntervalSecond--;
+							if (iIntervalSecond == -1)
+							{
+								iIntervalSecond = 59;
+							}
+							GenerateIntervalPageSpecialIcon(iIntervalSecond, ptDevVideoMem);
+							break;
 						}
-						break;
-						
-						case 3://确认按键
+						case 3: /* ok按钮 */
 						{
+							g_iIntervalSecond = iIntervalSecond;
 							
+							return;
+							break;
 						}
-						break;
-
-						case 4://返回按键
+						case 4: /* cancel按钮 */
 						{
 							return;
-						}
-						break;
-
-
-						default:
 							break;
+						}
+						default:
+						{
+							break;
+						}
 					}
-
+				}
+				
+				iIndexPressed = -1;
+			}
+		}
+		else
+		{
+			/* 按下状态 */
+			if (iIndex != -1)
+			{
+				if (!bPressed && (iIndex != 1))
+				{
+					/* 未曾按下按钮 */
+					bPressed = 1;
+					iIndexPressed = iIndex;
+					tInputEventPrePress = tInputEvent;  /* 记录下来 */
+					PressButton(&g_atIntervalPageIconsLayout[iIndexPressed]);
 				}
 
-				iIndexPressured = -1;
+				/* 如果按下的是"inc.bmp"或"dec.bmp" 
+				 * 连按2秒后, 飞快的递增或减小: 每50ms变化一次
+				 */
+				if ((iIndexPressed == 0) || (iIndexPressed == 2))
+				{
+					if (bFast && (TimeMSBetween(tInputEventPrePress.tTime, tInputEvent.tTime) > 50))
+					{
+						iIntervalSecond = iIndexPressed ? (iIntervalSecond - 1) : (iIntervalSecond + 1);
+						if (iIntervalSecond == 60)
+						{
+							iIntervalSecond = 0;
+						}
+						else if (iIntervalSecond == -1)
+						{
+							iIntervalSecond = 59;
+						}
+						GenerateIntervalPageSpecialIcon(iIntervalSecond, ptDevVideoMem);
+						tInputEventPrePress = tInputEvent;
+					}
+					
+					if (TimeMSBetween(tInputEventPrePress.tTime, tInputEvent.tTime) > 2000)
+					{
+						bFast = 1;
+						tInputEventPrePress = tInputEvent;
+					}
+					
+				}
 			}
 		}
-		else //如果是按下状态
-		{
-			if ( !bPressure ) // 未曾按下按钮
-			{
-				bPressure = 1;
-				iIndexPressured = iIndex;
-				//改变按键区域的颜色
-				PressButton ( &g_atIntervalPageIconsLayout[iIndex] );
-			}
-
-		}
+#endif
 
 	}
 
