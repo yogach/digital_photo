@@ -49,6 +49,7 @@ int IntervalPageInit ( void );
 int MainPageInit ( void );
 int SettingPageInit ( void );
 int IntervalPageInit ( void );
+int ManualPageInit ( void );
 
 
 #endif /*_PAGE_MANAGER_H__*/
