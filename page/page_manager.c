@@ -264,14 +264,14 @@ int TimeMSBetween(struct timeval tTimeStart, struct timeval tTimeEnd)
 
 
 
-int GenericGetPressedIcon ( PT_Layout atLayout )
+int GenericGetPressedIcon ( PT_Layout atLayout ,int *bLongPress)
 {
     T_InputEvent tInputEvent;
 	static T_InputEvent tPreInputEvent;
 	static int iIndex,iIndexPressured=-1,bPressure = 0, bFast = 0;
 
-	while ( 1 )
-	{
+	//while ( 1 )
+	//{
         //获得在哪个图标中按下
 		iIndex = GenericGetInputEvent ( atLayout,&tInputEvent );
 		if ( tInputEvent.iPressure == 0 ) //如果是松开状态
@@ -282,15 +282,15 @@ int GenericGetPressedIcon ( PT_Layout atLayout )
 				ReleaseButton ( &atLayout[iIndex] );
 				bPressure = 0;
 				bFast = 0;
-               // *bLongPress = 0;
+                *bLongPress = 0;
 
 				if ( iIndexPressured == iIndex ) //如果按键和松开的是同一个按键
 				{
-					iIndexPressured = -1;
+					//iIndexPressured = -1;
 					return iIndex;//返回此次按键有效
 				}
 
-				//iIndexPressured = -1;
+				iIndexPressured = -1;
 			}
 		}
 		else //如果是按下状态
@@ -304,7 +304,7 @@ int GenericGetPressedIcon ( PT_Layout atLayout )
 				//改变按键区域的颜色
 				PressButton ( &atLayout[iIndex] );
 			}
-			else //如果一直处于按下状态
+			else if(iIndexPressured == iIndex)//如果同一个按键一直处于按下状态
 			{
               //比较前一次与本次的按下时的间隔时间
               if(TimeMSBetween(tPreInputEvent.tTime,tInputEvent.tTime)  > 2000)//如果2s之后还是处于按下状态
@@ -316,16 +316,16 @@ int GenericGetPressedIcon ( PT_Layout atLayout )
 
               if((bFast)&&(TimeMSBetween(tPreInputEvent.tTime,tInputEvent.tTime)  > 50))//进入长按状态之后每50ms返回一个值
               {
-                //*bLongPress = 1;
+                *bLongPress = 1;
 				tPreInputEvent = tInputEvent;
 				
-				return iIndex;
+				return iIndexPressured;
 
 			  }
 			}
 
 		}
-	}
+	//}
 
 	return -1;
 

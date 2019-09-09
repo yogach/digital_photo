@@ -67,7 +67,7 @@ static void* InputEventTreadFunction(void* pVoid)
 
    }
 
-
+	return NULL;
 
 }
 

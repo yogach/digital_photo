@@ -177,11 +177,23 @@ static int IntervalPageSpecialDis ( PT_VideoMem ptVideoMem )
 }
 
 
+/**********************************************************************
+ * 函数名称： GetIntervalSecond
+ * 功能描述： 用于获取设定的间隔时间
+ * 输入参数： 无
+ * 输出参数： 无
+ * 返 回 值： g_iIntervalSecond - 图片显示间隔
+ ***********************************************************************/
+int GetIntervalSecond(void)
+{
+  return g_iIntervalSecond;
+}
+
 static void IntervalPageRun ( void )
 {
-	T_InputEvent tInputEvent ,tInputEventPrePress;
-	int iIndex,iIndexPressed=-1,bPressed = 0 ,bFast = 0;
-	int iIntervalSecond = g_iIntervalSecond ;//, bLongPress;
+	//T_InputEvent tInputEvent ,tInputEventPrePress;
+	//int iIndex,iIndexPressed=-1,bPressed = 0 ,bFast = 0;
+	int iIntervalSecond = g_iIntervalSecond , bLongPress;
 	PT_VideoMem ptDevVideoMem;
     
 	//获得显示设备显存
@@ -196,35 +208,43 @@ static void IntervalPageRun ( void )
 	/* 2. 通过输入事件获得按下的icon 进而处理 */
 	while ( 1 )
 	{
-#if 0
+#if 1
 		//int GenericGetPressedIcon ( g_atIntervalPageIconsLayout );
-		switch ( GenericGetPressedIcon ( g_atIntervalPageIconsLayout) )
+		switch ( GenericGetPressedIcon ( g_atIntervalPageIconsLayout, &bLongPress) )
 		{
 			case 0://数字增加
 			{
-				iIntervalNum++;
-				if ( iIntervalNum == 60 )
-				{
-					iIntervalNum = 0;
-				}
-				GenerateIntervalPageSpecialIcon ( iIntervalNum,ptDeviceMen );
+                if(bLongPress)
+                    iIntervalSecond+=10;
+				else
+					iIntervalSecond++;
+				
+				iIntervalSecond = iIntervalSecond%60;
+				
+				GenerateIntervalPageSpecialIcon ( iIntervalSecond,ptDevVideoMem );
 			}
 			break;
 
 
 			case 2://数字减少
 			{
-				iIntervalNum--;
-				if ( iIntervalNum == -1 )
+			    if(bLongPress)
+                    iIntervalSecond-=10;
+				else
+					iIntervalSecond--;
+				
+				if ( iIntervalSecond <= 0 )
 				{
-					iIntervalNum = 59;
+					iIntervalSecond = 59 + iIntervalSecond;
 				}
-				GenerateIntervalPageSpecialIcon ( iIntervalNum,ptDeviceMen );
+				GenerateIntervalPageSpecialIcon ( iIntervalSecond,ptDevVideoMem );
 			}
 			break;
 
 			case 3://确认按键
 			{
+				g_iIntervalSecond = iIntervalSecond;											
+				return;
 
 			}
 			break;
