@@ -1,3 +1,4 @@
+
 #include <config.h>
 #include <disp_manager.h>
 #include <page_manager.h>
@@ -105,6 +106,7 @@ static int CalcBrowsePageLayout ( PT_Layout atLayout )
 		}
 	}
 
+	return 0;
 
 }
 
@@ -119,11 +121,23 @@ static int BrowsePageSpecialDis ( PT_VideoMem ptVideoMem )
 
 static void BrowsePageRun ( void )
 {
-	/* 1. 显示页面 */
+
+	 PT_VideoMem ptDevVideoMem;
+	 
+	 //获得显示设备显存
+	 ptDevVideoMem = GetDevVideoMen();
+
+     /* 0. 获得要显示的目录的内容 */
+
+
+	 /* 1. 显示页面 */
 	ShowPage ( &g_tBrowsePageDesc );
+		 
 
 	while ( 1 )
 	{
+
+
 
 
 
