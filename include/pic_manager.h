@@ -36,7 +36,7 @@ int GetPixelDatasFormIcon(char * strFileName , PT_PhotoDesc ptPhotoDesc);
 void FreePixelDatasForIcon(PT_PhotoDesc ptPhotoDatas);
 
 
-#define ICON_PATH  "/mnt/Icon/"
+
 
 
 
