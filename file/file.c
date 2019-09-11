@@ -83,7 +83,7 @@ int  isDir ( char* strFilePath,char* strFileName )
 	snprintf ( strTmp,256,"%s%s",strFilePath,strFileName ); //输出两个参数到str中
 	strTmp[255] = '\0';
 
-	//获取文件信息 之后判断文件的tStat.st_mode是否为目录类型
+	//先获取文件信息 之后判断文件的tStat.st_mode是否为目录类型
 	if ( ( stat ( strTmp, &tStat ) == 0 ) && S_ISDIR ( tStat.st_mode ) )
 	{
 		return 1;
@@ -95,7 +95,34 @@ int  isDir ( char* strFilePath,char* strFileName )
 
 
 }
+/**********************************************************************
+ * 函数名称： isRegFile
+ * 功能描述： 判断一个文件是否为文件
+ * 输入参数： strFilePath - 文件的路径
+ *            strFileName - 文件的名字
+ * 输出参数： 无
+ * 返 回 值： 0 - 不是文件
+ *            1 - 是文件
+ ***********************************************************************/
+int isRegFile ( char* strFilePath,char* strFileName )
+{
+	char  strTmp[256];
+	struct stat tStat;
 
+	snprintf ( strTmp,256,"%s%s",strFilePath,strFileName ); //输出两个参数到str中
+	strTmp[255] = '\0';
+
+	//先获取文件信息 之后判断文件的tStat.st_mode是否是一个文件
+	if ( ( stat ( strTmp, &tStat ) == 0 ) && S_ISREG ( tStat.st_mode ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+
+}
 
 /**********************************************************************
  * 函数名称： GetDirContents
@@ -115,7 +142,7 @@ int GetDirContents ( char* strDirName, PT_DirContent** pptDirContents, int* piNu
 	PT_DirContent* aptDirContents;
 	struct dirent** aptNameList;
 
-	/* 扫描目录,结果按名字排序,存在aptNameList[0],aptNameList[1],...
+	/* 扫描目录,结果按名字排序,存在aptNameList[0],aptNameList[1]中
 	 * 返回值为找到的匹配模式文件的个数
 	 * alphasort为排序函数
 	 */
@@ -131,7 +158,7 @@ int GetDirContents ( char* strDirName, PT_DirContent** pptDirContents, int* piNu
 	if ( aptDirContents == NULL )
 	{
 		DBG_PRINTF ( "malloc error!\r\n" );
-		//如果分配失败需要释放之间分配的aptNameList
+		//如果分配失败需要释放之前分配的aptNameList
 		for ( i = 0; i < iNumber; i++ )
 		{
 			if ( aptNameList[i] )
@@ -190,19 +217,62 @@ int GetDirContents ( char* strDirName, PT_DirContent** pptDirContents, int* piNu
 		}
 
 		/* 并不是所有的文件系统都支持d_type, 所以不能直接判断d_type */
-
-		if ( isDir ( strDirName, aptNameList[i]->d_name ) ) //判断是否为目录
+		if ( isDir ( strDirName, aptNameList[i]->d_name ) ) //判断是否为目录  d_name为文件名
 		{
-
-
+			strncpy ( aptDirContents[j]->strDirName,aptNameList[i]->d_name,256 );
+			aptDirContents[j]->strName[255] = '\0';
+			aptDirContents[j]->eFileType = FILETYPE_DIR;
+			free ( aptDirContents[i] );
+			aptDirContents[i]=NULL;
+			j++;
 		}
-
 
 	}
 
+	/* 先把目录挑出来存入aptDirContents */
+	for ( i = 0; i <iNumber; i++ )
+	{
+		if ( aptDirContents[i] == NULL )
+		{
+			continue;
+		}
 
+		/* 忽略".",".."这两个目录 */
+		if ( ( strcmp ( aptNameList[i]->d_name,'.' ) == 0 ) || ( strcmp ( aptNameList[i]->d_name,'..' ) == 0 ) )
+		{
+			continue;
+		}
 
+		/* 并不是所有的文件系统都支持d_type, 所以不能直接判断d_type */
+		if ( isRegFile ( strDirName, aptNameList[i]->d_name ) ) //判断这个文件名是否为文件
+		{
+			strncpy ( aptDirContents[j]->strDirName,aptNameList[i]->d_name,256 );
+			aptDirContents[j]->strName[255] = '\0';
+			aptDirContents[j]->eFileType = FILETYPE_FILE;
+			free ( aptDirContents[i] );
+			aptDirContents[i]=NULL;
+			j++;
+		}
 
+	}
+
+	//释放aptDirContents中未使用的项
+	for ( i = j ; i < ( iNumber - 2 ); i++ )
+	{
+		free ( aptDirContents[i] );
+	}
+
+    //清除已分配的aptNameList
+	for ( i = 0; i < iNumber; i++ )
+	{
+		if ( aptNameList[i] )
+		{
+			free ( aptNameList[i] );
+		}
+	}
+	free ( aptNameList );
+
+	*piNumber = j;
 
 	return 0;
 }

@@ -29,6 +29,7 @@ typedef struct DirContent {
 
 int MapFile(PT_MapFile ptFileMap);
 void  unMapFile(PT_MapFile ptFileMap);
+int GetDirContents ( char* strDirName, PT_DirContent** pptDirContents, int* piNumber );
 
 
 

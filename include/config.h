@@ -14,7 +14,9 @@
 //#define DBG_PRINTF DebugPrint 
 
 #define DBG_PRINTF(fmt,...) DebugPrint("%s[%d]:"fmt,__FILE__,__LINE__,##__VA_ARGS__)
+
 #define ICON_PATH  "/mnt/Icon/" //Í¼±ê±£´æÄ¿Â¼
+#define DEFAULT_PATH "/"
 
 
 #endif /* _CONFIG_H */

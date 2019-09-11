@@ -13,6 +13,14 @@ static int CalcBrowsePageLayout ( PT_Layout atLayout );
 static int BrowsePageSpecialDis ( PT_VideoMem ptVideoMem );
 static void BrowsePageRun ( void );
 
+/* 用来描述某目录里的内容 */
+static PT_DirContent *g_aptDirContents;  /* 数组:存有目录下"顶层子目录","文件"的名字 */
+static int g_iDirContentsNumber;         /* g_aptDirContents数组有多少项 */
+
+//当前路径
+static char g_strCurDir[256] = DEFAULT_PATH;
+static char g_strSelectDir[256] = DEFAULT_PATH;
+
 
 static T_Layout g_atBrowsePageIconsLayout[] =
 {
@@ -121,17 +129,22 @@ static int BrowsePageSpecialDis ( PT_VideoMem ptVideoMem )
 
 static void BrowsePageRun ( void )
 {
-
+     int iError;
 	 PT_VideoMem ptDevVideoMem;
 	 
 	 //获得显示设备显存
 	 ptDevVideoMem = GetDevVideoMen();
 
      /* 0. 获得要显示的目录的内容 */
-
+     iError = GetDirContents ( g_strCurDir, &g_aptDirContents, &g_iDirContentsNumber );
+     if(iError)
+     {
+         DBG_PRINTF("GetDirContents error ... \r\n");
+		 return -1;
+	 }
 
 	 /* 1. 显示页面 */
-	ShowPage ( &g_tBrowsePageDesc );
+	 ShowPage ( &g_tBrowsePageDesc );
 		 
 
 	while ( 1 )
