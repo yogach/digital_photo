@@ -16,6 +16,18 @@ typedef struct Layout
    char *IconName;      //图标名称
 }T_Layout ,*PT_Layout;
 
+//用于
+typedef struct PageLayOut
+{
+  int iTopLeftX;
+  int iTopLeftY;
+  int iLowerRightX;
+  int iLowerRightY;
+  int iBpp;
+  int iMaxTotalBytes;
+  PT_Layout atLayOut;
+}T_PageLayOut,*PT_PageLayOut;
+
 
 typedef struct PageDesc
 {

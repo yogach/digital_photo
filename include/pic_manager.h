@@ -4,12 +4,12 @@
 
 typedef struct PhotoDesc
 {
-  int iHigh;
-  int iWidth;
-  int iBpp;
-  int iLineBytes;
-  int iTotalBytes;
-  unsigned char *aucPhotoData;
+  int iHigh;       /* 宽度: 一行有多少个象素 */
+  int iWidth;      /* 高度: 一列有多少个象素 */
+  int iBpp;        /* 一个象素用多少位来表示 */
+  int iLineBytes;  /* 一行数据有多少字节 */
+  int iTotalBytes; /* 所有字节数 */ 
+  unsigned char *aucPhotoData; //图片数据储存位置
 
 }T_PhotoDesc,*PT_PhotoDesc;
 
