@@ -209,7 +209,6 @@ static void IntervalPageRun ( void )
 	while ( 1 )
 	{
 #if 1
-		//int GenericGetPressedIcon ( g_atIntervalPageIconsLayout );
 		switch ( GenericGetPressedIcon ( g_atIntervalPageIconsLayout, &bLongPress) )
 		{
 			case 0://Êý×ÖÔö¼Ó

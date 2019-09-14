@@ -45,6 +45,8 @@ int ID(char * str);
 int RegisterPageAction ( PT_PageDesc ptPageAction );
 void ShowPages ( void );
 PT_PageDesc Page ( char* pcName );
+
+int GenericGetInputPositionInPageLayout(PT_Layout atLayout,PT_InputEvent ptInputEvent);
 int GenericGetInputEvent(PT_Layout ptLayout,PT_InputEvent ptInputEvent);
 int GenericGetPressedIcon ( PT_Layout atLayout ,int *bLongPress);
 int TimeMSBetween(struct timeval tTimeStart, struct timeval tTimeEnd);

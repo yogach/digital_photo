@@ -85,6 +85,36 @@ int ID ( char* str )
 
 
 /**********************************************************************
+ * 函数名称： GenericGetInputPositionInPageLayout
+ * 功能描述： 判断按下的位置在哪个图标内
+ * 输入参数： ptPageLayout - 内含多个图标的显示区域
+ * 输出参数： ptInputEvent - 内含得到的输入数据
+ * 返 回 值： -1     - 输入数据不位于任何一个图标之上
+ *            其他值 - 输入数据所落在的图标(ptLayout数组的哪一项)
+**********************************************************************/
+int GenericGetInputPositionInPageLayout(PT_Layout atLayout,PT_InputEvent ptInputEvent)
+{
+   int i = 0;
+
+   while ( atLayout[i].IconName )
+	{
+		//如果按下的触点在某个图标内 返回图标在数组内的位置
+		if ( ( ptInputEvent->iX >= atLayout[i].iTopLeftX ) && ( ptInputEvent->iX <= atLayout[i]->iLowerRightX ) &&\
+		        ( ptInputEvent->iY >= atLayout[i].iTopLeftY ) && ( ptInputEvent->iY <= atLayout[i]->iLowerRightY ) )
+		{
+			//DBG_PRINTF ( "put\release status:%d , icon name:%s\r\n",tInputEvent.iPressure,atLayout[i].IconName );
+			return i;
+		}
+		else
+		{
+			i ++;
+		}
+	}
+
+   return -1;
+
+}
+/**********************************************************************
  * 函数名称： GenericGetInputEvent
  * 功能描述： 读取输入数据,并判断它位于哪一个图标上
  * 输入参数： ptPageLayout - 内含多个图标的显示区域
@@ -111,7 +141,7 @@ int GenericGetInputEvent ( PT_Layout atLayout,PT_InputEvent ptInputEvent )
 	{
 		return -1;
 	}
-
+/*
 	while ( atLayout[i].IconName )
 	{
 		//如果按下的触点在某个图标内 返回图标在数组内的位置
@@ -129,6 +159,8 @@ int GenericGetInputEvent ( PT_Layout atLayout,PT_InputEvent ptInputEvent )
 
 	//DBG_PRINTF ( "don't touch icon\r\n" );
 	return -1;
+	*/
+	return GenericGetInputPositionInPageLayout(atLayout,&tInputEvent);
 
 }
 
