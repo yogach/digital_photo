@@ -6,7 +6,9 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <stdio.h>
-#include  <dirent.h>
+#include <dirent.h>
+#include <stdlib.h>
+#include <string.h>
 
 
 /**********************************************************************
@@ -211,7 +213,7 @@ int GetDirContents ( char* strDirName, PT_DirContent** pptDirContents, int* piNu
 	{
 
 		/* 忽略".",".."这两个目录 */
-		if ( ( strcmp ( aptNameList[i]->d_name,'.' ) == 0 ) || ( strcmp ( aptNameList[i]->d_name,'..' ) == 0 ) )
+		if ( ( strcmp ( aptNameList[i]->d_name,"." ) == 0 ) || ( strcmp ( aptNameList[i]->d_name,".." ) == 0 ) )
 		{
 			continue;
 		}
@@ -219,11 +221,11 @@ int GetDirContents ( char* strDirName, PT_DirContent** pptDirContents, int* piNu
 		/* 并不是所有的文件系统都支持d_type, 所以不能直接判断d_type */
 		if ( isDir ( strDirName, aptNameList[i]->d_name ) ) //判断是否为目录  d_name为文件名
 		{
-			strncpy ( aptDirContents[j]->strDirName,aptNameList[i]->d_name,256 );
+			strncpy ( aptDirContents[j]->strName,aptNameList[i]->d_name,256 );
 			aptDirContents[j]->strName[255] = '\0';
 			aptDirContents[j]->eFileType = FILETYPE_DIR;
-			free ( aptDirContents[i] );
-			aptDirContents[i]=NULL;
+            free(aptNameList[i]);
+            aptNameList[i] = NULL;
 			j++;
 		}
 
@@ -232,13 +234,13 @@ int GetDirContents ( char* strDirName, PT_DirContent** pptDirContents, int* piNu
 	/* 先把目录挑出来存入aptDirContents */
 	for ( i = 0; i <iNumber; i++ )
 	{
-		if ( aptDirContents[i] == NULL )
+        if (aptNameList[i] == NULL)
 		{
 			continue;
 		}
 
 		/* 忽略".",".."这两个目录 */
-		if ( ( strcmp ( aptNameList[i]->d_name,'.' ) == 0 ) || ( strcmp ( aptNameList[i]->d_name,'..' ) == 0 ) )
+		if ( ( strcmp ( aptNameList[i]->d_name,"." ) == 0 ) || ( strcmp ( aptNameList[i]->d_name,".." ) == 0 ) )
 		{
 			continue;
 		}
@@ -246,11 +248,11 @@ int GetDirContents ( char* strDirName, PT_DirContent** pptDirContents, int* piNu
 		/* 并不是所有的文件系统都支持d_type, 所以不能直接判断d_type */
 		if ( isRegFile ( strDirName, aptNameList[i]->d_name ) ) //判断这个文件名是否为文件
 		{
-			strncpy ( aptDirContents[j]->strDirName,aptNameList[i]->d_name,256 );
+			strncpy ( aptDirContents[j]->strName,aptNameList[i]->d_name,256 );
 			aptDirContents[j]->strName[255] = '\0';
 			aptDirContents[j]->eFileType = FILETYPE_FILE;
-			free ( aptDirContents[i] );
-			aptDirContents[i]=NULL;
+            free(aptNameList[i]);
+            aptNameList[i] = NULL;
 			j++;
 		}
 
@@ -262,7 +264,7 @@ int GetDirContents ( char* strDirName, PT_DirContent** pptDirContents, int* piNu
 		free ( aptDirContents[i] );
 	}
 
-    //清除已分配的aptNameList
+	//清除已分配的aptNameList
 	for ( i = 0; i < iNumber; i++ )
 	{
 		if ( aptNameList[i] )

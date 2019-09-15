@@ -99,8 +99,8 @@ int GenericGetInputPositionInPageLayout(PT_Layout atLayout,PT_InputEvent ptInput
    while ( atLayout[i].IconName )
 	{
 		//如果按下的触点在某个图标内 返回图标在数组内的位置
-		if ( ( ptInputEvent->iX >= atLayout[i].iTopLeftX ) && ( ptInputEvent->iX <= atLayout[i]->iLowerRightX ) &&\
-		        ( ptInputEvent->iY >= atLayout[i].iTopLeftY ) && ( ptInputEvent->iY <= atLayout[i]->iLowerRightY ) )
+		if ( ( ptInputEvent->iX >= atLayout[i].iTopLeftX ) && ( ptInputEvent->iX <= atLayout[i].iLowerRightX ) &&\
+		        ( ptInputEvent->iY >= atLayout[i].iTopLeftY ) && ( ptInputEvent->iY <= atLayout[i].iLowerRightY ) )
 		{
 			//DBG_PRINTF ( "put\release status:%d , icon name:%s\r\n",tInputEvent.iPressure,atLayout[i].IconName );
 			return i;
@@ -125,7 +125,7 @@ int GenericGetInputPositionInPageLayout(PT_Layout atLayout,PT_InputEvent ptInput
 int GenericGetInputEvent ( PT_Layout atLayout,PT_InputEvent ptInputEvent )
 {
 	T_InputEvent tInputEvent;
-	int iRet, i = 0;
+	int iRet;
 
 	/*获取触摸屏原始数据*/
 	iRet = GetDeviceInput ( &tInputEvent );
@@ -377,9 +377,10 @@ int PagesInit ( void )
 {
 	int iError = 0;
 
-	iError |= MainPageInit();
+	iError = MainPageInit();
 	iError |= SettingPageInit();
 	iError |= IntervalPageInit();
+    iError |= BrowsePageInit ();
 
 	return iError;
 

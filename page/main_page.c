@@ -149,7 +149,8 @@ static void MainPageRun ( void )
 					switch ( iIndexPressured )
 					{
 						case 0://浏览模式
-
+                            Page ( "browse" )->Run();
+							ShowPage ( &g_tMainPageDesc );
 							break;
 
 						case 1://连播页面

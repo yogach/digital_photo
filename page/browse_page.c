@@ -8,20 +8,22 @@
 #include <stddef.h>
 #include <input_manager.h>
 #include <render.h>
+#include <file.h>
+#include <render.h>
 
 static int CalcBrowsePageLayout ( PT_Layout atLayout );
 static int BrowsePageSpecialDis ( PT_VideoMem ptVideoMem );
 static void BrowsePageRun ( void );
 
 /* 用来描述某目录里的内容 */
-static PT_DirContent* g_aptDirContents;  /* 数组:存有目录下"顶层子目录","文件"的名字 */
+static PT_DirContent *g_aptDirContents;  /* 数组:存有目录下"顶层子目录","文件"的名字 */
 static int g_iDirContentsNumber;         /* g_aptDirContents数组有多少项 */
 static int g_iStartIndex = 0;            /* 在屏幕上显示的第1个"目录和文件"是g_aptDirContents数组里的哪一项 */
 
 
 //当前路径
 static char g_strCurDir[256] = DEFAULT_PATH;
-static char g_strSelectDir[256] = DEFAULT_PATH;
+//static char g_strSelectDir[256] = DEFAULT_PATH;
 
 static int g_iDirFileNumPerCol, g_iDirFileNumPerRow; //每行与每列显示的图标个数 COL - 列 ROW - 行
 static T_Layout* g_atDirAndFileLayout;    //用于保存文件夹/文件显示页面每个图标坐标值
@@ -68,7 +70,7 @@ static T_Layout g_atBrowsePageIconsLayout[] =
 
 static T_PageDesc g_tBrowsePageDesc =
 {
-	.name   = "manual",
+	.name   = "browse",
 	.Run    = BrowsePageRun,
 	.CalcPageLayout = CalcBrowsePageLayout,
 	.atPageLayout = g_atBrowsePageIconsLayout,
@@ -134,15 +136,15 @@ static int CalcBrowsePageDirAndFilesLayout ( void )
 	}
 
 	/* 确定一行显示多少个"目录或文件", 显示多少行 */
-	iIconHight = DIR_FILE_NAME_WIDTH;
-	iIconWidth = iIconHight;
+	iIconWidth  = DIR_FILE_NAME_WIDTH;
+	iIconHight  = iIconWidth;
 
 	/*图标与图标之间的距离需要大于10像素 */
 	//先得到每行最多显示个数
-	iNumOfOneRowIcon = ( ( iBotRightX -iTopLeftX ) + 1 ) / iIconWidth;
+	iNumOfOneRowIcon = (  iBotRightX -iTopLeftX  + 1 ) / iIconWidth;
 	while ( 1 )
 	{
-		iDeltaX = ( iBotRightX -iTopLeftX ) + 1 - iIconWidth * iNumOfOneRowIcon; //得到除图标之外的所有x轴长度
+		iDeltaX =  iBotRightX -iTopLeftX  + 1 - iIconWidth * iNumOfOneRowIcon; //得到除图标之外的所有x轴长度
 		if ( ( iDeltaX / ( iNumOfOneRowIcon+1 ) ) < 10 )
 		{
 			iNumOfOneRowIcon -- ; //调整图标个数
@@ -154,10 +156,10 @@ static int CalcBrowsePageDirAndFilesLayout ( void )
 	}
 
 	//先得到每列最多显示个数
-	iNumOfOneColIcon = ( ( iBotRightY -iTopLeftY ) + 1 ) / iIconWidth;
+	iNumOfOneColIcon = (  iBotRightY -iTopLeftY  + 1 ) / iIconHight;
 	while ( 1 )
 	{
-		iDeltaY = ( iBotRightY -iTopLeftY ) + 1 - iIconWidth * iNumOfOneColIcon; //得到除图标之外的所有Y轴长度
+		iDeltaY =  iBotRightY - iTopLeftY  + 1 - iIconHight * iNumOfOneColIcon; //得到除图标之外的所有Y轴长度
 		if ( ( iDeltaY / ( iNumOfOneColIcon+1 ) ) < 10 )
 		{
 			iNumOfOneColIcon -- ;
@@ -168,8 +170,8 @@ static int CalcBrowsePageDirAndFilesLayout ( void )
 		}
 	}
 
-	iDeltaX = iDeltaX / ( iNumOfOneColIcon + 1 ); //得到每个图标间隔
-	iDeltaY = iDeltaY / ( iNumOfOneRowIcon + 1 );
+	iDeltaX = iDeltaX / ( iNumOfOneRowIcon + 1 ); //得到每个图标间隔
+	iDeltaY = iDeltaY / ( iNumOfOneColIcon + 1 );
 
 	g_iDirFileNumPerCol =  iNumOfOneColIcon;
 	g_iDirFileNumPerRow =  iNumOfOneRowIcon;
@@ -350,7 +352,7 @@ static int CalcBrowsePageLayout ( PT_Layout atLayout )
 
 	//获得屏幕分辨率
 	int iXres,iYres,iBpp,i = 0;
-	int iIconWidth,iIconHight,IconX,IconY;
+	int iIconWidth,iIconHight;
 	GetDispResolution ( &iXres,&iYres,&iBpp ); //获取LCD分辨率
 
 	if ( iXres < iYres )
@@ -465,7 +467,7 @@ static int GenerateBrowsePageDirAndFile ( int iStartIndex, int iDirContentsNumbe
 			if ( iDirContentIndex < iDirContentsNumber )
 			{
 
-				if ( aptDirContents[iDirContentIndex].eFileType == FILETYPE_DIR ) //如果目标目录是文件夹 则在指定位置显示文件夹图标
+				if ( aptDirContents[iDirContentIndex]->eFileType == FILETYPE_DIR ) //如果目标目录是文件夹 则在指定位置显示文件夹图标
 				{
 					PicMerge ( atFileAndDirLayout[k].iTopLeftX, atFileAndDirLayout[k].iTopLeftY,&g_tDirClosedIconPixelDatas,&ptVideoMem->tVideoMemDesc );
 				}
@@ -528,7 +530,7 @@ static void BrowsePageRun ( void )
 	if ( iError )
 	{
 		DBG_PRINTF ( "GetDirContents error ... \r\n" );
-		return -1;
+		//return -1;
 	}
 
 	/* 1. 显示页面 */
@@ -552,7 +554,7 @@ static void BrowsePageRun ( void )
 			if ( bPressure ) //如果曾经按下
 			{
 				//改变按键区域的颜色
-				ReleaseButton ( &g_atMainPageIconsLayout[iIndex] );
+				ReleaseButton ( &g_atBrowsePageIconsLayout[iIndex] );
 				bPressure = 0;
 
 
@@ -562,6 +564,7 @@ static void BrowsePageRun ( void )
 					switch ( iIndexPressured )
 					{
 						case 0://
+						    return ;
 							break;
 
 						case 1://
@@ -592,7 +595,7 @@ static void BrowsePageRun ( void )
 				bPressure = 1;
 				iIndexPressured = iIndex;
 				//改变按键区域的颜色
-				PressButton ( &g_atMainPageIconsLayout[iIndex] );
+				PressButton ( &g_atBrowsePageIconsLayout[iIndex] );
 			}
 
 		}
