@@ -160,7 +160,7 @@ int GetDirContents ( char* strDirName, PT_DirContent** pptDirContents, int* piNu
 	if ( aptDirContents == NULL )
 	{
 		DBG_PRINTF ( "malloc error!\r\n" );
-		//如果分配失败需要释放之前分配的aptNameList
+		//如果分配失败需要释放之前分配的aptNameList	
 		for ( i = 0; i < iNumber; i++ )
 		{
 			if ( aptNameList[i] )

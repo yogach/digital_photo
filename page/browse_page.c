@@ -10,6 +10,7 @@
 #include <render.h>
 #include <file.h>
 #include <render.h>
+#include <string.h>
 
 static int CalcBrowsePageLayout ( PT_Layout atLayout );
 static int BrowsePageSpecialDis ( PT_VideoMem ptVideoMem );
@@ -520,7 +521,9 @@ static void BrowsePageRun ( void )
 	int iError;
 	PT_VideoMem ptDevVideoMem;
 	T_InputEvent tInputEvent;
-	int iIndex,iIndexPressured=-1,bPressure = 0;
+	int iIndex,iIndexPressured=-1,bPressure = 0, bHaveClickSelectIcon = 0;
+	int iPressIndex;
+	char strtmp[256];
 	char* ptTmp;
 
 	//获得显示设备显存
@@ -554,6 +557,7 @@ static void BrowsePageRun ( void )
 				if ( ( g_iStartIndex + iIndex/2 ) < g_iDirContentsNumber )
 				{
 					iIndex += DIRFILE_ICON_INDEX_BASE;
+					//DBG_PRINTF("press Icon Number is %d\r\n",iIndex);
 				}
 				else
 				{
@@ -587,8 +591,8 @@ static void BrowsePageRun ( void )
 								}
 
 								//从g_strCurDir末尾开始查找到字符"/"的位置 返回位置所代表的指针 如果未能找到返回NULL
-								ptTmp = strrchr ( g_strCurDir,"/" );
-								*ptTmp = '\0';
+								ptTmp = strrchr ( g_strCurDir,'/' );
+								*ptTmp = '\0'; //将'/'替换成结束符
 
 								iError = GetDirContents ( g_strCurDir, &g_aptDirContents, &g_iDirContentsNumber );
 								if ( iError )
@@ -648,8 +652,57 @@ static void BrowsePageRun ( void )
 
 					}
 				}
-				else//按下的区域是文件夹页面
+				else//目录与文件区域
 				{
+					/*
+					 * 如果按下和松开时, 触点不处于同一个图标上, 则释放图标
+					 */
+					if ( iIndexPressured != iIndex )
+					{
+
+
+					}
+					else if ( bHaveClickSelectIcon ) /* 按下和松开都是同一个按钮, 并且"选择"按钮是按下状态 */
+					{
+
+					}
+					else /* "选择"按钮不被按下时, 单击目录则进入, bUsedToSelectDir为0时单击文件则显示它 */
+					{
+                        bPressure = 0;
+					    /* 如果是目录, 进入这个目录 */
+						iPressIndex = g_iStartIndex + ( iIndexPressured - DIRFILE_ICON_INDEX_BASE ) /2;
+						if ( g_aptDirContents[iPressIndex]->eFileType == FILETYPE_DIR )
+						{ 
+                            
+							snprintf ( strtmp,256,"%s/%s",g_strCurDir,g_aptDirContents[iPressIndex]->strName ); //生成目录
+							//DBG_PRINTF("%s\r\n",strtmp);
+							strtmp[255]='\0';
+							strcpy ( g_strCurDir, strtmp );
+
+							FreeDirContents ( g_aptDirContents,g_iDirContentsNumber );
+							iError = GetDirContents ( g_strCurDir, &g_aptDirContents, &g_iDirContentsNumber );
+							if ( iError )
+							{
+								DBG_PRINTF ( "GetDirContents error ... \r\n" );
+								//return -1;
+							}
+
+							g_iStartIndex = 0;
+							iError = GenerateBrowsePageDirAndFile ( g_iStartIndex,g_iDirContentsNumber,g_aptDirContents,ptDevVideoMem );
+							if ( iError!=0 )
+							{
+								DBG_PRINTF ( "GenerateBrowsePageDirAndFile error..\r\n" );
+							}
+
+
+						}
+						else
+						{
+
+
+						}
+
+					}
 
 
 				}
