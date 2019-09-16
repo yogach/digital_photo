@@ -224,8 +224,8 @@ int GetDirContents ( char* strDirName, PT_DirContent** pptDirContents, int* piNu
 			strncpy ( aptDirContents[j]->strName,aptNameList[i]->d_name,256 );
 			aptDirContents[j]->strName[255] = '\0';
 			aptDirContents[j]->eFileType = FILETYPE_DIR;
-            free(aptNameList[i]);
-            aptNameList[i] = NULL;
+			free ( aptNameList[i] );
+			aptNameList[i] = NULL;
 			j++;
 		}
 
@@ -234,7 +234,7 @@ int GetDirContents ( char* strDirName, PT_DirContent** pptDirContents, int* piNu
 	/* 先把目录挑出来存入aptDirContents */
 	for ( i = 0; i <iNumber; i++ )
 	{
-        if (aptNameList[i] == NULL)
+		if ( aptNameList[i] == NULL )
 		{
 			continue;
 		}
@@ -251,8 +251,8 @@ int GetDirContents ( char* strDirName, PT_DirContent** pptDirContents, int* piNu
 			strncpy ( aptDirContents[j]->strName,aptNameList[i]->d_name,256 );
 			aptDirContents[j]->strName[255] = '\0';
 			aptDirContents[j]->eFileType = FILETYPE_FILE;
-            free(aptNameList[i]);
-            aptNameList[i] = NULL;
+			free ( aptNameList[i] );
+			aptNameList[i] = NULL;
 			j++;
 		}
 
@@ -277,6 +277,24 @@ int GetDirContents ( char* strDirName, PT_DirContent** pptDirContents, int* piNu
 	*piNumber = j;
 
 	return 0;
+}
+/**********************************************************************
+ * 函数名称： FreeDirContents
+ * 功能描述： GetDirContents的清理函数,用来释放内存
+ * 输入参数： aptDirContents - 指向PT_DirContent数组
+ *            iNumber        - 有多少数组项
+ * 输出参数： 无
+ * 返 回 值： 无
+ ***********************************************************************/
+void FreeDirContents ( PT_DirContent* aptDirContents, int iNumber )
+{
+	int i ;
+	for ( i = 0; i < iNumber; i++ )
+	{
+		free ( aptDirContents[i] );	
+	}
+	free ( aptDirContents );
+
 }
 
 

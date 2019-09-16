@@ -67,7 +67,16 @@ int PicZoom (PT_PhotoDesc ptOriginPic,PT_PhotoDesc ptZoomPic,int scale)
 }*/
 
 
-
+/**********************************************************************
+ * 函数名称： PicZoom
+ * 功能描述： 近邻取样插值方法缩放图片
+ *            注意该函数会分配内存来存放缩放后的图片,用完后要用free函数释放掉
+ *            "近邻取样插值"的原理请参考网友"lantianyu520"所著的"图像缩放算法"
+ * 输入参数： ptOriginPic - 内含原始图片的象素数据
+ *            ptBigPic    - 内含缩放后的图片的象素数据
+ * 输出参数： 无
+ * 返 回 值： 0 - 成功, 其他值 - 失败
+ ***********************************************************************/
 int PicZoom(PT_PhotoDesc ptOriginPic, PT_PhotoDesc ptZoomPic)
 {
     unsigned long dwDstWidth = ptZoomPic->iWidth;
@@ -85,7 +94,12 @@ int PicZoom(PT_PhotoDesc ptOriginPic, PT_PhotoDesc ptZoomPic)
 	}
     
     pdwSrcXTable = malloc(sizeof(unsigned long) * dwDstWidth);
-
+    if(pdwSrcXTable == NULL)
+    {
+      DBG_PRINTF("malloc error..\r\n");
+	  return -1;
+	}
+	
 	
     for (x = 0; x < dwDstWidth; x++)//生成表 pdwSrcXTable
     {

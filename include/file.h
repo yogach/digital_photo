@@ -30,6 +30,7 @@ typedef struct DirContent {
 int MapFile(PT_MapFile ptFileMap);
 void  unMapFile(PT_MapFile ptFileMap);
 int GetDirContents ( char* strDirName, PT_DirContent** pptDirContents, int* piNumber );
+void FreeDirContents ( PT_DirContent* aptDirContents, int iNumber );
 
 
 

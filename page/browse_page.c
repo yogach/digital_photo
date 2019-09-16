@@ -16,7 +16,7 @@ static int BrowsePageSpecialDis ( PT_VideoMem ptVideoMem );
 static void BrowsePageRun ( void );
 
 /* 用来描述某目录里的内容 */
-static PT_DirContent *g_aptDirContents;  /* 数组:存有目录下"顶层子目录","文件"的名字 */
+static PT_DirContent* g_aptDirContents;  /* 数组:存有目录下"顶层子目录","文件"的名字 */
 static int g_iDirContentsNumber;         /* g_aptDirContents数组有多少项 */
 static int g_iStartIndex = 0;            /* 在屏幕上显示的第1个"目录和文件"是g_aptDirContents数组里的哪一项 */
 
@@ -56,7 +56,7 @@ static char* g_strFileIconName = "file.bmp";
 #define DIR_FILE_ALL_WIDTH    DIR_FILE_NAME_WIDTH   //整个大正方形宽度
 #define DIR_FILE_ALL_HEIGHT   DIR_FILE_ALL_WIDTH    //整个大正方形高
 
-
+#define DIRFILE_ICON_INDEX_BASE 1000
 
 static T_Layout g_atBrowsePageIconsLayout[] =
 {
@@ -188,7 +188,7 @@ static int CalcBrowsePageDirAndFilesLayout ( void )
 		return -1;
 	}
 
-	// 获得"目录和文件"整体区域的左上角、右下角坐标 赋值
+	// 获得"目录和文件"整体区域的左上角、右下角坐标
 	g_tBrowsePageDirAndFileLayout.iTopLeftX = iTopLeftX;
 	g_tBrowsePageDirAndFileLayout.iTopLeftY = iTopLeftY;
 	g_tBrowsePageDirAndFileLayout.iLowerRightX = iBotRightX;
@@ -208,7 +208,7 @@ static int CalcBrowsePageDirAndFilesLayout ( void )
 	* |   名字   |
 	* ------------
 	*/
-	//首先得到第一个文件的显示起点
+	//首先得到第一个文件的起点
 	iTopLeftX +=iDeltaX;
 	iTopLeftY +=iDeltaY;
 	iTopLeftXBak = iTopLeftX;
@@ -341,7 +341,7 @@ static int GenerateDirAndFileIcons ( PT_PageLayOut ptPageLayout )
 
 /**********************************************************************
  * 函数名称： GenerateDirAndFileIcons
- * 功能描述： 为"浏览页面"生成菜单区域中的图标--文件夹图标与文件图标
+ * 功能描述： 为"浏览页面"生成菜单区域中的图标--控制按钮页面
  * 输入参数： ptPageLayout - 内含多个图标的文件名和显示区域
  * 输出参数： 无
  * 返 回 值： 0      - 成功
@@ -521,6 +521,7 @@ static void BrowsePageRun ( void )
 	PT_VideoMem ptDevVideoMem;
 	T_InputEvent tInputEvent;
 	int iIndex,iIndexPressured=-1,bPressure = 0;
+	char* ptTmp;
 
 	//获得显示设备显存
 	ptDevVideoMem = GetDevVideoMen();
@@ -543,9 +544,22 @@ static void BrowsePageRun ( void )
 
 		iIndex = GenericGetInputEvent ( g_atBrowsePageIconsLayout,&tInputEvent );
 
-		if ( iIndex == -1 ) //如果按下的地方没有在浏览页面主要按键上
+		if ( iIndex == -1 ) //如果按下的地方没有在浏览页面控制按键上
 		{
 			iIndex =  GenericGetInputPositionInPageLayout ( g_atDirAndFileLayout,&tInputEvent );
+
+			if ( iIndex != -1 ) //如果按下的地方
+			{
+				//判断这个触点上是否有图标 除2是因为每个显示图标包含一个图标和一个文件名
+				if ( ( g_iStartIndex + iIndex/2 ) < g_iDirContentsNumber )
+				{
+					iIndex += DIRFILE_ICON_INDEX_BASE;
+				}
+				else
+				{
+					iIndex = -1;
+				}
+			}
 
 		}
 
@@ -553,35 +567,90 @@ static void BrowsePageRun ( void )
 		{
 			if ( bPressure ) //如果曾经按下
 			{
-				//改变按键区域的颜色
-				ReleaseButton ( &g_atBrowsePageIconsLayout[iIndex] );
-				bPressure = 0;
+
+				if ( iIndex < DIRFILE_ICON_INDEX_BASE ) //代表是控制区按键
+				{
+					//改变按键区域的颜色
+					ReleaseButton ( &g_atBrowsePageIconsLayout[iIndex] );
+					bPressure = 0;
+
+					if ( iIndexPressured == iIndex ) //如果按键和松开的是同一个按键
+					{
+
+						switch ( iIndexPressured )
+						{
+							case 0://向上
+								if ( strcmp ( g_strCurDir,"/" ) ==0 ) //如果已经是顶层目录 返回
+								{
+									FreeDirContents ( g_aptDirContents,g_iDirContentsNumber );
+									return ;
+								}
+
+								//从g_strCurDir末尾开始查找到字符"/"的位置 返回位置所代表的指针 如果未能找到返回NULL
+								ptTmp = strrchr ( g_strCurDir,"/" );
+								*ptTmp = '\0';
+
+								iError = GetDirContents ( g_strCurDir, &g_aptDirContents, &g_iDirContentsNumber );
+								if ( iError )
+								{
+									DBG_PRINTF ( "GetDirContents error ... \r\n" );
+									//return -1;
+								}
+
+								g_iStartIndex = 0;
+								iError = GenerateBrowsePageDirAndFile ( g_iStartIndex,g_iDirContentsNumber,g_aptDirContents,ptDevVideoMem );
+								if ( iError!=0 )
+								{
+									DBG_PRINTF ( "GenerateBrowsePageDirAndFile error..\r\n" );
+								}
+
+								break;
+
+							case 1://选择 --暂时无用
+
+								break;
+
+							case 2://上一页
+								g_iStartIndex -= g_iDirFileNumPerCol* g_iDirFileNumPerRow ;
+								if ( g_iStartIndex <0 )
+								{
+									g_iStartIndex += g_iDirFileNumPerCol* g_iDirFileNumPerRow ;
+								}
+								else
+								{
+									iError = GenerateBrowsePageDirAndFile ( g_iStartIndex,g_iDirContentsNumber,g_aptDirContents,ptDevVideoMem );
+									if ( iError!=0 )
+									{
+										DBG_PRINTF ( "GenerateBrowsePageDirAndFile error..\r\n" );
+									}
+								}
+								break;
+							case 3://下一页
+								g_iStartIndex += g_iDirFileNumPerCol* g_iDirFileNumPerRow ;
+								if ( g_iStartIndex >= g_iDirContentsNumber )
+								{
+									g_iStartIndex -= g_iDirFileNumPerCol* g_iDirFileNumPerRow ;
+								}
+								else
+								{
+									iError = GenerateBrowsePageDirAndFile ( g_iStartIndex,g_iDirContentsNumber,g_aptDirContents,ptDevVideoMem );
+									if ( iError!=0 )
+									{
+										DBG_PRINTF ( "GenerateBrowsePageDirAndFile error..\r\n" );
+									}
+								}
+								break;
 
 
-				if ( iIndexPressured == iIndex ) //如果按键和松开的是同一个按键
+							default:
+								break;
+						}
+
+					}
+				}
+				else//按下的区域是文件夹页面
 				{
 
-					switch ( iIndexPressured )
-					{
-						case 0://
-						    return ;
-							break;
-
-						case 1://
-
-							break;
-
-						case 2://
-
-							break;
-						case 3:
-
-							break;
-
-
-						default:
-							break;
-					}
 
 				}
 
