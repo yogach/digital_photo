@@ -516,14 +516,37 @@ static int BrowsePageSpecialDis ( PT_VideoMem ptVideoMem )
 	return GenerateBrowsePageDirAndFile ( g_iStartIndex,g_iDirContentsNumber,g_aptDirContents,ptVideoMem );
 }
 
+static int FlushDirAndFile ( PT_VideoMem ptVideoMem )
+{
+	int iError;
+
+	FreeDirContents ( g_aptDirContents,g_iDirContentsNumber );
+	iError = GetDirContents ( g_strCurDir, &g_aptDirContents, &g_iDirContentsNumber );
+	if ( iError )
+	{
+		DBG_PRINTF ( "GetDirContents error ... \r\n" );
+		return -1;
+	}
+
+	g_iStartIndex = 0;
+	iError = GenerateBrowsePageDirAndFile ( g_iStartIndex,g_iDirContentsNumber,g_aptDirContents,ptVideoMem );
+	if ( iError!=0 )
+	{
+		DBG_PRINTF ( "GenerateBrowsePageDirAndFile error..\r\n" );
+		return -1;
+	}
+	return 0;
+
+}
+
 static void BrowsePageRun ( void )
 {
 	int iError;
 	PT_VideoMem ptDevVideoMem;
-	T_InputEvent tInputEvent;
+	T_InputEvent tInputEvent,tPreInputEvent;
 	int iIndex,iIndexPressured=-1,bPressure = 0, bHaveClickSelectIcon = 0;
 	int iPressIndex;
-	char strtmp[256];
+	char strtmp[256] = "/mnt";
 	char* ptTmp;
 
 	//获得显示设备显存
@@ -540,7 +563,6 @@ static void BrowsePageRun ( void )
 	/* 1. 显示页面 */
 	ShowPage ( &g_tBrowsePageDesc );
 
-
 	//读取输入事件后处理
 	while ( 1 )
 	{
@@ -551,7 +573,7 @@ static void BrowsePageRun ( void )
 		{
 			iIndex =  GenericGetInputPositionInPageLayout ( g_atDirAndFileLayout,&tInputEvent );
 
-			if ( iIndex != -1 ) //如果按下的地方
+			if ( iIndex != -1 ) //如果按下的地方在文件夹/文件区域
 			{
 				//判断这个触点上是否有图标 除2是因为每个显示图标包含一个图标和一个文件名
 				if ( ( g_iStartIndex + iIndex/2 ) < g_iDirContentsNumber )
@@ -593,7 +615,9 @@ static void BrowsePageRun ( void )
 								//从g_strCurDir末尾开始查找到字符"/"的位置 返回位置所代表的指针 如果未能找到返回NULL
 								ptTmp = strrchr ( g_strCurDir,'/' );
 								*ptTmp = '\0'; //将'/'替换成结束符
-
+								
+								/*
+								FreeDirContents ( g_aptDirContents,g_iDirContentsNumber );
 								iError = GetDirContents ( g_strCurDir, &g_aptDirContents, &g_iDirContentsNumber );
 								if ( iError )
 								{
@@ -606,7 +630,8 @@ static void BrowsePageRun ( void )
 								if ( iError!=0 )
 								{
 									DBG_PRINTF ( "GenerateBrowsePageDirAndFile error..\r\n" );
-								}
+								}*/
+								FlushDirAndFile ( ptDevVideoMem );
 
 								break;
 
@@ -668,17 +693,20 @@ static void BrowsePageRun ( void )
 					}
 					else /* "选择"按钮不被按下时, 单击目录则进入, bUsedToSelectDir为0时单击文件则显示它 */
 					{
-                        bPressure = 0;
-					    /* 如果是目录, 进入这个目录 */
+						bPressure = 0;
+						/* 如果是目录, 进入这个目录 */
 						iPressIndex = g_iStartIndex + ( iIndexPressured - DIRFILE_ICON_INDEX_BASE ) /2;
 						if ( g_aptDirContents[iPressIndex]->eFileType == FILETYPE_DIR )
-						{ 
-                            
-							snprintf ( strtmp,256,"%s/%s",g_strCurDir,g_aptDirContents[iPressIndex]->strName ); //生成目录
-							//DBG_PRINTF("%s\r\n",strtmp);
-							strtmp[255]='\0';
-							strcpy ( g_strCurDir, strtmp );
+						{
 
+							//snprintf ( strtmp,256,"%s/%s",g_strCurDir,g_aptDirContents[iPressIndex]->strName ); //生成目录
+
+							//DBG_PRINTF("%s\r\n",strtmp);
+							//strtmp[255]='\0';
+							strcpy ( g_strCurDir, strtmp );
+							FlushDirAndFile ( ptDevVideoMem );
+							
+							/*
 							FreeDirContents ( g_aptDirContents,g_iDirContentsNumber );
 							iError = GetDirContents ( g_strCurDir, &g_aptDirContents, &g_iDirContentsNumber );
 							if ( iError )
@@ -693,7 +721,8 @@ static void BrowsePageRun ( void )
 							{
 								DBG_PRINTF ( "GenerateBrowsePageDirAndFile error..\r\n" );
 							}
-
+							*/
+							
 
 						}
 						else
@@ -716,9 +745,27 @@ static void BrowsePageRun ( void )
 			{
 				bPressure = 1;
 				iIndexPressured = iIndex;
-				//改变按键区域的颜色
-				PressButton ( &g_atBrowsePageIconsLayout[iIndex] );
+				tPreInputEvent = tInputEvent;
+				if ( iIndexPressured < DIRFILE_ICON_INDEX_BASE ) //代表按下的是控制区按键
+				{
+					//改变按键区域的颜色
+					PressButton ( &g_atBrowsePageIconsLayout[iIndex] );
+				}
+				else
+				{
+					//选中文件夹
+					
+				}
 			}
+
+            //如果持续按下2秒 直接返回上一界面
+            if(TimeMSBetween(tPreInputEvent.tTime,tInputEvent.tTime)  > 2000)
+            {
+               
+				
+				
+			}
+
 
 		}
 

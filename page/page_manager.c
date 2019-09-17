@@ -290,7 +290,8 @@ int TimeMSBetween(struct timeval tTimeStart, struct timeval tTimeEnd)
 {
    int iMs;
    //秒转毫秒 微秒转毫秒
-   iMs = (tTimeEnd.tv_sec - tTimeStart.tv_sec)*1000 - (tTimeEnd.tv_usec - tTimeStart.tv_usec) / 1000;
+  // iMs = (tTimeEnd.tv_sec - tTimeStart.tv_sec)*1000 - (tTimeEnd.tv_usec - tTimeStart.tv_usec) / 1000;
+   iMs = (tTimeEnd.tv_sec - tTimeStart.tv_sec) * 1000 + (tTimeEnd.tv_usec - tTimeStart.tv_usec) / 1000;
    return iMs;
 }
 
@@ -324,6 +325,7 @@ int GenericGetPressedIcon ( PT_Layout atLayout ,int *bLongPress)
 
 				iIndexPressured = -1;
 			}
+			
 		}
 		else //如果是按下状态
 		{
