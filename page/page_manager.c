@@ -92,11 +92,11 @@ int ID ( char* str )
  * 返 回 值： -1     - 输入数据不位于任何一个图标之上
  *            其他值 - 输入数据所落在的图标(ptLayout数组的哪一项)
 **********************************************************************/
-int GenericGetInputPositionInPageLayout(PT_Layout atLayout,PT_InputEvent ptInputEvent)
+int GenericGetInputPositionInPageLayout ( PT_Layout atLayout,PT_InputEvent ptInputEvent )
 {
-   int i = 0;
+	int i = 0;
 
-   while ( atLayout[i].IconName )
+	while ( atLayout[i].IconName )
 	{
 		//如果按下的触点在某个图标内 返回图标在数组内的位置
 		if ( ( ptInputEvent->iX >= atLayout[i].iTopLeftX ) && ( ptInputEvent->iX <= atLayout[i].iLowerRightX ) &&\
@@ -111,7 +111,7 @@ int GenericGetInputPositionInPageLayout(PT_Layout atLayout,PT_InputEvent ptInput
 		}
 	}
 
-   return -1;
+	return -1;
 
 }
 /**********************************************************************
@@ -141,26 +141,26 @@ int GenericGetInputEvent ( PT_Layout atLayout,PT_InputEvent ptInputEvent )
 	{
 		return -1;
 	}
-/*
-	while ( atLayout[i].IconName )
-	{
-		//如果按下的触点在某个图标内 返回图标在数组内的位置
-		if ( ( tInputEvent.iX >= atLayout[i].iTopLeftX ) && ( tInputEvent.iX <= atLayout[i].iLowerRightX ) &&\
-		        ( tInputEvent.iY >= atLayout[i].iTopLeftY ) && ( tInputEvent.iY <= atLayout[i].iLowerRightY ) )
+	/*
+		while ( atLayout[i].IconName )
 		{
-			//DBG_PRINTF ( "put\release status:%d , icon name:%s\r\n",tInputEvent.iPressure,atLayout[i].IconName );
-			return i;
+			//如果按下的触点在某个图标内 返回图标在数组内的位置
+			if ( ( tInputEvent.iX >= atLayout[i].iTopLeftX ) && ( tInputEvent.iX <= atLayout[i].iLowerRightX ) &&\
+			        ( tInputEvent.iY >= atLayout[i].iTopLeftY ) && ( tInputEvent.iY <= atLayout[i].iLowerRightY ) )
+			{
+				//DBG_PRINTF ( "put\release status:%d , icon name:%s\r\n",tInputEvent.iPressure,atLayout[i].IconName );
+				return i;
+			}
+			else
+			{
+				i ++;
+			}
 		}
-		else
-		{
-			i ++;
-		}
-	}
 
-	//DBG_PRINTF ( "don't touch icon\r\n" );
-	return -1;
-	*/
-	return GenericGetInputPositionInPageLayout(atLayout,&tInputEvent);
+		//DBG_PRINTF ( "don't touch icon\r\n" );
+		return -1;
+		*/
+	return GenericGetInputPositionInPageLayout ( atLayout,&tInputEvent );
 
 }
 
@@ -286,79 +286,80 @@ int ShowPage ( PT_PageDesc ptPageDesc )
  * 输出参数： 无
  * 返 回 值： 间隔,单位ms
  ***********************************************************************/
-int TimeMSBetween(struct timeval tTimeStart, struct timeval tTimeEnd)
+int TimeMSBetween ( struct timeval tTimeStart, struct timeval tTimeEnd )
 {
-   int iMs;
-   //秒转毫秒 微秒转毫秒
-  // iMs = (tTimeEnd.tv_sec - tTimeStart.tv_sec)*1000 - (tTimeEnd.tv_usec - tTimeStart.tv_usec) / 1000;
-   iMs = (tTimeEnd.tv_sec - tTimeStart.tv_sec) * 1000 + (tTimeEnd.tv_usec - tTimeStart.tv_usec) / 1000;
-   return iMs;
+	int iMs;
+	//秒转毫秒 微秒转毫秒
+	// iMs = (tTimeEnd.tv_sec - tTimeStart.tv_sec)*1000 - (tTimeEnd.tv_usec - tTimeStart.tv_usec) / 1000;
+	iMs = ( tTimeEnd.tv_sec - tTimeStart.tv_sec ) * 1000 + ( tTimeEnd.tv_usec - tTimeStart.tv_usec ) / 1000;
+	return iMs;
 }
 
 
 
-int GenericGetPressedIcon ( PT_Layout atLayout ,int *bLongPress)
+int GenericGetPressedIcon ( PT_Layout atLayout,int* bLongPress )
 {
-    T_InputEvent tInputEvent;
+	T_InputEvent tInputEvent;
 	static T_InputEvent tPreInputEvent;
 	static int iIndex,iIndexPressured=-1,bPressure = 0, bFast = 0;
 
 	//while ( 1 )
 	//{
-        //获得在哪个图标中按下
-		iIndex = GenericGetInputEvent ( atLayout,&tInputEvent );
-		if ( tInputEvent.iPressure == 0 ) //如果是松开状态
+	//获得在哪个图标中按下
+	iIndex = GenericGetInputEvent ( atLayout,&tInputEvent );
+	if ( tInputEvent.iPressure == 0 ) //如果是松开状态
+	{
+		if ( bPressure ) //如果曾经按下
 		{
-			if ( bPressure ) //如果曾经按下
+			//改变按键区域的颜色
+			ReleaseButton ( &atLayout[iIndex] );
+			bPressure = 0;
+			bFast = 0;
+			*bLongPress = 0;
+
+			if ( iIndexPressured == iIndex ) //如果按键和松开的是同一个按键
 			{
-				//改变按键区域的颜色
-				ReleaseButton ( &atLayout[iIndex] );
-				bPressure = 0;
-				bFast = 0;
-                *bLongPress = 0;
-
-				if ( iIndexPressured == iIndex ) //如果按键和松开的是同一个按键
-				{
-					//iIndexPressured = -1;
-					return iIndex;//返回此次按键有效
-				}
-
-				iIndexPressured = -1;
+				//iIndexPressured = -1;
+				return iIndex;//返回此次按键有效
 			}
-			
+
+			iIndexPressured = -1;
 		}
-		else //如果是按下状态
+
+	}
+	else //如果是按下状态
+	{
+		if ( iIndex != -1 ) //如果按下的是有内容的按键
 		{
-		    
-			if ( !bPressure ) // 未曾按下按钮
+		    tPreInputEvent = tInputEvent;
+			if ( !bPressure ) //未曾按下按钮
 			{
 				bPressure = 1;
 				iIndexPressured = iIndex;
-				tPreInputEvent = tInputEvent;
+				
 				//改变按键区域的颜色
 				PressButton ( &atLayout[iIndex] );
 			}
-			else if(iIndexPressured == iIndex)//如果同一个按键一直处于按下状态
+			else if ( iIndexPressured == iIndex ) //如果同一个按键一直处于按下状态
 			{
-              //比较前一次与本次的按下时的间隔时间
-              if(TimeMSBetween(tPreInputEvent.tTime,tInputEvent.tTime)  > 2000)//如果2s之后还是处于按下状态
-              {
-                bFast = 1;//进入按下状态
-				tPreInputEvent = tInputEvent;
-				DBG_PRINTF("bFast:%d \r\n" ,bFast);
-			  }
+				//比较前一次与本次的按下时的间隔时间
+				if ( TimeMSBetween ( tPreInputEvent.tTime,tInputEvent.tTime )  > 2000 ) //如果2s之后还是处于按下状态
+				{
+					bFast = 1;//进入按下状态
+					//tPreInputEvent = tInputEvent;
+					DBG_PRINTF ( "bFast:%d \r\n",bFast );
+				}
 
-              if((bFast)&&(TimeMSBetween(tPreInputEvent.tTime,tInputEvent.tTime)  > 50))//进入长按状态之后每50ms返回一个值
-              {
-                *bLongPress = 1;
-				tPreInputEvent = tInputEvent;
-				
-				return iIndexPressured;
+				if ( ( bFast ) && ( TimeMSBetween ( tPreInputEvent.tTime,tInputEvent.tTime )  > 50 ) ) //进入长按状态之后每50ms返回一个值
+				{
+					*bLongPress = 1;
+					//tPreInputEvent = tInputEvent;
+					return iIndexPressured;
 
-			  }
+				}
 			}
-
 		}
+	}
 	//}
 
 	return -1;
@@ -382,7 +383,7 @@ int PagesInit ( void )
 	iError = MainPageInit();
 	iError |= SettingPageInit();
 	iError |= IntervalPageInit();
-    iError |= BrowsePageInit ();
+	iError |= BrowsePageInit ();
 
 	return iError;
 

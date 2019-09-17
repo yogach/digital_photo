@@ -522,6 +522,7 @@ static int FlushDirAndFile ( PT_VideoMem ptVideoMem )
 
 	FreeDirContents ( g_aptDirContents,g_iDirContentsNumber );
 	iError = GetDirContents ( g_strCurDir, &g_aptDirContents, &g_iDirContentsNumber );
+	DBG_PRINTF("get dir or file num is %d\r\n",g_iDirContentsNumber);
 	if ( iError )
 	{
 		DBG_PRINTF ( "GetDirContents error ... \r\n" );
@@ -546,7 +547,7 @@ static void BrowsePageRun ( void )
 	T_InputEvent tInputEvent,tPreInputEvent;
 	int iIndex,iIndexPressured=-1,bPressure = 0, bHaveClickSelectIcon = 0;
 	int iPressIndex;
-	char strtmp[256] = "/mnt";
+	char strtmp[256] ;
 	char* ptTmp;
 
 	//获得显示设备显存
@@ -615,7 +616,9 @@ static void BrowsePageRun ( void )
 								//从g_strCurDir末尾开始查找到字符"/"的位置 返回位置所代表的指针 如果未能找到返回NULL
 								ptTmp = strrchr ( g_strCurDir,'/' );
 								*ptTmp = '\0'; //将'/'替换成结束符
-								
+								ptTmp = strrchr ( g_strCurDir,'/' );
+                                *ptTmp = '\0'; //将'/'替换成结束符
+
 								/*
 								FreeDirContents ( g_aptDirContents,g_iDirContentsNumber );
 								iError = GetDirContents ( g_strCurDir, &g_aptDirContents, &g_iDirContentsNumber );
@@ -699,13 +702,13 @@ static void BrowsePageRun ( void )
 						if ( g_aptDirContents[iPressIndex]->eFileType == FILETYPE_DIR )
 						{
 
-							//snprintf ( strtmp,256,"%s/%s",g_strCurDir,g_aptDirContents[iPressIndex]->strName ); //生成目录
+							snprintf ( strtmp,256,"%s/%s/",g_strCurDir,g_aptDirContents[iPressIndex]->strName ); //生成目录
 
 							//DBG_PRINTF("%s\r\n",strtmp);
-							//strtmp[255]='\0';
+							strtmp[255]='\0';
 							strcpy ( g_strCurDir, strtmp );
 							FlushDirAndFile ( ptDevVideoMem );
-							
+
 							/*
 							FreeDirContents ( g_aptDirContents,g_iDirContentsNumber );
 							iError = GetDirContents ( g_strCurDir, &g_aptDirContents, &g_iDirContentsNumber );
@@ -722,7 +725,7 @@ static void BrowsePageRun ( void )
 								DBG_PRINTF ( "GenerateBrowsePageDirAndFile error..\r\n" );
 							}
 							*/
-							
+
 
 						}
 						else
@@ -741,32 +744,34 @@ static void BrowsePageRun ( void )
 		}
 		else //如果是按下状态
 		{
-			if ( !bPressure ) // 未曾按下按钮
+			if ( iIndex != -1 )//如果按下的是有内容的按键
 			{
-				bPressure = 1;
-				iIndexPressured = iIndex;
-				tPreInputEvent = tInputEvent;
-				if ( iIndexPressured < DIRFILE_ICON_INDEX_BASE ) //代表按下的是控制区按键
+				if ( !bPressure ) // 未曾按下按钮
 				{
-					//改变按键区域的颜色
-					PressButton ( &g_atBrowsePageIconsLayout[iIndex] );
+					bPressure = 1;
+					iIndexPressured = iIndex;
+					tPreInputEvent = tInputEvent;
+					if ( iIndexPressured < DIRFILE_ICON_INDEX_BASE ) //代表按下的是控制区按键
+					{
+						//改变按键区域的颜色
+						PressButton ( &g_atBrowsePageIconsLayout[iIndex] );
+					}
+					else
+					{
+						//改变文件夹的颜色
+
+
+					}
 				}
-				else
+
+				//如果长按向上按键2秒 直接返回上一界面
+				if ( ( TimeMSBetween ( tPreInputEvent.tTime,tInputEvent.tTime )  > 2000 ) && ( iIndex == 0 ) )
 				{
-					//选中文件夹
-					
+					FreeDirContents ( g_aptDirContents,g_iDirContentsNumber );
+					return ;
 				}
+
 			}
-
-            //如果持续按下2秒 直接返回上一界面
-            if(TimeMSBetween(tPreInputEvent.tTime,tInputEvent.tTime)  > 2000)
-            {
-               
-				
-				
-			}
-
-
 		}
 
 
