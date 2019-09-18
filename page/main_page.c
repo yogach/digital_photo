@@ -122,7 +122,7 @@ static int showMainPage ( PT_Layout atLayout )
 static void MainPageRun ( void )
 {
 	T_InputEvent tInputEvent;
-	int iIndex,iIndexPressured=-1,bPressure = 0;
+	int iIndex,iIndexPressured=-1,bPressure = 0,bLongPress;
 
 	/* 1. 显示页面 */
 	//showMainPage ( g_atMainPageIconsLayout );
@@ -131,6 +131,30 @@ static void MainPageRun ( void )
 	/* 2. 通过输入事件获得按下的icon 进而处理 */
 	while ( 1 )
 	{
+#if 1
+		switch ( GenericGetPressedIcon ( g_atIntervalPageIconsLayout, &bLongPress ) )
+		{
+			case 0://浏览模式
+				Page ( "browse" )->Run();
+				ShowPage ( &g_tMainPageDesc );
+				break;
+
+			case 1://连播页面
+
+				break;
+
+			case 2://设置页面
+				//显示设置界面
+				Page ( "setting" )->Run();
+				//从设置界面返回后需重新刷新显示
+				ShowPage ( &g_tMainPageDesc );
+				break;
+
+			default:
+				break;
+		}
+
+#else
 		//获得在哪个图标中按下
 		iIndex = GenericGetInputEvent ( g_atMainPageIconsLayout,&tInputEvent );
 
@@ -149,7 +173,7 @@ static void MainPageRun ( void )
 					switch ( iIndexPressured )
 					{
 						case 0://浏览模式
-                            Page ( "browse" )->Run();
+							Page ( "browse" )->Run();
 							ShowPage ( &g_tMainPageDesc );
 							break;
 
@@ -184,6 +208,7 @@ static void MainPageRun ( void )
 			}
 
 		}
+#endif
 
 	}
 
@@ -191,9 +216,9 @@ static void MainPageRun ( void )
 }
 
 
-int MainPageInit ( void )
-{
-	return RegisterPageAction ( &g_tMainPageDesc );
-}
+	int MainPageInit ( void )
+	{
+		return RegisterPageAction ( &g_tMainPageDesc );
+	}
 
 

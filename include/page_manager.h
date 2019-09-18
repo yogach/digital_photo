@@ -63,7 +63,7 @@ int IntervalPageInit ( void );
 int MainPageInit ( void );
 int SettingPageInit ( void );
 int IntervalPageInit ( void );
-//int ManualPageInit ( void );
+int ManualPageInit ( void );
 int BrowsePageInit ( void );
 
 

@@ -191,8 +191,8 @@ int GetIntervalSecond(void)
 
 static void IntervalPageRun ( void )
 {
-	T_InputEvent tInputEvent ,tInputEventPrePress;
-	int iIndex,iIndexPressed=-1,bPressed = 0 ,bFast = 0;
+	//T_InputEvent tInputEvent ,tInputEventPrePress;
+	//int iIndex,iIndexPressed=-1,bPressed = 0 ,bFast = 0;
 	int iIntervalSecond = g_iIntervalSecond , bLongPress;
 	PT_VideoMem ptDevVideoMem;
     
@@ -209,13 +209,13 @@ static void IntervalPageRun ( void )
 	/* 2. 通过输入事件获得按下的icon 进而处理 */
 	while ( 1 )
 	{
-#if 0
+#if 1
 		switch ( GenericGetPressedIcon ( g_atIntervalPageIconsLayout, &bLongPress) )
 		{
 			case 0://数字增加
 			{
-               // if(bLongPress)
-               //     iIntervalSecond+=10;
+                //if(bLongPress)
+                //    iIntervalSecond+=10;
 				//else
 					iIntervalSecond++;
 				
@@ -229,7 +229,7 @@ static void IntervalPageRun ( void )
 			case 2://数字减少
 			{
 			    //if(bLongPress)
-                //    iIntervalSecond-=10;
+                 //   iIntervalSecond-=10;
 				//else
 					iIntervalSecond--;
 				

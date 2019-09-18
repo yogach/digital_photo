@@ -515,14 +515,22 @@ static int BrowsePageSpecialDis ( PT_VideoMem ptVideoMem )
 {
 	return GenerateBrowsePageDirAndFile ( g_iStartIndex,g_iDirContentsNumber,g_aptDirContents,ptVideoMem );
 }
-
+/**********************************************************************
+ * 函数名称： FlushDirAndFile
+ * 功能描述： 刷新文件夹/文件区域的显示
+ * 输入参数： ptVideoMem         - 在这个VideoMem中构造页面
+ * 输出参数： 无
+ * 返 回 值： 0      - 成功
+ *            其他值 - 失败
+ ***********************************************************************/
 static int FlushDirAndFile ( PT_VideoMem ptVideoMem )
 {
 	int iError;
 
+	//在获取新文件夹内容之前 先释放原先分配的内存
 	FreeDirContents ( g_aptDirContents,g_iDirContentsNumber );
 	iError = GetDirContents ( g_strCurDir, &g_aptDirContents, &g_iDirContentsNumber );
-	DBG_PRINTF("get dir or file num is %d\r\n",g_iDirContentsNumber);
+	DBG_PRINTF ( "get dir or file num is %d\r\n",g_iDirContentsNumber );
 	if ( iError )
 	{
 		DBG_PRINTF ( "GetDirContents error ... \r\n" );
@@ -530,6 +538,7 @@ static int FlushDirAndFile ( PT_VideoMem ptVideoMem )
 	}
 
 	g_iStartIndex = 0;
+	//生成新的页面
 	iError = GenerateBrowsePageDirAndFile ( g_iStartIndex,g_iDirContentsNumber,g_aptDirContents,ptVideoMem );
 	if ( iError!=0 )
 	{
@@ -538,6 +547,39 @@ static int FlushDirAndFile ( PT_VideoMem ptVideoMem )
 	}
 	return 0;
 
+}
+
+static void ChangeDirOrFileArenStatus ( int iDirFileIndex,int bSelect,PT_VideoMem ptVideoMem )
+{
+	int iIndex = g_iStartIndex + iDirFileIndex /2;
+
+
+    //如果是目录 改变文件夹为打开状态
+	if ( g_aptDirContents[iDirFileIndex]->eFileType == FILETYPE_DIR )
+	{
+		if ( bSelect )
+		{
+			PicMerge ( g_atDirAndFileLayout[iDirFileIndex].iTopLeftX, g_atDirAndFileLayout[iDirFileIndex].iTopLeftY, &g_tDirOpenedIconPixelDatas, &ptVideoMem->tVideoMemDesc );
+		}
+		else
+		{
+			PicMerge ( g_atDirAndFileLayout[iDirFileIndex].iTopLeftX, g_atDirAndFileLayout[iDirFileIndex].iTopLeftY, &g_tDirClosedIconPixelDatas, &ptVideoMem->tVideoMemDesc );
+		}
+	}
+	else//如果是文件 文件区域颜色取反
+	{
+		if ( bSelect )
+		{
+			PressButton(&g_atDirAndFileLayout[iDirFileIndex]);
+			PressButton(&g_atDirAndFileLayout[iDirFileIndex + 1]);
+		}
+		else
+		{
+		    ReleaseButton(&g_atDirAndFileLayout[iDirFileIndex]);
+			ReleaseButton(&g_atDirAndFileLayout[iDirFileIndex + 1]);
+		}
+
+	}
 }
 
 static void BrowsePageRun ( void )
@@ -574,7 +616,7 @@ static void BrowsePageRun ( void )
 		{
 			iIndex =  GenericGetInputPositionInPageLayout ( g_atDirAndFileLayout,&tInputEvent );
 
-			if ( iIndex != -1 ) //如果按下的地方在文件夹/文件区域
+			if ( iIndex != -1 ) //如果按下的地方在文件夹/文件区域 此时得到的索引是按下区域的索引
 			{
 				//判断这个触点上是否有图标 除2是因为每个显示图标包含一个图标和一个文件名
 				if ( ( g_iStartIndex + iIndex/2 ) < g_iDirContentsNumber )
@@ -613,11 +655,14 @@ static void BrowsePageRun ( void )
 									return ;
 								}
 
-								//从g_strCurDir末尾开始查找到字符"/"的位置 返回位置所代表的指针 如果未能找到返回NULL
+								/*从g_strCurDir末尾开始查找到字符"/"的位置 返回位置所代表的指针 如果未能找到返回NULL
+								 *需要执行两次是因为g_strCurDir的内容//mnt/
+								 *
+								 */
 								ptTmp = strrchr ( g_strCurDir,'/' );
 								*ptTmp = '\0'; //将'/'替换成结束符
 								ptTmp = strrchr ( g_strCurDir,'/' );
-                                *ptTmp = '\0'; //将'/'替换成结束符
+								*ptTmp = '\0'; //将'/'替换成结束符
 
 								/*
 								FreeDirContents ( g_aptDirContents,g_iDirContentsNumber );
@@ -687,11 +732,13 @@ static void BrowsePageRun ( void )
 					 */
 					if ( iIndexPressured != iIndex )
 					{
-
+                        ChangeDirOrFileArenStatus(iIndexPressured - DIRFILE_ICON_INDEX_BASE,0, ptDevVideoMem);
+						bPressure = 0;
 
 					}
 					else if ( bHaveClickSelectIcon ) /* 按下和松开都是同一个按钮, 并且"选择"按钮是按下状态 */
 					{
+						bPressure = 0;
 
 					}
 					else /* "选择"按钮不被按下时, 单击目录则进入, bUsedToSelectDir为0时单击文件则显示它 */
@@ -701,7 +748,7 @@ static void BrowsePageRun ( void )
 						iPressIndex = g_iStartIndex + ( iIndexPressured - DIRFILE_ICON_INDEX_BASE ) /2;
 						if ( g_aptDirContents[iPressIndex]->eFileType == FILETYPE_DIR )
 						{
-
+							//如果g_strCurDir值为"/"      strtmp的值会是 "//mnt/" 此时可成功获取到文件夹内容
 							snprintf ( strtmp,256,"%s/%s/",g_strCurDir,g_aptDirContents[iPressIndex]->strName ); //生成目录
 
 							//DBG_PRINTF("%s\r\n",strtmp);
@@ -728,7 +775,7 @@ static void BrowsePageRun ( void )
 
 
 						}
-						else
+						else//如果是文件则进入显示页面
 						{
 
 
@@ -744,7 +791,7 @@ static void BrowsePageRun ( void )
 		}
 		else //如果是按下状态
 		{
-			if ( iIndex != -1 )//如果按下的是有内容的按键
+			if ( iIndex != -1 ) //如果按下的是有内容的按键
 			{
 				if ( !bPressure ) // 未曾按下按钮
 				{
@@ -758,9 +805,8 @@ static void BrowsePageRun ( void )
 					}
 					else
 					{
-						//改变文件夹的颜色
-
-
+						//选中指定文件
+						ChangeDirOrFileArenStatus ( iIndex - DIRFILE_ICON_INDEX_BASE,1, ptDevVideoMem);
 					}
 				}
 

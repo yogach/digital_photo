@@ -32,8 +32,6 @@ int PicMerge(int iX, int iY, PT_PhotoDesc ptSmallPic, PT_PhotoDesc ptBigPic);
 
 int PicZoom(PT_PhotoDesc ptOriginPic, PT_PhotoDesc ptZoomPic);
 
-int GetPixelDatasFormIcon(char * strFileName , PT_PhotoDesc ptPhotoDesc);
-void FreePixelDatasForIcon(PT_PhotoDesc ptPhotoDatas);
 
 
 

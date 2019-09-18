@@ -312,7 +312,7 @@ int GenericGetPressedIcon ( PT_Layout atLayout,int* bLongPress )
 		if ( bPressure ) //如果曾经按下
 		{
 			//改变按键区域的颜色
-			ReleaseButton ( &atLayout[iIndex] );
+			ReleaseButton ( &atLayout[iIndexPressured] );
 			bPressure = 0;
 			bFast = 0;
 			*bLongPress = 0;
@@ -331,29 +331,29 @@ int GenericGetPressedIcon ( PT_Layout atLayout,int* bLongPress )
 	{
 		if ( iIndex != -1 ) //如果按下的是有内容的按键
 		{
-		    tPreInputEvent = tInputEvent;
+		    //tPreInputEvent = tInputEvent;
 			if ( !bPressure ) //未曾按下按钮
 			{
 				bPressure = 1;
 				iIndexPressured = iIndex;
-				
+				tPreInputEvent = tInputEvent;
 				//改变按键区域的颜色
-				PressButton ( &atLayout[iIndex] );
+				PressButton ( &atLayout[iIndexPressured] );
 			}
 			else if ( iIndexPressured == iIndex ) //如果同一个按键一直处于按下状态
 			{
 				//比较前一次与本次的按下时的间隔时间
-				if ( TimeMSBetween ( tPreInputEvent.tTime,tInputEvent.tTime )  > 2000 ) //如果2s之后还是处于按下状态
+				if ( (TimeMSBetween ( tPreInputEvent.tTime,tInputEvent.tTime )  > 2000)&&( !bFast) ) //如果2s之后还是处于按下状态
 				{
 					bFast = 1;//进入按下状态
-					//tPreInputEvent = tInputEvent;
+					tPreInputEvent = tInputEvent;
 					DBG_PRINTF ( "bFast:%d \r\n",bFast );
 				}
 
 				if ( ( bFast ) && ( TimeMSBetween ( tPreInputEvent.tTime,tInputEvent.tTime )  > 50 ) ) //进入长按状态之后每50ms返回一个值
 				{
 					*bLongPress = 1;
-					//tPreInputEvent = tInputEvent;
+					tPreInputEvent = tInputEvent;
 					return iIndexPressured;
 
 				}

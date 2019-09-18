@@ -12,5 +12,7 @@ int SetColorForAppointArea(int iTopLeftX, int iTopLeftY, int iBotRightX, int iBo
 
 int isFontInArea ( int iTopLeftX, int iTopLeftY,int iBotRightX, int iBotRightY,PT_FontBitMap ptFontBitMap );
 int MergeOneFontToVideoMem ( PT_FontBitMap ptFontBitMap, PT_VideoMem ptVideoMem );
+int GetPixelDatasFormIcon(char * strFileName , PT_PhotoDesc ptPhotoDesc);
+void FreePixelDatasForIcon(PT_PhotoDesc ptPhotoDatas);
 
 #endif
