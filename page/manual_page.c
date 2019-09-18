@@ -26,6 +26,12 @@ static T_Layout g_atManualPageIconsLayout[] =
 
 static T_Layout g_tManualPagePictureLayout;
 
+//两个图片数据
+static T_PhotoDesc g_tOriginPicPixelDatas;
+static T_PhotoDesc g_tZoomedPicPixelDatas;
+
+
+
 
 static T_PageDesc g_tManualPageDesc =
 {
@@ -50,7 +56,7 @@ static int CalcManualPagePictureLayout ( void )
 	int iTopLeftX,iTopLeftY,iLowerRightX,iLowerRightY;
 	int i = 0;
 	GetDispResolution ( &iXres,&iYres,&iBpp ); //获取LCD分辨率
-	
+
 	if ( iXres < iYres )
 	{
 		/*	  iXres/6
@@ -63,7 +69,7 @@ static int CalcManualPagePictureLayout ( void )
 		 *
 		 *	  --------------------------------------------------------------
 		 */
-        iTopLeftX = 0;
+		iTopLeftX = 0;
 		iTopLeftY = g_atManualPageIconsLayout[0].iLowerRightY + 1;
 		iLowerRightX = iXres - 1;
 		iLowerRightY = iYres - 1;
@@ -86,10 +92,10 @@ static int CalcManualPagePictureLayout ( void )
 		 *                       |
 		 *	  --------------------------------------------------------------
 		 */
-		 iTopLeftX = g_atManualPageIconsLayout[0].iLowerRightX + 1;
-		 iTopLeftY = 0;
-		 iLowerRightX = iXres - 1;
-		 iLowerRightY = iYres - 1;
+		iTopLeftX = g_atManualPageIconsLayout[0].iLowerRightX + 1;
+		iTopLeftY = 0;
+		iLowerRightX = iXres - 1;
+		iLowerRightY = iYres - 1;
 
 
 	}
@@ -99,7 +105,7 @@ static int CalcManualPagePictureLayout ( void )
 	g_tManualPagePictureLayout.iLowerRightX = iLowerRightX;
 	g_tManualPagePictureLayout.iLowerRightY = iLowerRightY;
 
-   return 0;
+	return 0;
 }
 /**********************************************************************
  * 函数名称： CalcManualPageMenusLayout
@@ -191,20 +197,68 @@ static int CalcManualPageLayout ( PT_Layout atLayout )
 
 }
 
-static int ShowPictureInManualPage(PT_VideoMem ptVideoMem, char *strFileName)
+static PT_PhotoDesc GetOriginPictureFilePixelDatas ( char* strFileName )
+{
+	int iError;
+
+	//在获取另一个数据之前先释放之前分配的空间
+	if ( g_tOriginPicPixelDatas.aucPhotoData != NULL )
+	{
+		free ( g_tOriginPicPixelDatas.aucPhotoData );
+		g_tOriginPicPixelDatas.aucPhotoData = NULL;
+	}
+
+	iError =  GetOriPixelDatasFormFile ( strFileName, &g_tOriginPicPixelDatas );
+	if ( iError==0 )
+	{
+		return &g_tOriginPicPixelDatas;
+	}
+	else
+	{
+		return NULL;
+
+	}
+
+}
+
+
+static int ShowPictureInManualPage ( PT_VideoMem ptVideoMem, char* strFileName )
 {
 	int iXres,iYres,iBpp;
+	PT_PhotoDesc ptOriPicPixelDatas , ptZoomedPicPixelDatas;
+    int iPicWidth,iPicHight;
+	
 	GetDispResolution ( &iXres,&iYres,&iBpp ); //获取LCD分辨率
 
 	//获取图片数据
+	ptOriPicPixelDatas = GetOriginPictureFilePixelDatas ( strFileName );
+	if ( ptOriPicPixelDatas == NULL )
+	{
+		DBG_PRINTF ( "GetOriginPictureFilePixelDatas error..\r\n" );
+		return -1;
+
+	}
+
+	
+	// 首先计算图片区域大小
+	iPicWidth = g_tManualPagePictureLayout.iLowerRightX - g_tManualPagePictureLayout.iTopLeftX + 1; 
+	iPicHight = g_tManualPagePictureLayout.iLowerRightY - g_tManualPagePictureLayout.iTopLeftY + 1;
+
+    //得到缩放后的图片数据
 	
 
+	
+	/* 算出居中显示时左上角坐标 */
+
+    //清除指定区域的颜色
+
+	//将需要显示的图片合并到显存中
 
 }
 
 static int ManualPageSpecialDis ( PT_VideoMem ptVideoMem )
 {
-    return ShowPictureInManualPage(ptVideoMem,);
+	return ShowPictureInManualPage ( ptVideoMem, );
 }
 
 static void ManualPageRun ( void )

@@ -394,27 +394,14 @@ int isFontInArea ( int iTopLeftX, int iTopLeftY,int iBotRightX, int iBotRightY,P
 
 }
 
-
-/**********************************************************************
- * 函数名称： GetPixelDatasFormIcon
- * 功能描述： 取出BMP格式的图标文件中的象素数据
- * 输入参数： strFileName - BMP格式的图标文件名,它位于 ICON_PATH 目录下
- * 输出参数： ptPhotoDesc - 内含象素数据,它所占的空间是通过malloc分配的,
- *                          不用时需要用FreePixelDatasForIcon来释放
- * 返 回 值： 0 - 正常,  其他值 - 错误
- * -----------------------------------------------
-********************************************************************/
-int GetPixelDatasFormIcon ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
+int GetOriPixelDatasFormFile ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
 {
 	T_MapFile tMapFile;
 	PT_PicFileParser ptTargetFileParser;
-    int iXres,iYres,iBpp;
+	int iXres,iYres,iBpp;
 
-	int iError;
-	//根据文件名打开文件
-	//图标文件放置在         ICON_PATH"/mnt/Icon/" 目录下
-	snprintf ( tMapFile.FileName,128,"%s%s", ICON_PATH,strFileName );
-
+    strncpy(tMapFile.FileName,strFileName,256);
+	
 	//打开目标文件 并使用mmap映射到内存上
 	iError = MapFile ( &tMapFile );
 	if ( iError !=0 )
@@ -428,35 +415,94 @@ int GetPixelDatasFormIcon ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
 	if ( ptTargetFileParser == NULL )
 	{
 		DBG_PRINTF ( "can't support :%s\n ",tMapFile.FileName );
-		unMapFile(&tMapFile);//出错时 需释放mmap数据 以免造成内存泄漏
+		unMapFile ( &tMapFile ); //出错时 需释放mmap数据 以免造成内存泄漏
 		return -1;
 	}
 
-    //获得屏幕分辨率
-    GetDispResolution ( &iXres,&iYres,&iBpp ); //获取分辨率
+	//获得屏幕分辨率
+	GetDispResolution ( &iXres,&iYres,&iBpp ); //获取分辨率
 
 	//使用该图片处理节点得到图片数据
-	iError = ptTargetFileParser->GetPixelDatas(tMapFile.pucFileMapMem , ptPhotoDesc ,iBpp );
-	if (iError)
+	iError = ptTargetFileParser->GetPixelDatas ( tMapFile.pucFileMapMem, ptPhotoDesc,iBpp );
+	if ( iError )
 	{
-		DBG_PRINTF("GetPixelDatas for %s error!\n", tMapFile.FileName);
-		unMapFile(&tMapFile);//出错时 需释放mmap数据 以免造成内存泄漏
+		DBG_PRINTF ( "GetPixelDatas for %s error!\n", tMapFile.FileName );
+		unMapFile ( &tMapFile ); //出错时 需释放mmap数据 以免造成内存泄漏
 		return -1;
 	}
-       
-	unMapFile(&tMapFile);//完成处理任务之后 释放mmap空间
 
-    return 0;
+	unMapFile ( &tMapFile ); //完成处理任务之后 释放mmap空间
+
+
+	return 0;
+}
+
+/**********************************************************************
+ * 函数名称： GetPixelDatasFormIcon
+ * 功能描述： 取出图标文件中的象素数据
+ * 输入参数： strFileName - BMP格式的图标文件名,它位于 ICON_PATH 目录下
+ * 输出参数： ptPhotoDesc - 内含象素数据,它所占的空间是通过malloc分配的,
+ *                          不用时需要用FreePixelDatasForIcon来释放
+ * 返 回 值： 0 - 正常,  其他值 - 错误
+ * -----------------------------------------------
+********************************************************************/
+int GetPixelDatasFormIcon ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
+{
+	//T_MapFile tMapFile;
+	//PT_PicFileParser ptTargetFileParser;
+	//int iXres,iYres,iBpp;
+	char strTemp[256];
+
+	//根据文件名打开文件
+	//图标文件放置在         ICON_PATH"/mnt/Icon/" 目录下
+	snprintf ( strTemp,128,"%s%s", ICON_PATH,strFileName );
+
+	return GetOriPixelDatasFormFile ( strTemp,ptPhotoDesc );
+
+	//打开目标文件 并使用mmap映射到内存上
+	/*	iError = MapFile ( &tMapFile );
+		if ( iError !=0 )
+		{
+			DBG_PRINTF ( "MapFile %s error!\n", strFileName );
+			return -1;
+		}
+
+		//得到支持此文件的图片处理节点
+		ptTargetFileParser = isSupport ( tMapFile.pucFileMapMem );
+		if ( ptTargetFileParser == NULL )
+		{
+			DBG_PRINTF ( "can't support :%s\n ",tMapFile.FileName );
+			unMapFile(&tMapFile);//出错时 需释放mmap数据 以免造成内存泄漏
+			return -1;
+		}
+
+	    //获得屏幕分辨率
+	    GetDispResolution ( &iXres,&iYres,&iBpp ); //获取分辨率
+
+		//使用该图片处理节点得到图片数据
+		iError = ptTargetFileParser->GetPixelDatas(tMapFile.pucFileMapMem , ptPhotoDesc ,iBpp );
+		if (iError)
+		{
+			DBG_PRINTF("GetPixelDatas for %s error!\n", tMapFile.FileName);
+			unMapFile(&tMapFile);//出错时 需释放mmap数据 以免造成内存泄漏
+			return -1;
+		}
+
+		unMapFile(&tMapFile);//完成处理任务之后 释放mmap空间
+
+		return 0;
+	*/
+
 
 }
 
-void FreePixelDatasForIcon(PT_PhotoDesc ptPhotoDatas)
+void FreePixelDatasForIcon ( PT_PhotoDesc ptPhotoDatas )
 {
 	//if(ptPhotoDatas->aucPhotoData)
-		free(ptPhotoDatas->aucPhotoData); 
+	free ( ptPhotoDatas->aucPhotoData );
 
 	//g_tBMPFileParser.FreePixelDatas(ptPhotoDatas);
-    
+
 }
 
 

@@ -14,5 +14,6 @@ int isFontInArea ( int iTopLeftX, int iTopLeftY,int iBotRightX, int iBotRightY,P
 int MergeOneFontToVideoMem ( PT_FontBitMap ptFontBitMap, PT_VideoMem ptVideoMem );
 int GetPixelDatasFormIcon(char * strFileName , PT_PhotoDesc ptPhotoDesc);
 void FreePixelDatasForIcon(PT_PhotoDesc ptPhotoDatas);
+int GetOriPixelDatasFormFile ( char* strFileName, PT_PhotoDesc ptPhotoDesc );
 
 #endif
