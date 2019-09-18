@@ -376,8 +376,7 @@ int MergeOneFontToVideoMem ( PT_FontBitMap ptFontBitMap, PT_VideoMem ptVideoMem 
   * 		   ptFontBitMap 		 - 内含字符的位图信息
   * 输出参数： 无
   * 返 回 值： 0 - 超出了矩形区域,  1 - 完全在区域内
-  * 修改日期		版本号	  修改人 	   修改内容
- * -----------------------------------------------
+  * -----------------------------------------------
 **********************************************************************/
 int isFontInArea ( int iTopLeftX, int iTopLeftY,int iBotRightX, int iBotRightY,PT_FontBitMap ptFontBitMap )
 {
@@ -402,6 +401,8 @@ int isFontInArea ( int iTopLeftX, int iTopLeftY,int iBotRightX, int iBotRightY,P
  * 输入参数： strFileName - BMP格式的图标文件名,它位于 ICON_PATH 目录下
  * 输出参数： ptPhotoDesc - 内含象素数据,它所占的空间是通过malloc分配的,
  *                          不用时需要用FreePixelDatasForIcon来释放
+ * 返 回 值： 0 - 正常,  其他值 - 错误
+ * -----------------------------------------------
 ********************************************************************/
 int GetPixelDatasFormIcon ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
 {
