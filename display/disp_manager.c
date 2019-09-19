@@ -142,7 +142,13 @@ PT_VideoMem GetDevVideoMen ( void )
 }
 
 
-//分配显存
+/**********************************************************************
+ * 函数名称： AllocVideoMem
+ * 功能描述： 分配几个设备显存相同的空间--用于存储要显示的数据
+ * 输入参数： iNum - 需要分配的显存数量
+ * 输出参数： 无
+ * 返 回 值： 0-成功 其他值-失败
+ ***********************************************************************/
 int AllocVideoMem ( int iNum )
 {
 	int iXres,iYres,iBpp;
@@ -235,14 +241,23 @@ int AllocVideoMem ( int iNum )
 	return 0;
 }
 
-//获取指定的显存：如果指定id在使用中则挑选一个空闲的内存块
+/**********************************************************************
+ * 函数名称： GetVideoMem
+ * 功能描述： 获得一块可操作的VideoMem(它用于存储要显示的数据), 
+ *            用完后用PutVideoMem来释放
+ * 输入参数： iID  - ID值,先尝试在众多VideoMem中找到ID值相同的
+ *            bUseForCur - 1表示当前程序马上要使用VideoMem,无论如何都要返回一个VideoMem
+ *                         0表示这是为了改进性能而提前取得VideoMem,不是必需的
+ * 输出参数： 无
+ * 返 回 值： NULL   - 失败,没有可用的VideoMem
+ *            非NULL - 成功,返回PT_VideoMem结构体
+ ***********************************************************************/
 PT_VideoMem GetVideoMem ( int iID, int bUseForCur )
 {
 	PT_VideoMem ptTmp;
 	ptTmp = g_ptVideoMenListHead;
 
 	/* 1. 优先: 取出空闲的、ID相同的videomem */
-
 	while ( ptTmp )
 	{
 		if ( ( ptTmp->iID == iID ) && ( ptTmp->eVideoMemState ==VMS_FREE ) )
@@ -328,7 +343,7 @@ void FlushVideoMemToDev ( PT_VideoMem ptVideoMem )
  * 输入参数： ptVideoMem   - VideoMem结构体指针, 内含要操作的内存
  *            dwBackColor  - 背景色
  * 输出参数： 无
- * 返 回 值： 无
+ * 返 回 值： 0-成功 其他值-失败
  ***********************************************************************/
 int ClearVideoMem ( PT_VideoMem ptVideoMem,unsigned int dwBackColor )
 {

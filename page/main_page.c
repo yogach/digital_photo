@@ -216,9 +216,9 @@ static void MainPageRun ( void )
 }
 
 
-	int MainPageInit ( void )
-	{
-		return RegisterPageAction ( &g_tMainPageDesc );
-	}
+int MainPageInit ( void )
+{
+	return RegisterPageAction ( &g_tMainPageDesc );
+}
 
 
