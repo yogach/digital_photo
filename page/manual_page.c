@@ -240,10 +240,12 @@ static PT_PhotoDesc GetZoomedPicPixelDatas ( PT_PhotoDesc ptOriginPicPixelDatas,
 	g_tZoomedPicPixelDatas.iWidth  = iZoomedWidth ;
     g_tZoomedPicPixelDatas.iHigh   = iZoomedWidth * k ;
 
-
-	
-
-	if()
+    //如果图片的高度大于区域高度
+	if(g_tZoomedPicPixelDatas.iHigh > iZoomedHeight)
+	{
+      g_tZoomedPicPixelDatas.iHigh = iZoomedHeight;
+      g_tZoomedPicPixelDatas.iWidth = g_tZoomedPicPixelDatas.iHigh / k ;
+	}
 
 	g_tZoomedPicPixelDatas.iBpp    = iBpp;
 	g_tZoomedPicPixelDatas.iLineBytes = g_tZoomedPicPixelDatas.iWidth * g_tZoomedPicPixelDatas.iBpp / 8;
@@ -263,6 +265,7 @@ static int ShowPictureInManualPage ( PT_VideoMem ptVideoMem, char* strFileName )
 	int iXres,iYres,iBpp;
 	PT_PhotoDesc ptOriPicPixelDatas, ptZoomedPicPixelDatas;
 	int iPicWidth,iPicHight;
+	int iTopLeftX, iTopLeftY;
 
 	GetDispResolution ( &iXres,&iYres,&iBpp ); //获取LCD分辨率
 
@@ -279,11 +282,12 @@ static int ShowPictureInManualPage ( PT_VideoMem ptVideoMem, char* strFileName )
 	iPicWidth = g_tManualPagePictureLayout.iLowerRightX - g_tManualPagePictureLayout.iTopLeftX + 1;
 	iPicHight = g_tManualPagePictureLayout.iLowerRightY - g_tManualPagePictureLayout.iTopLeftY + 1;
 
-	//将得到的图片原始数据进行缩放
+	//将得到的图片原始数据进行缩放 缩放后的数据放入g_tZoomedPicPixelDatas
 	ptZoomedPicPixelDatas = GetZoomedPicPixelDatas ( ptOriPicPixelDatas,iPicWidth,iPicHight );
 
-
 	/* 算出居中显示时左上角坐标 */
+
+	//算出图标中间点
 
 	//清除指定区域的颜色
 
