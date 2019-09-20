@@ -31,6 +31,9 @@ static T_PhotoDesc g_tOriginPicPixelDatas;
 static T_PhotoDesc g_tZoomedPicPixelDatas;
 
 
+/* 显示在LCD上的图片, 它的中心点, 在g_tZoomedPicPixelDatas里的坐标 */
+static int g_iXofZoomedPicShowInCenter;  
+static int g_iYofZoomedPicShowInCenter;
 
 
 static T_PageDesc g_tManualPageDesc =
@@ -223,39 +226,41 @@ static PT_PhotoDesc GetOriginPictureFilePixelDatas ( char* strFileName )
 
 static PT_PhotoDesc GetZoomedPicPixelDatas ( PT_PhotoDesc ptOriginPicPixelDatas, int iZoomedWidth, int iZoomedHeight )
 {
-    int iXres,iYres,iBpp;
+	int iXres,iYres,iBpp;
 	float k;
-    GetDispResolution ( &iXres,&iYres,&iBpp ); //获取LCD分辨率
+	GetDispResolution ( &iXres,&iYres,&iBpp ); //获取LCD分辨率
 
-    //重新分配之前先释放原先分配的空间 防止内存泄漏
-    if(g_tZoomedPicPixelDatas.aucPhotoData !=NULL)
-    {
-        free(g_tZoomedPicPixelDatas.aucPhotoData);
+	//重新分配之前先释放原先分配的空间 防止内存泄漏
+	if ( g_tZoomedPicPixelDatas.aucPhotoData !=NULL )
+	{
+		free ( g_tZoomedPicPixelDatas.aucPhotoData );
 		g_tZoomedPicPixelDatas.aucPhotoData = NULL;
 	}
 
 	//设置缩放后图片的大小 使其能在指定区域显示
-	k = (float)ptOriginPicPixelDatas->iHigh / ptOriginPicPixelDatas->iWidth; // 获取原先图片的长宽比
+	k = ( float ) ptOriginPicPixelDatas->iHigh / ptOriginPicPixelDatas->iWidth; // 获取原先图片的长宽比
 
 	g_tZoomedPicPixelDatas.iWidth  = iZoomedWidth ;
-    g_tZoomedPicPixelDatas.iHigh   = iZoomedWidth * k ;
+	g_tZoomedPicPixelDatas.iHigh   = iZoomedWidth * k ;
 
-    //如果图片的高度大于区域高度
-	if(g_tZoomedPicPixelDatas.iHigh > iZoomedHeight)
+	//如果图片的高度大于区域高度
+	if ( g_tZoomedPicPixelDatas.iHigh > iZoomedHeight )
 	{
-      g_tZoomedPicPixelDatas.iHigh = iZoomedHeight;
-      g_tZoomedPicPixelDatas.iWidth = g_tZoomedPicPixelDatas.iHigh / k ;
+		g_tZoomedPicPixelDatas.iHigh = iZoomedHeight;
+		g_tZoomedPicPixelDatas.iWidth = g_tZoomedPicPixelDatas.iHigh / k ;
 	}
 
 	g_tZoomedPicPixelDatas.iBpp    = iBpp;
 	g_tZoomedPicPixelDatas.iLineBytes = g_tZoomedPicPixelDatas.iWidth * g_tZoomedPicPixelDatas.iBpp / 8;
 	g_tZoomedPicPixelDatas.iTotalBytes = g_tZoomedPicPixelDatas.iLineBytes * g_tZoomedPicPixelDatas.iHigh;
 	g_tZoomedPicPixelDatas.aucPhotoData = malloc ( g_tZoomedPicPixelDatas.iTotalBytes );
-    if(g_tZoomedPicPixelDatas.aucPhotoData == NULL)
+	if ( g_tZoomedPicPixelDatas.aucPhotoData == NULL )
+	{
 		return NULL;
+	}
 
 	//使用函数进行缩放
-    PicZoom(ptOriginPicPixelDatas, &g_tZoomedPicPixelDatas);
+	PicZoom ( ptOriginPicPixelDatas, &g_tZoomedPicPixelDatas );
 	return &g_tZoomedPicPixelDatas;
 
 }
@@ -277,17 +282,23 @@ static int ShowPictureInManualPage ( PT_VideoMem ptVideoMem, char* strFileName )
 		return -1;
 	}
 
-
 	// 首先计算页面图片显示区域的总大小
 	iPicWidth = g_tManualPagePictureLayout.iLowerRightX - g_tManualPagePictureLayout.iTopLeftX + 1;
 	iPicHight = g_tManualPagePictureLayout.iLowerRightY - g_tManualPagePictureLayout.iTopLeftY + 1;
 
-	//将得到的图片原始数据进行缩放 缩放后的数据放入g_tZoomedPicPixelDatas
+	//将得到的图片原始数据进行缩放 缩放后的数据放入ptZoomedPicPixelDatas
 	ptZoomedPicPixelDatas = GetZoomedPicPixelDatas ( ptOriPicPixelDatas,iPicWidth,iPicHight );
+	if ( ptZoomedPicPixelDatas == NULL )
+	{
+		DBG_PRINTF ( "GetZoomedPicPixelDatas error..\r\n" );
+		return -1;
+	}
 
-	/* 算出居中显示时左上角坐标 */
+	/* 算出图片居中显示时左上角坐标 */
+	iTopLeftX = g_tManualPagePictureLayout.iTopLeftX + ( iPicWidth - ptZoomedPicPixelDatas->iWidth ) /2;
+	iTopLeftY = g_tManualPagePictureLayout.iTopLeftY + ( iPicHight - ptZoomedPicPixelDatas->iHigh ) /2;
 
-	//算出图标中间点
+	//得到图片中间点
 
 	//清除指定区域的颜色
 
