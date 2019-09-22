@@ -5,7 +5,8 @@
 #include <fonts_manager.h>
 #include <encoding_manager.h>
 #include <render.h>
-
+#include <file.h>
+#include <pic_manager.h>
 /**********************************************************************
  * 函数名称： SetColorForPixelInVideoMem
  * 功能描述： 设置VideoMem中某个座标象素的颜色
@@ -398,7 +399,7 @@ int GetOriPixelDatasFormFile ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
 {
 	T_MapFile tMapFile;
 	PT_PicFileParser ptTargetFileParser;
-	int iXres,iYres,iBpp;
+	int iXres,iYres,iBpp,iError;
 
     strncpy(tMapFile.FileName,strFileName,256);
 	

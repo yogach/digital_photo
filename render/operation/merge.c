@@ -37,3 +37,33 @@ int PicMerge(int iX, int iY, PT_PhotoDesc ptSmallPic, PT_PhotoDesc ptBigPic)
 }
 
 
+int PicMergeRegion(int iStartXofNewPic, int iStartYofNewPic, int iStartXofOldPic, int iStartYofOldPic, int iWidth, int iHeight, PT_PhotoDesc ptNewPic, PT_PhotoDesc ptOldPic)
+{
+    unsigned char * pucStartSrc;
+	unsigned char * pucStartDst;
+    int i;
+	int iLineWidthByte =  iWidth * ptNewPic->iBpp /8;
+
+    //判断显示的图片是否在区域内
+	if ((iStartXofNewPic < 0 || iStartXofNewPic >= ptNewPic->iWidth) || \
+        (iStartYofNewPic < 0 || iStartYofNewPic >= ptNewPic->iHigh)  || \
+        (iStartXofOldPic < 0 || iStartXofOldPic >= ptOldPic->iWidth) || \
+        (iStartYofOldPic < 0 || iStartYofOldPic >= ptOldPic->iHigh))
+    {
+        return -1;
+    }
+	
+	pucStartSrc = ptNewPic->aucPhotoData +  iStartXofNewPic*ptNewPic->iBpp /8 + iStartYofNewPic * ptNewPic->iLineBytes;
+	pucStartDst = ptOldPic->aucPhotoData +  iStartXofOldPic*ptOldPic->iBpp /8 + iStartYofOldPic * ptOldPic->iLineBytes;
+
+ 
+    for(i=0;i<iHeight; i++)  
+    {
+       memcpy(pucStartDst,pucStartSrc,iLineWidthByte);
+       pucStartSrc +=ptNewPic->iLineBytes;
+       pucStartDst +=ptOldPic->iLineBytes;
+	}
+	
+   return 0;
+}
+

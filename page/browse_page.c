@@ -777,7 +777,8 @@ static void BrowsePageRun ( void )
 						}
 						else//如果是文件则进入显示页面
 						{
-
+                          Page ( "manual" )->Run();
+				          ShowPage ( &g_tBrowsePageDesc );
 
 						}
 

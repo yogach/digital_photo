@@ -384,6 +384,7 @@ int PagesInit ( void )
 	iError |= SettingPageInit();
 	iError |= IntervalPageInit();
 	iError |= BrowsePageInit ();
+	iError |= ManualPageInit();
 
 	return iError;
 
