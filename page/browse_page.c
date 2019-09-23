@@ -174,8 +174,8 @@ static int CalcBrowsePageDirAndFilesLayout ( void )
 	iDeltaX = iDeltaX / ( iNumOfOneRowIcon + 1 ); //得到每个图标间隔
 	iDeltaY = iDeltaY / ( iNumOfOneColIcon + 1 );
 
-	g_iDirFileNumPerCol =  iNumOfOneColIcon;
-	g_iDirFileNumPerRow =  iNumOfOneRowIcon;
+	g_iDirFileNumPerCol =  iNumOfOneColIcon;//一列显示多少图标
+	g_iDirFileNumPerRow =  iNumOfOneRowIcon;//一行显示多少个图标
 
 
 	/* 可以显示 iNumPerRow * iNumPerCol个"目录或文件"
@@ -460,6 +460,7 @@ static int GenerateBrowsePageDirAndFile ( int iStartIndex, int iDirContentsNumbe
 	//2、设置文件夹/文件名字体大小
 	SetFontSize ( atFileAndDirLayout[1].iLowerRightY - atFileAndDirLayout[1].iTopLeftY + 1 - 5 );
 
+    DBG_PRINTF("iDirContentsNumber:%d \r\n",iDirContentsNumber);
 	//3、往指定位置拷贝数据
 	for ( i = 0; i< g_iDirFileNumPerCol ; i++ )
 	{
@@ -530,7 +531,7 @@ static int FlushDirAndFile ( PT_VideoMem ptVideoMem )
 	//在获取新文件夹内容之前 先释放原先分配的内存
 	FreeDirContents ( g_aptDirContents,g_iDirContentsNumber );
 	iError = GetDirContents ( g_strCurDir, &g_aptDirContents, &g_iDirContentsNumber );
-	DBG_PRINTF ( "get dir or file num is %d\r\n",g_iDirContentsNumber );
+	//DBG_PRINTF ( "get dir or file num is %d\r\n",g_iDirContentsNumber );
 	if ( iError )
 	{
 		DBG_PRINTF ( "GetDirContents error ... \r\n" );

@@ -129,7 +129,6 @@ static int CalcManualPageLayout ( PT_Layout atLayout )
 	int i = 0;
 	GetDispResolution ( &iXres,&iYres,&iBpp ); //获取LCD分辨率
 
-
 	if ( iXres < iYres )
 	{
 		/*	 iXres/6
