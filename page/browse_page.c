@@ -14,7 +14,7 @@
 
 static int CalcBrowsePageLayout ( PT_Layout atLayout );
 static int BrowsePageSpecialDis ( PT_VideoMem ptVideoMem );
-static void BrowsePageRun ( void );
+static void BrowsePageRun ( PT_PageParams ptPageParams );
 
 /* 用来描述某目录里的内容 */
 static PT_DirContent* g_aptDirContents;  /* 数组:存有目录下"顶层子目录","文件"的名字 */
@@ -551,11 +551,11 @@ static int FlushDirAndFile ( PT_VideoMem ptVideoMem )
 
 static void ChangeDirOrFileArenStatus ( int iDirFileIndex,int bSelect,PT_VideoMem ptVideoMem )
 {
-	int iIndex = g_iStartIndex + iDirFileIndex /2;
+	int iIndex = g_iStartIndex + iDirFileIndex /2;//得到文件夹所在位置
 
 
 	//如果是目录 改变文件夹为打开状态
-	if ( g_aptDirContents[iDirFileIndex]->eFileType == FILETYPE_DIR )
+	if ( g_aptDirContents[iIndex]->eFileType == FILETYPE_DIR )
 	{
 		if ( bSelect )
 		{
@@ -582,7 +582,7 @@ static void ChangeDirOrFileArenStatus ( int iDirFileIndex,int bSelect,PT_VideoMe
 	}
 }
 
-static void BrowsePageRun ( void )
+static void BrowsePageRun ( PT_PageParams ptPageParams )
 {
 	int iError;
 	PT_VideoMem ptDevVideoMem;

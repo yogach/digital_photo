@@ -9,7 +9,7 @@
 #include <render.h>
 
 
-static void MainPageRun ( void );
+static void MainPageRun (PT_PageParams ptPageParams);
 static int CalcMainPageLayout ( PT_Layout atLayout );
 
 
@@ -119,11 +119,11 @@ static int showMainPage ( PT_Layout atLayout )
 */
 
 
-static void MainPageRun ( void )
+static void MainPageRun (PT_PageParams ptPageParams)
 {
-	T_InputEvent tInputEvent;
-	int iIndex,iIndexPressured=-1,bPressure = 0,bLongPress;
-
+	//T_InputEvent tInputEvent;
+	//int iIndex,iIndexPressured=-1,bPressure = 0;
+    int bLongPress = 0;
 	/* 1. 显示页面 */
 	//showMainPage ( g_atMainPageIconsLayout );
 	ShowPage ( &g_tMainPageDesc );
@@ -132,7 +132,7 @@ static void MainPageRun ( void )
 	while ( 1 )
 	{
 #if 1
-		switch ( GenericGetPressedIcon ( g_atIntervalPageIconsLayout, &bLongPress ) )
+		switch ( GenericGetPressedIcon ( g_atMainPageIconsLayout, &bLongPress ) )
 		{
 			case 0://浏览模式
 				Page ( "browse" )->Run(NULL);

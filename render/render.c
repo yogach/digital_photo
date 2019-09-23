@@ -7,6 +7,7 @@
 #include <render.h>
 #include <file.h>
 #include <pic_manager.h>
+#include <stdlib.h>
 /**********************************************************************
  * 函数名称： SetColorForPixelInVideoMem
  * 功能描述： 设置VideoMem中某个座标象素的颜色
@@ -401,7 +402,8 @@ int GetOriPixelDatasFormFile ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
 	PT_PicFileParser ptTargetFileParser;
 	int iXres,iYres,iBpp,iError;
 
-	strncpy ( tMapFile.FileName,strFileName,256 );
+	strncpy ( tMapFile.FileName,strFileName,127 );
+    tMapFile.FileName[127] = '\0'; //添加结束符
 
 	//打开目标文件 并使用mmap映射到内存上
 	iError = MapFile ( &tMapFile );
@@ -451,7 +453,7 @@ int GetPixelDatasFormIcon ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
 {
 	//T_MapFile tMapFile;
 	//PT_PicFileParser ptTargetFileParser;
-	//int iXres,iYres,iBpp;
+	//int iXres,iYres,iBpp ,iError;
 	char strTemp[256];
 
 	//根据文件名打开文件
@@ -461,7 +463,11 @@ int GetPixelDatasFormIcon ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
 	return GetOriPixelDatasFormFile ( strTemp,ptPhotoDesc );
 
 	//打开目标文件 并使用mmap映射到内存上
-	/*	iError = MapFile ( &tMapFile );
+	#if 0
+	 /* 图标存在 /etc/digitpic/icons */
+    snprintf(tFileMap.strFileName, 128, "%s/%s", ICON_PATH, strFileName);
+    tFileMap.strFileName[127] = '\0';
+		iError = MapFile ( &tMapFile );
 		if ( iError !=0 )
 		{
 			DBG_PRINTF ( "MapFile %s error!\n", strFileName );
@@ -492,7 +498,7 @@ int GetPixelDatasFormIcon ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
 		unMapFile(&tMapFile);//完成处理任务之后 释放mmap空间
 
 		return 0;
-	*/
+	#endif
 
 
 }

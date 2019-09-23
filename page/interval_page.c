@@ -9,7 +9,7 @@
 #include <render.h>
 
 
-static void IntervalPageRun ( void );
+static void IntervalPageRun ( PT_PageParams ptPageParams );
 static int CalcIntervalPageLayout ( PT_Layout atLayout );
 static int IntervalPageSpecialDis ( PT_VideoMem ptVideoMem );
 
@@ -189,7 +189,7 @@ int GetIntervalSecond(void)
   return g_iIntervalSecond;
 }
 
-static void IntervalPageRun ( void )
+static void IntervalPageRun ( PT_PageParams ptPageParams )
 {
 	//T_InputEvent tInputEvent ,tInputEventPrePress;
 	//int iIndex,iIndexPressed=-1,bPressed = 0 ,bFast = 0;

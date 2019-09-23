@@ -8,7 +8,7 @@
 #include <input_manager.h>
 #include <render.h>
 
-static void SettingPageRun ( void );
+static void SettingPageRun ( PT_PageParams ptPageParams );
 static int CalcSettingPageLayout ( PT_Layout atLayout );
 
 
@@ -74,7 +74,7 @@ static int CalcSettingPageLayout ( PT_Layout atLayout )
 }
 
 
-static void SettingPageRun ( void )
+static void SettingPageRun ( PT_PageParams ptPageParams )
 {
     T_InputEvent tInputEvent;
 	int iIndex,iIndexPressured=-1,bPressure = 0;
