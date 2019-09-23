@@ -307,7 +307,7 @@ int GenericGetPressedIcon ( PT_Layout atLayout,int* bLongPress )
 	//{
 	//获得在哪个图标中按下
 	iIndex = GenericGetInputEvent ( atLayout,&tInputEvent );
-	if ( tInputEvent.iPressure == 0 ) //如果是松开状态
+	if ( tInputEvent.iPressure == 0 ) //如果此时的动作是松开
 	{
 		if ( bPressure ) //如果曾经按下
 		{
@@ -317,7 +317,7 @@ int GenericGetPressedIcon ( PT_Layout atLayout,int* bLongPress )
 			bFast = 0;
 			*bLongPress = 0;
 
-			if ( iIndexPressured == iIndex ) //如果按键和松开的是同一个按键
+			if ( iIndexPressured == iIndex ) //如果按下和松开的是同一个按键
 			{
 				//iIndexPressured = -1;
 				return iIndex;//返回此次按键有效
@@ -327,11 +327,11 @@ int GenericGetPressedIcon ( PT_Layout atLayout,int* bLongPress )
 		}
 
 	}
-	else //如果是按下状态
+	else //此时的动作是按下
 	{
 		if ( iIndex != -1 ) //如果按下的是有内容的按键
 		{
-		    //tPreInputEvent = tInputEvent;
+		    
 			if ( !bPressure ) //未曾按下按钮
 			{
 				bPressure = 1;

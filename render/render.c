@@ -401,8 +401,8 @@ int GetOriPixelDatasFormFile ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
 	PT_PicFileParser ptTargetFileParser;
 	int iXres,iYres,iBpp,iError;
 
-    strncpy(tMapFile.FileName,strFileName,256);
-	
+	strncpy ( tMapFile.FileName,strFileName,256 );
+
 	//打开目标文件 并使用mmap映射到内存上
 	iError = MapFile ( &tMapFile );
 	if ( iError !=0 )
@@ -575,5 +575,41 @@ void PressButton ( PT_Layout ptLayout )
 	InvertButton ( ptLayout );
 }
 
+/**********************************************************************
+ * 函数名称： isPictureFileSupported
+ * 功能描述： 判断本程序能否支持该图片文件,目前只能支持BMP/JPG格式的文件
+ * 输入参数： strFileName - 文件名,含绝对路径
+ * 输出参数： 无
+ * 返 回 值： 0 - 支持, 其他值 - 不支持
+ ***********************************************************************/
+int isPictureFileSupported ( char* strFileName )
+{
+	T_MapFile tMapFile;
+	PT_PicFileParser ptTargetFileParser;
+	int iError;
+
+	strncpy ( tMapFile.FileName,strFileName,256 );
+
+	//打开目标文件 并使用mmap映射到内存上
+	iError = MapFile ( &tMapFile );
+	if ( iError !=0 )
+	{
+		DBG_PRINTF ( "MapFile %s error!\n", strFileName );
+		return -1;
+	}
+
+	//得到支持此文件的图片处理节点
+	ptTargetFileParser = isSupport ( tMapFile.pucFileMapMem );
+	if ( ptTargetFileParser == NULL )
+	{
+		DBG_PRINTF ( "can't support :%s\n ",tMapFile.FileName );
+		unMapFile ( &tMapFile ); //出错时 需释放mmap数据 以免造成内存泄漏
+		return -1;
+	}
+	unMapFile ( &tMapFile ); //完成处理任务之后 释放mmap空间
+
+	return 0;
+
+}
 
 

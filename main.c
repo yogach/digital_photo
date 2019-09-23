@@ -67,7 +67,7 @@ int main ( int argc,char * *argv )
 
 	//初始化页面链表
 	PagesInit();
-	Page ( "main" )->Run();
+	Page ( "main" )->Run(NULL);
 
 
 

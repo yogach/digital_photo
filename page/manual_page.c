@@ -324,7 +324,7 @@ static int ShowPictureInManualPage ( PT_VideoMem ptVideoMem, char* strFileName )
 
 static int ManualPageSpecialDis ( PT_VideoMem ptVideoMem )
 {
-	return ShowPictureInManualPage ( ptVideoMem,"/mnt/zoomin.bmp" );//可先写入一个固定文件名
+	return ShowPictureInManualPage ( ptVideoMem,"/mnt/zoomin.bmp" );//先写入一个固定绝对路径 用于测试
 }
 
 static void ShowZoomedPictureInLayout ( PT_PhotoDesc ptZoomedPicPixelDatas, PT_VideoMem ptVideoMem )
@@ -394,7 +394,7 @@ static void ShowZoomedPictureInLayout ( PT_PhotoDesc ptZoomedPicPixelDatas, PT_V
 	{
 		iStartYofPicData = ptZoomedPicPixelDatas.iHigh;
 	}
-	
+
 	/*
 	 * 根据得到的间隔得到图片显示区域的起始坐标
 	 * g_iXofZoomedPicShowInCenter图片中心点 - iStartXofPicData图片起始点 = PictureLayout中心点y坐标 - iStartXofVideoMen
@@ -422,22 +422,40 @@ static void ShowZoomedPictureInLayout ( PT_PhotoDesc ptZoomedPicPixelDatas, PT_V
 		iHeightPictureInPlay = ptZoomedPicPixelDatas.iHigh - iStartYofVideoMen;
 	}
 
-    //清除指定区域的颜色
+	//清除指定区域的颜色
 	SetColorForAppointArea ( g_tManualPagePictureLayout.iTopLeftX,g_tManualPagePictureLayout.iTopLeftY,\
-							 g_tManualPagePictureLayout.iLowerRightX,g_tManualPagePictureLayout.iLowerRightY,\
-							 ptVideoMem,COLOR_BACKGROUND );
+	                         g_tManualPagePictureLayout.iLowerRightX,g_tManualPagePictureLayout.iLowerRightY,\
+	                         ptVideoMem,COLOR_BACKGROUND );
 	//拷贝图片至显存中
-	PicMergeRegion(iStartXofPicData, iStartYofPicData, iStartXofVideoMen, iStartYofVideoMen, iWidthPictureInPlay, iHeightPictureInPlay, \
-	                   ptZoomedPicPixelDatas, &ptVideoMem->tVideoMemDesc);
+	PicMergeRegion ( iStartXofPicData, iStartYofPicData, iStartXofVideoMen, iStartYofVideoMen, iWidthPictureInPlay, iHeightPictureInPlay, \
+	                 ptZoomedPicPixelDatas, &ptVideoMem->tVideoMemDesc );
 
+}
+
+/**********************************************************************
+ * 函数名称： DistanceBetweenTwoPoint
+ * 功能描述： 计算两个触点的距离, 为简化计算, 返回距离的平方值
+ * 输入参数： ptInputEvent1 - 触点1
+              ptInputEvent1 - 触点2
+ * 输出参数： 无
+ * 返 回 值： 触点距离的平方值
+ ***********************************************************************/
+static int DistanceBetweenTwoPoint ( PT_InputEvent ptInputEvent1, PT_InputEvent ptInputEvent2 )
+{
+	return ( ptInputEvent1->iX - ptInputEvent2->iX ) * ( ptInputEvent1->iX - ptInputEvent2->iX ) + \
+	       ( ptInputEvent1->iY - ptInputEvent2->iY ) * ( ptInputEvent1->iY - ptInputEvent2->iY );
 }
 
 
 static void ManualPageRun ( void )
 {
 	PT_VideoMem ptDevVideoMem;
-	int bLongPress ,iZoomedWidth , iZoomedHeight;
-    PT_PhotoDesc ptZoomedPicPixelDatas;
+	int bLongPress,iZoomedWidth, iZoomedHeight;
+	PT_PhotoDesc ptZoomedPicPixelDatas = &g_tZoomedPicPixelDatas;
+	T_InputEvent tInputEvent,tInputEventPrePress;
+	int iIndex,iIndexPressed=-1,bPressed = 0,bSlide = 0;
+
+
 	//获得显示设备显存
 	ptDevVideoMem = GetDevVideoMen();
 
@@ -446,6 +464,128 @@ static void ManualPageRun ( void )
 
 	while ( 1 )
 	{
+
+#if 1
+		iIndex = GenericGetInputEvent ( g_atManualPageIconsLayout, &tInputEvent );
+		if ( tInputEvent.iPressure == 0 )
+		{
+			/* 如果是松开 */
+			if ( bPressed )
+			{
+				bFast = 0;
+
+				/* 曾经有按钮被按下 */
+				ReleaseButton ( &g_atIntervalPageIconsLayout[iIndexPressed] );
+				bPressed = 0;
+
+				if ( iIndexPressed == iIndex ) /* 按下和松开都是同一个按钮 */
+				{
+					switch ( iIndexPressed )
+					{
+						case 0: //返回按键
+
+							return ;
+							break;
+
+						case 1://缩小
+							//获取缩小后的中心点坐标
+							iZoomedWidth  = ( float ) g_tZoomedPicPixelDatas.iWidth * ZOOM_RATIO;
+							iZoomedHeight = ( float ) g_tZoomedPicPixelDatas.iHigh * ZOOM_RATIO ;
+
+							//重新对图片原始数据进行缩放
+							ptZoomedPicPixelDatas = GetZoomedPicPixelDatas ( g_tOriginPicPixelDatas,iZoomedWidth,iZoomedHeight );
+
+							//重新计算中心点坐标
+							g_iXofZoomedPicShowInCenter = ( float ) g_iXofZoomedPicShowInCenter * ZOOM_RATIO;
+							g_iYofZoomedPicShowInCenter = ( float ) g_iYofZoomedPicShowInCenter * ZOOM_RATIO;
+
+							//显示图片
+							ShowZoomedPictureInLayout ( ptZoomedPicPixelDatas,ptDevVideoMem );
+
+							break;
+
+						case 2://放大
+							//获取缩小后的中心点坐标
+							iZoomedWidth  = ( float ) g_tZoomedPicPixelDatas.iWidth / ZOOM_RATIO;
+							iZoomedHeight = ( float ) g_tZoomedPicPixelDatas.iHigh / ZOOM_RATIO ;
+
+							//重新对图片原始数据进行缩放
+							ptZoomedPicPixelDatas = GetZoomedPicPixelDatas ( g_tOriginPicPixelDatas,iZoomedWidth,iZoomedHeight );
+
+							//重新计算中心点坐标
+							g_iXofZoomedPicShowInCenter = ( float ) g_iXofZoomedPicShowInCenter / ZOOM_RATIO;
+							g_iYofZoomedPicShowInCenter = ( float ) g_iYofZoomedPicShowInCenter / ZOOM_RATIO;
+
+							//显示图片
+							ShowZoomedPictureInLayout ( ptZoomedPicPixelDatas,ptDevVideoMem );
+
+
+							break;
+
+						case 3://上一张
+
+							break;
+						case 4://下一张
+
+							break;
+
+						case 5://连播：自动播放此目录下的图片文件
+							break;
+
+
+						default: //如果是没有点在控制按钮上 则是点在了图片上
+
+							break;
+					}
+				}
+
+				iIndexPressed = -1;
+			}
+		}
+		else
+		{
+			/* 如果按下区域是控制按键区域 */
+			if ( iIndex != -1 )
+			{
+				if ( !bPressed && ( iIndex != 1 ) )
+				{
+					/* 未曾按下按钮 */
+					bPressed = 1;
+					iIndexPressed = iIndex;
+					tInputEventPrePress = tInputEvent;  /* 记录下来 */
+					PressButton ( &g_atIntervalPageIconsLayout[iIndexPressed] );
+				}
+
+			}
+			else //按下的区域是图片显示区域
+			{
+				if ( ( !bPressed ) && ( !bSlide ) )
+				{
+					bSlide = 1;
+					tInputEventPrePress = tInputEvent;
+				}
+
+				if ( bSlide )
+				{   
+				    //比较两次按下的坐标值距离 如果符合就进行图片滑动操作
+					if ( DistanceBetweenTwoPoint ( &tInputEvent,&tInputEventPrePress ) > SLIP_MIN_DISTANCE ) 
+					{
+						//重新计算中心点坐标
+						g_iXofZoomedPicShowInCenter -= tInputEventPrePress.iX - tInputEvent.iX ;
+						g_iYofZoomedPicShowInCenter -= tInputEventPrePress.iY - tInputEvent.iY ;
+
+						ShowZoomedPictureInLayout ( ptZoomedPicPixelDatas,ptDevVideoMem );
+						tInputEventPrePress = tInputEvent;
+
+					}
+
+				}
+
+			}
+		}
+
+
+#else
 		switch ( GenericGetPressedIcon ( g_atManualPageIconsLayout,&bLongPress ) )
 		{
 			case 0: //返回按键
@@ -454,23 +594,36 @@ static void ManualPageRun ( void )
 				break;
 
 			case 1://缩小
-                //获取缩小后的中心点坐标
-                iZoomedWidth  = (float) g_tZoomedPicPixelDatas.iWidth * ZOOM_RATIO;
-				iZoomedHeight = (float)g_tZoomedPicPixelDatas.iHigh * ZOOM_RATIO ;
+				//获取缩小后的中心点坐标
+				iZoomedWidth  = ( float ) g_tZoomedPicPixelDatas.iWidth * ZOOM_RATIO;
+				iZoomedHeight = ( float ) g_tZoomedPicPixelDatas.iHigh * ZOOM_RATIO ;
 
 				//重新对图片原始数据进行缩放
 				ptZoomedPicPixelDatas = GetZoomedPicPixelDatas ( g_tOriginPicPixelDatas,iZoomedWidth,iZoomedHeight );
 
-                //重新计算中心点坐标--
-                g_iXofZoomedPicShowInCenter = (float)g_iXofZoomedPicShowInCenter * ZOOM_RATIO;
-                g_iYofZoomedPicShowInCenter = (float)g_iYofZoomedPicShowInCenter * ZOOM_RATIO;
+				//重新计算中心点坐标
+				g_iXofZoomedPicShowInCenter = ( float ) g_iXofZoomedPicShowInCenter * ZOOM_RATIO;
+				g_iYofZoomedPicShowInCenter = ( float ) g_iYofZoomedPicShowInCenter * ZOOM_RATIO;
 
 				//显示图片
-				ShowZoomedPictureInLayout(ptZoomedPicPixelDatas,ptDevVideoMem);
+				ShowZoomedPictureInLayout ( ptZoomedPicPixelDatas,ptDevVideoMem );
 
 				break;
 
 			case 2://放大
+				//获取缩小后的中心点坐标
+				iZoomedWidth  = ( float ) g_tZoomedPicPixelDatas.iWidth / ZOOM_RATIO;
+				iZoomedHeight = ( float ) g_tZoomedPicPixelDatas.iHigh / ZOOM_RATIO ;
+
+				//重新对图片原始数据进行缩放
+				ptZoomedPicPixelDatas = GetZoomedPicPixelDatas ( g_tOriginPicPixelDatas,iZoomedWidth,iZoomedHeight );
+
+				//重新计算中心点坐标
+				g_iXofZoomedPicShowInCenter = ( float ) g_iXofZoomedPicShowInCenter / ZOOM_RATIO;
+				g_iYofZoomedPicShowInCenter = ( float ) g_iYofZoomedPicShowInCenter / ZOOM_RATIO;
+
+				//显示图片
+				ShowZoomedPictureInLayout ( ptZoomedPicPixelDatas,ptDevVideoMem );
 
 
 				break;
@@ -487,10 +640,10 @@ static void ManualPageRun ( void )
 
 
 			default: //如果是没有点在控制按钮上 则是点在了图片上
-			
+
 				break;
 		}
-
+#endif
 
 
 	}

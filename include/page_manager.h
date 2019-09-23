@@ -28,12 +28,17 @@ typedef struct PageLayOut
   PT_Layout atLayOut;
 }T_PageLayOut,*PT_PageLayOut;
 
+typedef struct PageParams
+{
+  char strFileName[256];
+  int PageID;
+}T_PageParams,*PT_PageParams;
 
 typedef struct PageDesc
 {
   char * name;                               //页面名
   PT_Layout atPageLayout;                    //页面描述 包括每个图标4角坐标 以及图片名
-  void (*Run)(void);                          //页面运行函数--运行后会显示图片
+  void (*Run)(PT_PageParams ptPageParams);   //页面运行函数--运行后会显示图片
   int (*CalcPageLayout)(PT_Layout atLayout); //计算每个图标坐标函数 
   int (*DispSpecialIcon)(PT_VideoMem ptVideoMem);
   struct PageDesc *ptNext;

@@ -135,7 +135,7 @@ static void MainPageRun ( void )
 		switch ( GenericGetPressedIcon ( g_atIntervalPageIconsLayout, &bLongPress ) )
 		{
 			case 0://浏览模式
-				Page ( "browse" )->Run();
+				Page ( "browse" )->Run(NULL);
 				ShowPage ( &g_tMainPageDesc );
 				break;
 
@@ -145,7 +145,7 @@ static void MainPageRun ( void )
 
 			case 2://设置页面
 				//显示设置界面
-				Page ( "setting" )->Run();
+				Page ( "setting" )->Run(NULL);
 				//从设置界面返回后需重新刷新显示
 				ShowPage ( &g_tMainPageDesc );
 				break;
@@ -173,7 +173,7 @@ static void MainPageRun ( void )
 					switch ( iIndexPressured )
 					{
 						case 0://浏览模式
-							Page ( "browse" )->Run();
+							Page ( "browse" )->Run(NULL);
 							ShowPage ( &g_tMainPageDesc );
 							break;
 
@@ -183,7 +183,7 @@ static void MainPageRun ( void )
 
 						case 2://设置页面
 							//显示设置界面
-							Page ( "setting" )->Run();
+							Page ( "setting" )->Run(NULL);
 							//从设置界面返回后需重新刷新显示
 							ShowPage ( &g_tMainPageDesc );
 							break;

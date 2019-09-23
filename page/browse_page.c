@@ -554,7 +554,7 @@ static void ChangeDirOrFileArenStatus ( int iDirFileIndex,int bSelect,PT_VideoMe
 	int iIndex = g_iStartIndex + iDirFileIndex /2;
 
 
-    //如果是目录 改变文件夹为打开状态
+	//如果是目录 改变文件夹为打开状态
 	if ( g_aptDirContents[iDirFileIndex]->eFileType == FILETYPE_DIR )
 	{
 		if ( bSelect )
@@ -570,13 +570,13 @@ static void ChangeDirOrFileArenStatus ( int iDirFileIndex,int bSelect,PT_VideoMe
 	{
 		if ( bSelect )
 		{
-			PressButton(&g_atDirAndFileLayout[iDirFileIndex]);
-			PressButton(&g_atDirAndFileLayout[iDirFileIndex + 1]);
+			PressButton ( &g_atDirAndFileLayout[iDirFileIndex] );
+			PressButton ( &g_atDirAndFileLayout[iDirFileIndex + 1] );
 		}
 		else
 		{
-		    ReleaseButton(&g_atDirAndFileLayout[iDirFileIndex]);
-			ReleaseButton(&g_atDirAndFileLayout[iDirFileIndex + 1]);
+			ReleaseButton ( &g_atDirAndFileLayout[iDirFileIndex] );
+			ReleaseButton ( &g_atDirAndFileLayout[iDirFileIndex + 1] );
 		}
 
 	}
@@ -732,7 +732,7 @@ static void BrowsePageRun ( void )
 					 */
 					if ( iIndexPressured != iIndex )
 					{
-                        ChangeDirOrFileArenStatus(iIndexPressured - DIRFILE_ICON_INDEX_BASE,0, ptDevVideoMem);
+						ChangeDirOrFileArenStatus ( iIndexPressured - DIRFILE_ICON_INDEX_BASE,0, ptDevVideoMem );
 						bPressure = 0;
 
 					}
@@ -749,7 +749,7 @@ static void BrowsePageRun ( void )
 						if ( g_aptDirContents[iPressIndex]->eFileType == FILETYPE_DIR )
 						{
 							//如果g_strCurDir值为"/"      strtmp的值会是 "//mnt/" 此时可成功获取到文件夹内容
-							snprintf ( strtmp,256,"%s/%s/",g_strCurDir,g_aptDirContents[iPressIndex]->strName ); //生成目录
+							snprintf ( strtmp,256,"%s/%s/",g_strCurDir,g_aptDirContents[iPressIndex]->strName ); //生成绝对路径
 
 							//DBG_PRINTF("%s\r\n",strtmp);
 							strtmp[255]='\0';
@@ -777,9 +777,14 @@ static void BrowsePageRun ( void )
 						}
 						else//如果是文件则进入显示页面
 						{
-                          Page ( "manual" )->Run();
-				          ShowPage ( &g_tBrowsePageDesc );
+							//获取点下文件的绝对路径
+							//snprintf ( strtmp,256,"%s/%s/",g_strCurDir,g_aptDirContents[iPressIndex]->strName ); //生成绝对路径
 
+							//if(isPictureFileSupported(strtmp)==0)
+							//{
+								Page ( "manual" )->Run(NULL);
+								ShowPage ( &g_tBrowsePageDesc );
+							//}
 						}
 
 					}
@@ -807,7 +812,7 @@ static void BrowsePageRun ( void )
 					else
 					{
 						//选中指定文件
-						ChangeDirOrFileArenStatus ( iIndex - DIRFILE_ICON_INDEX_BASE,1, ptDevVideoMem);
+						ChangeDirOrFileArenStatus ( iIndex - DIRFILE_ICON_INDEX_BASE,1, ptDevVideoMem );
 					}
 				}
 
