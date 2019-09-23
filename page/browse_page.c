@@ -616,6 +616,7 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 		if ( iIndex == -1 ) //如果按下的地方没有在浏览页面控制按键上
 		{
 			iIndex =  GenericGetInputPositionInPageLayout ( g_atDirAndFileLayout,&tInputEvent );
+			DBG_PRINTF("press Icon Number is %d\r\n",iIndex); 
 
 			if ( iIndex != -1 ) //如果按下的地方在文件夹/文件区域 此时得到的索引是按下区域的索引
 			{
@@ -733,7 +734,7 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 					 */
 					if ( iIndexPressured != iIndex )
 					{
-						ChangeDirOrFileArenStatus ( iIndexPressured - DIRFILE_ICON_INDEX_BASE,0, ptDevVideoMem );
+						//ChangeDirOrFileArenStatus ( iIndexPressured - DIRFILE_ICON_INDEX_BASE,0, ptDevVideoMem );
 						bPressure = 0;
 
 					}
@@ -813,7 +814,7 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 					else
 					{
 						//选中指定文件
-						ChangeDirOrFileArenStatus ( iIndex - DIRFILE_ICON_INDEX_BASE,1, ptDevVideoMem );
+						//ChangeDirOrFileArenStatus ( iIndex - DIRFILE_ICON_INDEX_BASE,1, ptDevVideoMem );
 					}
 				}
 

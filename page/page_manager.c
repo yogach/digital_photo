@@ -252,7 +252,7 @@ int ShowPage ( PT_PageDesc ptPageDesc )
 	}
 
 	/* 2. 生成图标坐标 */
-	//if ( ptPageDesc->atPageLayout->iTopLeftX == 0 )
+	if ( ptPageDesc->atPageLayout->iTopLeftX == 0 )
 	{
 		// CalcMainPageLayout(atLayout);
 		ptPageDesc->CalcPageLayout ( ptPageDesc->atPageLayout ); //调用各模块的计算图标坐标函数
