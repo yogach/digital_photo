@@ -590,6 +590,7 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 {
 	int iError;
 	PT_VideoMem ptDevVideoMem;
+	T_PageParams tPageParams;
 	T_InputEvent tInputEvent,tPreInputEvent;
 	int iIndex,iIndexPressured=-1,bPressure = 0, bHaveClickSelectIcon = 0;
 	int iPressIndex;
@@ -669,21 +670,6 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 								ptTmp = strrchr ( g_strCurDir,'/' );
 								*ptTmp = '\0'; //将'/'替换成结束符
 
-								/*
-								FreeDirContents ( g_aptDirContents,g_iDirContentsNumber );
-								iError = GetDirContents ( g_strCurDir, &g_aptDirContents, &g_iDirContentsNumber );
-								if ( iError )
-								{
-									DBG_PRINTF ( "GetDirContents error ... \r\n" );
-									//return -1;
-								}
-
-								g_iStartIndex = 0;
-								iError = GenerateBrowsePageDirAndFile ( g_iStartIndex,g_iDirContentsNumber,g_aptDirContents,ptDevVideoMem );
-								if ( iError!=0 )
-								{
-									DBG_PRINTF ( "GenerateBrowsePageDirAndFile error..\r\n" );
-								}*/
 								FlushDirAndFile ( ptDevVideoMem );
 
 								break;
@@ -761,35 +747,18 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 							strcpy ( g_strCurDir, strtmp );
 							FlushDirAndFile ( ptDevVideoMem );
 
-							/*
-							FreeDirContents ( g_aptDirContents,g_iDirContentsNumber );
-							iError = GetDirContents ( g_strCurDir, &g_aptDirContents, &g_iDirContentsNumber );
-							if ( iError )
-							{
-								DBG_PRINTF ( "GetDirContents error ... \r\n" );
-								//return -1;
-							}
-
-							g_iStartIndex = 0;
-							iError = GenerateBrowsePageDirAndFile ( g_iStartIndex,g_iDirContentsNumber,g_aptDirContents,ptDevVideoMem );
-							if ( iError!=0 )
-							{
-								DBG_PRINTF ( "GenerateBrowsePageDirAndFile error..\r\n" );
-							}
-							*/
-
-
 						}
 						else//如果是文件则进入显示页面
 						{
+						    tPageParams.PageID = ID(g_tBrowsePageDesc.name);
 							//获取点下文件的绝对路径
-							//snprintf ( strtmp,256,"%s/%s/",g_strCurDir,g_aptDirContents[iPressIndex]->strName ); //生成绝对路径
+							snprintf ( tPageParams.strFileName,256,"%s/%s",g_strCurDir,g_aptDirContents[iPressIndex]->strName ); 
 
-							//if(isPictureFileSupported(strtmp)==0)
-							//{
-								Page ( "manual" )->Run(NULL);
+							if(isPictureFileSupported(tPageParams.strFileName)==0)
+							{
+								Page ( "manual" )->Run(&tPageParams);
 								ShowPage ( &g_tBrowsePageDesc );
-							//}
+							}
 						}
 
 					}

@@ -38,6 +38,7 @@ static T_PhotoDesc g_tZoomedPicPixelDatas;
 static int g_iXofZoomedPicShowInCenter;
 static int g_iYofZoomedPicShowInCenter;
 
+static char g_cstrFileName[256];
 
 static T_PageDesc g_tManualPageDesc =
 {
@@ -324,7 +325,8 @@ static int ShowPictureInManualPage ( PT_VideoMem ptVideoMem, char* strFileName )
 
 static int ManualPageSpecialDis ( PT_VideoMem ptVideoMem )
 {
-	return ShowPictureInManualPage ( ptVideoMem,"/mnt/zoomin.bmp" );//先写入一个固定绝对路径 用于测试
+	//return ShowPictureInManualPage ( ptVideoMem,"/mnt/zoomin.bmp" );//先写入一个固定绝对路径 用于测试
+	return ShowPictureInManualPage ( ptVideoMem,g_cstrFileName );//先写入一个固定绝对路径 用于测试
 }
 
 static void ShowZoomedPictureInLayout ( PT_PhotoDesc ptZoomedPicPixelDatas, PT_VideoMem ptVideoMem )
@@ -457,6 +459,9 @@ static void ManualPageRun ( PT_PageParams ptPageParams )
 	int iIndex,iIndexPressed=-1,bPressed = 0,bSlide = 0;
 
 
+    //获得需要显示文件的绝对路径
+    strncpy(g_cstrFileName,ptPageParams->strFileName,256);
+
 	//获得显示设备显存
 	ptDevVideoMem = GetDevVideoMen();
 
@@ -523,10 +528,10 @@ static void ManualPageRun ( PT_PageParams ptPageParams )
 
 							break;
 
-						case 3://上一张
+						case 3://上一张 本目录下上一张 
 
 							break;
-						case 4://下一张
+						case 4://下一张 本目录下下一张
 
 							break;
 
