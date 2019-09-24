@@ -297,7 +297,7 @@ static int ShowPictureInManualPage ( PT_VideoMem ptVideoMem, char* strFileName )
 	iPicHight = g_tManualPagePictureLayout.iLowerRightY - g_tManualPagePictureLayout.iTopLeftY + 1;
 
 	//将得到的图片原始数据进行缩放 缩放后的数据放入ptZoomedPicPixelDatas
-	ptZoomedPicPixelDatas = GetZoomedPicPixelDatas ( ptOriPicPixelDatas,iPicWidth,iPicHight );
+	ptZoomedPicPixelDatas = GetZoomedPicPixelDatas ( &g_tOriginPicPixelDatas,iPicWidth,iPicHight );
 	if ( ptZoomedPicPixelDatas == NULL )
 	{
 		DBG_PRINTF ( "GetZoomedPicPixelDatas error..\r\n" );
@@ -348,7 +348,7 @@ static void ShowZoomedPictureInLayout ( PT_PhotoDesc ptZoomedPicPixelDatas, PT_V
 	{
 		iStartXofPicData = 0;
 	}
-	else if ( iStartXofPicData > ptZoomedPicPixelDatas->iWidth )
+	if ( iStartXofPicData > ptZoomedPicPixelDatas->iWidth )
 	{
 		iStartXofPicData = ptZoomedPicPixelDatas->iWidth;
 	}
@@ -364,7 +364,7 @@ static void ShowZoomedPictureInLayout ( PT_PhotoDesc ptZoomedPicPixelDatas, PT_V
 	{
 		iStartXofVideoMen = g_tManualPagePictureLayout.iTopLeftX;
 	}
-	else if ( iStartXofVideoMen > g_tManualPagePictureLayout.iLowerRightX )
+	if ( iStartXofVideoMen > g_tManualPagePictureLayout.iLowerRightX )
 	{
 		iStartXofVideoMen = g_tManualPagePictureLayout.iLowerRightX + 1;
 	}
@@ -389,7 +389,7 @@ static void ShowZoomedPictureInLayout ( PT_PhotoDesc ptZoomedPicPixelDatas, PT_V
 	{
 		iStartYofPicData = 0;
 	}
-	else if ( iStartYofPicData > ptZoomedPicPixelDatas->iHigh )
+	if ( iStartYofPicData > ptZoomedPicPixelDatas->iHigh )
 	{
 		iStartYofPicData = ptZoomedPicPixelDatas->iHigh;
 	}
@@ -402,11 +402,11 @@ static void ShowZoomedPictureInLayout ( PT_PhotoDesc ptZoomedPicPixelDatas, PT_V
 	iDeltaY = g_iYofZoomedPicShowInCenter - iStartYofPicData;
 	iStartYofVideoMen = g_tManualPagePictureLayout.iTopLeftY + iPictureLayoutHeight / 2 - iDeltaY;
 	//如果要显示的图片起始位置大于
-	if ( iStartXofVideoMen < g_tManualPagePictureLayout.iTopLeftY )
+	if ( iStartYofVideoMen < g_tManualPagePictureLayout.iTopLeftY )
 	{
 		iStartYofVideoMen = g_tManualPagePictureLayout.iTopLeftY;
 	}
-	else if ( iStartYofVideoMen > g_tManualPagePictureLayout.iLowerRightY )
+	if ( iStartYofVideoMen > g_tManualPagePictureLayout.iLowerRightY )
 	{
 		iStartYofVideoMen = g_tManualPagePictureLayout.iLowerRightY + 1;
 	}
@@ -443,6 +443,7 @@ static int DistanceBetweenTwoPoint ( PT_InputEvent ptInputEvent1, PT_InputEvent 
 {
 	return ( ptInputEvent1->iX - ptInputEvent2->iX ) * ( ptInputEvent1->iX - ptInputEvent2->iX ) + \
 	       ( ptInputEvent1->iY - ptInputEvent2->iY ) * ( ptInputEvent1->iY - ptInputEvent2->iY );
+
 }
 
 
@@ -546,7 +547,7 @@ static void ManualPageRun ( PT_PageParams ptPageParams )
 			/* 如果按下区域是控制按键区域 */
 			if ( iIndex != -1 )
 			{
-				if ( !bPressed && ( iIndex != 1 ) )
+				if ( !bPressed  )
 				{
 					/* 未曾按下按钮 */
 					bPressed = 1;
@@ -570,8 +571,8 @@ static void ManualPageRun ( PT_PageParams ptPageParams )
 					if ( DistanceBetweenTwoPoint ( &tInputEvent,&tInputEventPrePress ) > SLIP_MIN_DISTANCE ) 
 					{
 						//重新计算中心点坐标
-						g_iXofZoomedPicShowInCenter -= tInputEventPrePress.iX - tInputEvent.iX ;
-						g_iYofZoomedPicShowInCenter -= tInputEventPrePress.iY - tInputEvent.iY ;
+						g_iXofZoomedPicShowInCenter -= (tInputEventPrePress.iX - tInputEvent.iX) ;
+						g_iYofZoomedPicShowInCenter -= (tInputEventPrePress.iY - tInputEvent.iY) ;
 
 						ShowZoomedPictureInLayout ( ptZoomedPicPixelDatas,ptDevVideoMem );
 						tInputEventPrePress = tInputEvent;

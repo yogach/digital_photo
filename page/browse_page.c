@@ -185,6 +185,7 @@ static int CalcBrowsePageDirAndFilesLayout ( void )
 	if(g_atDirAndFileLayout == NULL)
 	{
 		g_atDirAndFileLayout = malloc ( sizeof ( T_Layout ) * ( 2*g_iDirFileNumPerCol*g_iDirFileNumPerRow + 1 ) );
+        DBG_PRINTF("malloc g_atDirAndFileLayout...\r\n");
 		if ( g_atDirAndFileLayout == NULL )
 		{
 			DBG_PRINTF ( "malloc error..\r\n" );
@@ -508,7 +509,7 @@ static int GenerateBrowsePageDirAndFile ( int iStartIndex, int iDirContentsNumbe
 
 /**********************************************************************
  * 函数名称： BrowsePageSpecialDis
- * 功能描述： 回调函数--用于显示特殊图标
+ * 功能描述： 用于显示特殊图标
  * 输入参数： ptVideoMem         - 在这个VideoMem中构造页面
  * 输出参数： 无
  * 返 回 值： 0      - 成功
