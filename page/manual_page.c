@@ -359,7 +359,7 @@ static void ShowZoomedPictureInLayout ( PT_PhotoDesc ptZoomedPicPixelDatas, PT_V
 	 *
 	 */
 	iDeltaX = g_iXofZoomedPicShowInCenter - iStartXofPicData;
-	iStartXofVideoMen = g_tManualPagePictureLayout.iTopLeftX + iPictureLayoutWidth / 2 - iDeltaX;
+	iStartXofVideoMen = (g_tManualPagePictureLayout.iTopLeftX + iPictureLayoutWidth / 2) - iDeltaX;
 	//如果要显示的图片起始位置大于
 	if ( iStartXofVideoMen < g_tManualPagePictureLayout.iTopLeftX )
 	{
@@ -373,11 +373,11 @@ static void ShowZoomedPictureInLayout ( PT_PhotoDesc ptZoomedPicPixelDatas, PT_V
 	//计算实际的显示宽度
 	if ( ( ptZoomedPicPixelDatas->iWidth - iStartXofPicData ) > ( g_tManualPagePictureLayout.iLowerRightX - iStartXofVideoMen + 1 ) )
 	{
-		iWidthPictureInPlay = g_tManualPagePictureLayout.iLowerRightX - iStartXofVideoMen + 1;
+		iWidthPictureInPlay = (g_tManualPagePictureLayout.iLowerRightX - iStartXofVideoMen + 1);
 	}
 	else
 	{
-		iWidthPictureInPlay = ptZoomedPicPixelDatas->iWidth - iStartXofPicData;
+		iWidthPictureInPlay = (ptZoomedPicPixelDatas->iWidth - iStartXofPicData);
 	}
 
 
@@ -401,7 +401,7 @@ static void ShowZoomedPictureInLayout ( PT_PhotoDesc ptZoomedPicPixelDatas, PT_V
 	 *
 	 */
 	iDeltaY = g_iYofZoomedPicShowInCenter - iStartYofPicData;
-	iStartYofVideoMen = g_tManualPagePictureLayout.iTopLeftY + iPictureLayoutHeight / 2 - iDeltaY;
+	iStartYofVideoMen = (g_tManualPagePictureLayout.iTopLeftY + iPictureLayoutHeight / 2)- iDeltaY;
 	//如果要显示的图片起始位置大于
 	if ( iStartYofVideoMen < g_tManualPagePictureLayout.iTopLeftY )
 	{
@@ -413,13 +413,13 @@ static void ShowZoomedPictureInLayout ( PT_PhotoDesc ptZoomedPicPixelDatas, PT_V
 	}
 
 	//计算实际的显示宽度
-	if ( ( ptZoomedPicPixelDatas->iHigh - iStartYofVideoMen ) > ( g_tManualPagePictureLayout.iLowerRightY - iStartYofVideoMen + 1 ) )
+	if ( ( ptZoomedPicPixelDatas->iHigh - iStartYofPicData ) > ( g_tManualPagePictureLayout.iLowerRightY - iStartYofVideoMen + 1 ) )
 	{
-		iHeightPictureInPlay = g_tManualPagePictureLayout.iLowerRightY - iStartYofVideoMen + 1;
+		iHeightPictureInPlay = (g_tManualPagePictureLayout.iLowerRightY - iStartYofVideoMen + 1);
 	}
 	else
 	{
-		iHeightPictureInPlay = ptZoomedPicPixelDatas->iHigh - iStartYofVideoMen;
+		iHeightPictureInPlay = (ptZoomedPicPixelDatas->iHigh - iStartYofPicData);
 	}
 
 	//清除指定区域的颜色
@@ -489,7 +489,7 @@ static void ManualPageRun ( PT_PageParams ptPageParams )
 							break;
 
 						case 1://缩小
-							//获取缩小后的中心点坐标
+							//获取缩小后的长宽
 							iZoomedWidth  = ( float ) g_tZoomedPicPixelDatas.iWidth * ZOOM_RATIO;
 							iZoomedHeight = ( float ) g_tZoomedPicPixelDatas.iHigh * ZOOM_RATIO ;
 
@@ -506,7 +506,7 @@ static void ManualPageRun ( PT_PageParams ptPageParams )
 							break;
 
 						case 2://放大
-							//获取缩小后的中心点坐标
+							//获取缩小后的长宽
 							iZoomedWidth  = ( float ) g_tZoomedPicPixelDatas.iWidth / ZOOM_RATIO;
 							iZoomedHeight = ( float ) g_tZoomedPicPixelDatas.iHigh / ZOOM_RATIO ;
 
@@ -534,7 +534,7 @@ static void ManualPageRun ( PT_PageParams ptPageParams )
 							break;
 
 
-						default: //如果是没有点在控制按钮上 则是点在了图片上
+						default: 
 
 							break;
 					}
@@ -553,7 +553,7 @@ static void ManualPageRun ( PT_PageParams ptPageParams )
 					/* 未曾按下按钮 */
 					bPressed = 1;
 					iIndexPressed = iIndex;
-					tInputEventPrePress = tInputEvent;  /* 记录下来 */
+					//tInputEventPrePress = tInputEvent;  /* 记录下来 */
 					PressButton ( &g_atManualPageIconsLayout[iIndexPressed] );
 				}
 
@@ -572,8 +572,8 @@ static void ManualPageRun ( PT_PageParams ptPageParams )
 					if ( DistanceBetweenTwoPoint ( &tInputEvent,&tInputEventPrePress ) > SLIP_MIN_DISTANCE ) 
 					{
 						//重新计算中心点坐标
-						g_iXofZoomedPicShowInCenter -= (tInputEventPrePress.iX - tInputEvent.iX) ;
-						g_iYofZoomedPicShowInCenter -= (tInputEventPrePress.iY - tInputEvent.iY) ;
+						g_iXofZoomedPicShowInCenter -= (tInputEvent.iX - tInputEventPrePress.iX) ;
+						g_iYofZoomedPicShowInCenter -= (tInputEvent.iY - tInputEventPrePress.iY) ;
 
 						ShowZoomedPictureInLayout ( ptZoomedPicPixelDatas,ptDevVideoMem );
 						tInputEventPrePress = tInputEvent;
