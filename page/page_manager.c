@@ -181,7 +181,7 @@ int GeneratePage ( PT_Layout atLayout, PT_VideoMem pt_VideoMem )
 	int iError, iBpp;
 	iBpp = pt_VideoMem->tVideoMemDesc.iBpp;
 
-	//DBG_PRINTF ( "PicState :%d,VideoMem id:%d\r\n",pt_VideoMem->ePicState, pt_VideoMem->iID );
+	DBG_PRINTF ( "PicState :%d,VideoMem id:%d\r\n",pt_VideoMem->ePicState, pt_VideoMem->iID );
 	if ( pt_VideoMem->ePicState != PIC_GENERATED ) //如果图片未准备好
 	{
 
