@@ -318,6 +318,7 @@ static int ShowPictureInManualPage ( PT_VideoMem ptVideoMem, char* strFileName )
 	                         ptVideoMem,COLOR_BACKGROUND );
 	//将需要显示的图片合并到显存中
 	PicMerge ( iTopLeftX, iTopLeftY, ptZoomedPicPixelDatas,&ptVideoMem->tVideoMemDesc );
+	return 0;
 
 }
 

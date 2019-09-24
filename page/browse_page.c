@@ -463,7 +463,7 @@ static int GenerateBrowsePageDirAndFile ( int iStartIndex, int iDirContentsNumbe
 	//2、设置文件夹/文件 名称字体大小
 	SetFontSize ( atFileAndDirLayout[1].iLowerRightY - atFileAndDirLayout[1].iTopLeftY + 1 - 5 );
 
-    DBG_PRINTF("iDirContentsNumber:%d \r\n",iDirContentsNumber);
+    DBG_PRINTF("iDirContentsNumber:%d \r\n",iDirContentsNumber); //打印搜索到的文件个数
 	//3、往指定位置拷贝数据
 	for ( i = 0; i< g_iDirFileNumPerCol ; i++ )
 	{
@@ -619,7 +619,7 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 		if ( iIndex == -1 ) //如果按下的地方没有在浏览页面控制按键上
 		{
 			iIndex =  GenericGetInputPositionInPageLayout ( g_atDirAndFileLayout,&tInputEvent );
-			DBG_PRINTF("press Icon Number is %d\r\n",iIndex); 
+			//DBG_PRINTF("press Icon Number is %d\r\n",iIndex); 
 
 			if ( iIndex != -1 ) //如果按下的地方在文件夹/文件区域 此时得到的索引是按下区域的索引
 			{
@@ -737,7 +737,7 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 					 */
 					if ( iIndexPressured != iIndex )
 					{
-						//ChangeDirOrFileArenStatus ( iIndexPressured - DIRFILE_ICON_INDEX_BASE,0, ptDevVideoMem );
+						ChangeDirOrFileArenStatus ( iIndexPressured - DIRFILE_ICON_INDEX_BASE,0, ptDevVideoMem );
 						bPressure = 0;
 
 					}
@@ -817,7 +817,7 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 					else
 					{
 						//选中指定文件
-						//ChangeDirOrFileArenStatus ( iIndex - DIRFILE_ICON_INDEX_BASE,1, ptDevVideoMem );
+						ChangeDirOrFileArenStatus ( iIndex - DIRFILE_ICON_INDEX_BASE,1, ptDevVideoMem );
 					}
 				}
 
