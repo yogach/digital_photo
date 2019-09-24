@@ -503,6 +503,13 @@ int GetPixelDatasFormIcon ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
 
 }
 
+/**********************************************************************
+ * 函数名称： FreePixelDatasForIcon
+ * 功能描述： 释放图像数据所占缓冲区
+ * 输入参数： ptPixelDatas - 内含象素数据,它所占的空间是通过malloc分配的
+ * 输出参数： 无
+ * 返 回 值： 无
+ ***********************************************************************/
 void FreePixelDatasForIcon ( PT_PhotoDesc ptPhotoDatas )
 {
 	//if(ptPhotoDatas->aucPhotoData)

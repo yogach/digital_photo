@@ -181,7 +181,7 @@ int GeneratePage ( PT_Layout atLayout, PT_VideoMem pt_VideoMem )
 	int iError, iBpp;
 	iBpp = pt_VideoMem->tVideoMemDesc.iBpp;
 
-	DBG_PRINTF ( "PicState :%d,VideoMem id:%d\r\n",pt_VideoMem->ePicState, pt_VideoMem->iID );
+	//DBG_PRINTF ( "PicState :%d,VideoMem id:%d\r\n",pt_VideoMem->ePicState, pt_VideoMem->iID );
 	if ( pt_VideoMem->ePicState != PIC_GENERATED ) //如果图片未准备好
 	{
 
@@ -194,6 +194,7 @@ int GeneratePage ( PT_Layout atLayout, PT_VideoMem pt_VideoMem )
 			iError = GetPixelDatasFormIcon ( atLayout->IconName,&tPhotoIconOriData );
 			if ( iError !=0 )
 			{
+			    DBG_PRINTF("GetPixelDatasFormIcon error...\r\n");
 				return -1;
 			}
 
@@ -210,7 +211,7 @@ int GeneratePage ( PT_Layout atLayout, PT_VideoMem pt_VideoMem )
 				return -1;
 			}
 
-			//将原始图片数据缩放到指定大小
+			//将原始图片数据缩放 并放入另一个结构体中
 			PicZoom ( &tPhotoIconOriData, &tPhotoIconData );
 			//将图片合并到显存中
 			PicMerge ( atLayout->iTopLeftX, atLayout->iTopLeftY, &tPhotoIconData, &pt_VideoMem->tVideoMemDesc );
@@ -252,7 +253,7 @@ int ShowPage ( PT_PageDesc ptPageDesc )
 	}
 
 	/* 2. 生成图标坐标 */
-	if ( ptPageDesc->atPageLayout->iTopLeftX == 0 )
+	if ( ptPageDesc->atPageLayout[0].iTopLeftX == 0 )
 	{
 		// CalcMainPageLayout(atLayout);
 		ptPageDesc->CalcPageLayout ( ptPageDesc->atPageLayout ); //调用各模块的计算图标坐标函数
@@ -260,14 +261,22 @@ int ShowPage ( PT_PageDesc ptPageDesc )
 
 	/* 3. 描画数据 */
 	iError = GeneratePage ( ptPageDesc->atPageLayout,pt_VideoTmp );
-	if ( ptPageDesc->DispSpecialIcon )
-	{
-		iError |= ptPageDesc->DispSpecialIcon ( pt_VideoTmp );
-	}
 	if ( iError != 0 )
 	{
+	    DBG_PRINTF("GeneratePage error...\r\n");
 		return -1;
 	}
+	
+	if ( ptPageDesc->DispSpecialIcon )
+	{
+		iError = ptPageDesc->DispSpecialIcon ( pt_VideoTmp );
+		if ( iError != 0 )
+		{
+		    DBG_PRINTF("ptPageDesc->DispSpecialIcon error...\r\n");
+			return -1;
+		}
+	}
+
 	/* 3. 刷到设备上去       */
 	FlushVideoMemToDev ( pt_VideoTmp );
 

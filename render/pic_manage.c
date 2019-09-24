@@ -77,10 +77,7 @@ PT_PicFileParser isSupport ( unsigned char* pucFileHead )
 	}
 	return NULL;
 
-
 }
-
-
 
 
 int PicFileParserInit ( void )
@@ -88,6 +85,7 @@ int PicFileParserInit ( void )
 	int iError;
 
 	iError = BMPInit();
+	//iError |=JPGParserInit();
 
 	return iError;
 }

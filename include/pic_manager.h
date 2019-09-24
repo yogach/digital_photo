@@ -36,6 +36,7 @@ int PicMergeRegion(int iStartXofNewPic, int iStartYofNewPic, int iStartXofOldPic
 
 PT_PicFileParser isSupport ( unsigned char* pucFileHead );
 
+//int JPGParserInit(void);
 
 
 

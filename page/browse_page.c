@@ -27,7 +27,7 @@ static char g_strCurDir[256] = DEFAULT_PATH;
 //static char g_strSelectDir[256] = DEFAULT_PATH;
 
 static int g_iDirFileNumPerCol, g_iDirFileNumPerRow; //每行与每列显示的图标个数 COL - 列 ROW - 行
-static T_Layout* g_atDirAndFileLayout;    //用于保存文件夹/文件显示页面每个图标坐标值
+static T_Layout* g_atDirAndFileLayout = NULL;    //用于保存文件夹/文件显示页面每个图标坐标值
 static T_PageLayOut g_tBrowsePageDirAndFileLayout; //用于保存整个文件显示页面的坐标 -- 也包含g_atDirAndFileLayout内容
 
 //用于存储文件夹/文件图标
@@ -182,13 +182,15 @@ static int CalcBrowsePageDirAndFilesLayout ( void )
 	 * 分配"两倍+1"的T_Layout结构体: 一个用来表示图标,另一个用来表示名字
 	 * 最后一个用来存NULL,借以判断结构体数组的末尾
 	 */
-	g_atDirAndFileLayout = malloc ( sizeof ( T_Layout ) * ( 2*g_iDirFileNumPerCol*g_iDirFileNumPerRow + 1 ) );
-	if ( g_atDirAndFileLayout == NULL )
+	if(g_atDirAndFileLayout == NULL)
 	{
-		DBG_PRINTF ( "malloc error..\r\n" );
-		return -1;
+		g_atDirAndFileLayout = malloc ( sizeof ( T_Layout ) * ( 2*g_iDirFileNumPerCol*g_iDirFileNumPerRow + 1 ) );
+		if ( g_atDirAndFileLayout == NULL )
+		{
+			DBG_PRINTF ( "malloc error..\r\n" );
+			return -1;
+		}
 	}
-
 	// 获得"目录和文件"整体区域的左上角、右下角坐标
 	g_tBrowsePageDirAndFileLayout.iTopLeftX = iTopLeftX;
 	g_tBrowsePageDirAndFileLayout.iTopLeftY = iTopLeftY;
@@ -457,7 +459,7 @@ static int GenerateBrowsePageDirAndFile ( int iStartIndex, int iDirContentsNumbe
 	//1、首先清除指定区域的显示数据
 	SetColorForAppointArea ( ptPageLayout->iTopLeftX,ptPageLayout->iTopLeftY,ptPageLayout->iLowerRightX,ptPageLayout->iLowerRightY,ptVideoMem,COLOR_BACKGROUND );
 
-	//2、设置文件夹/文件名字体大小
+	//2、设置文件夹/文件 名称字体大小
 	SetFontSize ( atFileAndDirLayout[1].iLowerRightY - atFileAndDirLayout[1].iTopLeftY + 1 - 5 );
 
     DBG_PRINTF("iDirContentsNumber:%d \r\n",iDirContentsNumber);
@@ -567,7 +569,7 @@ static void ChangeDirOrFileArenStatus ( int iDirFileIndex,int bSelect,PT_VideoMe
 			PicMerge ( g_atDirAndFileLayout[iDirFileIndex].iTopLeftX, g_atDirAndFileLayout[iDirFileIndex].iTopLeftY, &g_tDirClosedIconPixelDatas, &ptVideoMem->tVideoMemDesc );
 		}
 	}
-	else//如果是文件 文件区域颜色取反
+	else//如果是文件 文件图标与文字区域颜色取反
 	{
 		if ( bSelect )
 		{
