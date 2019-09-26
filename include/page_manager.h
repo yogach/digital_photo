@@ -30,7 +30,7 @@ typedef struct PageLayOut
 
 typedef struct PageParams
 {
-  char strFileName[256];
+  char strCurPictureFile[256];
   int PageID;
 }T_PageParams,*PT_PageParams;
 

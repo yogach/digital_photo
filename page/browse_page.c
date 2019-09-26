@@ -669,6 +669,7 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 								*ptTmp = '\0'; //将'/'替换成结束符
 								ptTmp = strrchr ( g_strCurDir,'/' );
 								*ptTmp = '\0'; //将'/'替换成结束符
+								//DBG_PRINTF("%s\r\n",g_strCurDir);
 
 								FlushDirAndFile ( ptDevVideoMem );
 
@@ -739,10 +740,12 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 						iPressIndex = g_iStartIndex + ( iIndexPressured - DIRFILE_ICON_INDEX_BASE ) /2;
 						if ( g_aptDirContents[iPressIndex]->eFileType == FILETYPE_DIR )
 						{
-							//如果g_strCurDir值为"/"      strtmp的值会是 "//mnt/" 此时可成功获取到文件夹内容
-							snprintf ( strtmp,256,"%s/%s/",g_strCurDir,g_aptDirContents[iPressIndex]->strName ); //生成绝对路径
+							/*如果g_strCurDir值为"/"      strtmp的值会是 "//mnt/" 此时可成功获取到文件夹内容 
+							 *多重目录会呈现以下形式 //mnt//tmp//lib//pkgconfig/
+							 */
+							snprintf ( strtmp,255,"%s/%s/",g_strCurDir,g_aptDirContents[iPressIndex]->strName ); //生成绝对路径
 
-							//DBG_PRINTF("%s\r\n",strtmp);
+							DBG_PRINTF("%s\r\n",strtmp);
 							strtmp[255]='\0';
 							strcpy ( g_strCurDir, strtmp );
 							FlushDirAndFile ( ptDevVideoMem );
@@ -750,15 +753,21 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 						}
 						else//如果是文件则进入显示页面
 						{
+
+						#if 1
 						    tPageParams.PageID = ID(g_tBrowsePageDesc.name);
 							//获取点下文件的绝对路径
-							snprintf ( tPageParams.strFileName,256,"%s/%s",g_strCurDir,g_aptDirContents[iPressIndex]->strName ); 
+							snprintf ( tPageParams.strCurPictureFile,256,"%s/%s",g_strCurDir,g_aptDirContents[iPressIndex]->strName ); 
 
-							if(isPictureFileSupported(tPageParams.strFileName)==0)
+							if(isPictureFileSupported(tPageParams.strCurPictureFile)==0)
 							{
 								Page ( "manual" )->Run(&tPageParams);
 								ShowPage ( &g_tBrowsePageDesc );
 							}
+					    #else
+						      Page ( "manual" )->Run(NULL);
+							  ShowPage ( &g_tBrowsePageDesc );
+						#endif
 						}
 
 					}

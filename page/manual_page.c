@@ -457,21 +457,32 @@ static void ManualPageRun ( PT_PageParams ptPageParams )
 	PT_PhotoDesc ptZoomedPicPixelDatas = &g_tZoomedPicPixelDatas;
 	T_InputEvent tInputEvent,tInputEventPrePress;
 	int iIndex,iIndexPressed=-1,bPressed = 0,bSlide = 0;
-
-
-    //获得需要显示文件的绝对路径
-    strncpy(g_cstrFileName,ptPageParams->strFileName,256);
+    char strDirName[256];
+    char strFullPathName[256]; 
+    char * pcTmp;
 
 	//获得显示设备显存
 	ptDevVideoMem = GetDevVideoMen();
 
-	/* 1. 显示页面 */
+	/* 1. 显示页面 */	
+    //获得需要显示文件的绝对路径
+    strncpy(g_cstrFileName,ptPageParams->strCurPictureFile,256);
 	ShowPage ( &g_tManualPageDesc );
+
+    //获取文件目录名
+    strncpy(strDirName,ptPageParams->strCurPictureFile,256);
+	pcTmp = strrchr ( strDirName,'/' );
+	*pcTmp = '\0'; //将'/'替换成结束符
+
+	/* 取出文件名 */
+	/* 获得当前目录下所有目录和文件的名字 */
+	/* 确定当前显示的是哪一个文件 */
+
 
 	while ( 1 )
 	{
 
-#if 1
+
 		iIndex = GenericGetInputEvent ( g_atManualPageIconsLayout, &tInputEvent );
 		if ( tInputEvent.iPressure == 0 )
 		{
@@ -589,68 +600,6 @@ static void ManualPageRun ( PT_PageParams ptPageParams )
 
 			}
 		}
-
-
-#else
-		switch ( GenericGetPressedIcon ( g_atManualPageIconsLayout,&bLongPress ) )
-		{
-			case 0: //返回按键
-
-				return ;
-				break;
-
-			case 1://缩小
-				//获取缩小后的中心点坐标
-				iZoomedWidth  = ( float ) g_tZoomedPicPixelDatas.iWidth * ZOOM_RATIO;
-				iZoomedHeight = ( float ) g_tZoomedPicPixelDatas.iHigh * ZOOM_RATIO ;
-
-				//重新对图片原始数据进行缩放
-				ptZoomedPicPixelDatas = GetZoomedPicPixelDatas ( g_tOriginPicPixelDatas,iZoomedWidth,iZoomedHeight );
-
-				//重新计算中心点坐标
-				g_iXofZoomedPicShowInCenter = ( float ) g_iXofZoomedPicShowInCenter * ZOOM_RATIO;
-				g_iYofZoomedPicShowInCenter = ( float ) g_iYofZoomedPicShowInCenter * ZOOM_RATIO;
-
-				//显示图片
-				ShowZoomedPictureInLayout ( ptZoomedPicPixelDatas,ptDevVideoMem );
-
-				break;
-
-			case 2://放大
-				//获取缩小后的中心点坐标
-				iZoomedWidth  = ( float ) g_tZoomedPicPixelDatas.iWidth / ZOOM_RATIO;
-				iZoomedHeight = ( float ) g_tZoomedPicPixelDatas.iHigh / ZOOM_RATIO ;
-
-				//重新对图片原始数据进行缩放
-				ptZoomedPicPixelDatas = GetZoomedPicPixelDatas ( g_tOriginPicPixelDatas,iZoomedWidth,iZoomedHeight );
-
-				//重新计算中心点坐标
-				g_iXofZoomedPicShowInCenter = ( float ) g_iXofZoomedPicShowInCenter / ZOOM_RATIO;
-				g_iYofZoomedPicShowInCenter = ( float ) g_iYofZoomedPicShowInCenter / ZOOM_RATIO;
-
-				//显示图片
-				ShowZoomedPictureInLayout ( ptZoomedPicPixelDatas,ptDevVideoMem );
-
-
-				break;
-
-			case 3://上一张
-
-				break;
-			case 4://下一张
-
-				break;
-
-			case 5://连播：自动播放此目录下的图片文件
-				break;
-
-
-			default: //如果是没有点在控制按钮上 则是点在了图片上
-
-				break;
-		}
-#endif
-
 
 	}
 
