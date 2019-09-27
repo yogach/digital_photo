@@ -456,10 +456,14 @@ static void ManualPageRun ( PT_PageParams ptPageParams )
 	int iZoomedWidth, iZoomedHeight;
 	PT_PhotoDesc ptZoomedPicPixelDatas = &g_tZoomedPicPixelDatas;
 	T_InputEvent tInputEvent,tInputEventPrePress;
-	int iIndex,iIndexPressed=-1,bPressed = 0,bSlide = 0;
+	int iIndex,iIndexPressed=-1,bPressed = 0,bSlide = 0,iError,iPicFileIndex;
     char strDirName[256];
-    char strFullPathName[256]; 
+	char strFileName[256];
+    //char strFullPathName[256]; 
     char * pcTmp;
+	
+    PT_DirContent* aptDirContents;  /* 数组:存有目录下"顶层子目录","文件"的名字 */
+	int iDirContentsNumber;		 /* g_aptDirContents数组有多少项 */
 
 	//获得显示设备显存
 	ptDevVideoMem = GetDevVideoMen();
@@ -469,15 +473,25 @@ static void ManualPageRun ( PT_PageParams ptPageParams )
     strncpy(g_cstrFileName,ptPageParams->strCurPictureFile,256);
 	ShowPage ( &g_tManualPageDesc );
 
-    //获取文件目录名
+    //获取文件目录名               传入的目录名格式应该是 //mnt//tmp//lib//pkgconfig/xxx
     strncpy(strDirName,ptPageParams->strCurPictureFile,256);
 	pcTmp = strrchr ( strDirName,'/' );
 	*pcTmp = '\0'; //将'/'替换成结束符
 
 	/* 取出文件名 */
-	/* 获得当前目录下所有目录和文件的名字 */
-	/* 确定当前显示的是哪一个文件 */
+	strcpy(strFileName,pcTmp+1);
 
+	/* 获得当前目录下所有目录和文件的名字 */
+    iError = GetDirContents ( strDirName, &aptDirContents, &iDirContentsNumber );
+	
+	/* 确定当前显示的是哪一个文件 */
+	for(iPicFileIndex=0;iPicFileIndex<iDirContentsNumber;iPicFileIndex++)
+	{
+		if(strcmp(strFileName,aptDirContents[iPicFileIndex]->strName)==0 )
+		{
+          break;
+		}
+	}
 
 	while ( 1 )
 	{
@@ -540,10 +554,25 @@ static void ManualPageRun ( PT_PageParams ptPageParams )
 							break;
 
 						case 3://上一张 本目录下上一张 
-
+						    //找到一张符合条件的图片才显示
+						    while(iPicFileIndex >0)
+						    {
+							   iPicFileIndex--;
+							   //获取文件名
+							   //判断是否支持此格式
+							   if(isPictureFileSupported(tPageParams.strCurPictureFile)==0)
+							   {
+							     ShowPictureInManualPage(ptDevVideoMem,);	
+							   }
+						    }
 							break;
 						case 4://下一张 本目录下下一张
+							while(iPicFileIndex< iDirContentsNumber - 1)
+						    {
 
+							   iPicFileIndex++;
+							   
+						    }
 							break;
 
 						case 5://连播：自动播放此目录下的图片文件
