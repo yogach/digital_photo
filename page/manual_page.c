@@ -328,7 +328,7 @@ static int ShowPictureInManualPage ( PT_VideoMem ptVideoMem, char* strFileName )
 static int ManualPageSpecialDis ( PT_VideoMem ptVideoMem )
 {
 	//return ShowPictureInManualPage ( ptVideoMem,"//mnt/zoomin.bmp" );//先写入一个固定绝对路径 用于测试
-	return ShowPictureInManualPage ( ptVideoMem,g_cstrFileName );//先写入一个固定绝对路径 用于测试
+	return ShowPictureInManualPage ( ptVideoMem,g_cstrFileName );
 }
 
 static void ShowZoomedPictureInLayout ( PT_PhotoDesc ptZoomedPicPixelDatas, PT_VideoMem ptVideoMem )
@@ -469,24 +469,27 @@ static void ManualPageRun ( PT_PageParams ptPageParams )
 
 	//获得显示设备显存
 	ptDevVideoMem = GetDevVideoMen();
-	//DBG_PRINTF("test");
+	
 
 	/* 1. 显示页面 */	
     //获得需要显示文件的绝对路径
     strncpy(g_cstrFileName,ptPageParams->strCurPictureFile,256);
 	ShowPage ( &g_tManualPageDesc );
 
-   // DBG_PRINTF("test");
+   
     //获取文件目录名               传入的目录名格式应该是 //mnt//tmp//lib//pkgconfig/xxx
     strncpy(strDirName,ptPageParams->strCurPictureFile,256);
 	pcTmp = strrchr ( strDirName,'/' );
 	*pcTmp = '\0'; //将'/'替换成结束符
-	//DBG_PRINTF("test");
+	DBG_PRINTF("strDirName : %s\r\n",strDirName);
 
 	/* 取出文件名 */
 	strcpy(strFileName,pcTmp+1);
+	DBG_PRINTF("strFileName : %s\r\n",strFileName);
 
 	/* 获得当前目录下所有目录和文件的名字 */
+    *pcTmp = '/';    //将strDirName内容从//mnt//Icon更改为 //mnt//Icon/ 不然无法获得文件夹内容(原因不明)
+	*(pcTmp+1) = '\0';
     iError = GetDirContents ( strDirName, &aptDirContents, &iDirContentsNumber );
 	
 	/* 确定当前显示的是哪一个文件 */
@@ -497,6 +500,8 @@ static void ManualPageRun ( PT_PageParams ptPageParams )
           break;
 		}
 	}
+
+	DBG_PRINTF("iPicFileIndex = %d\r\n",iPicFileIndex);
 
 	while ( 1 )
 	{
@@ -566,29 +571,31 @@ static void ManualPageRun ( PT_PageParams ptPageParams )
 							   //获取文件名
                                snprintf ( strFullPathName,255,"%s/%s",strDirName,aptDirContents[iPicFileIndex]->strName ); //生成绝对路径
 
-							   DBG_PRINTF("%s\r\n",strFullPathName);
+							   DBG_PRINTF("strFullPathName : %s\r\n",strFullPathName);
 							   strFullPathName[255] = '\0';
 							   //判断是否支持此格式
 							   if(isPictureFileSupported(strFullPathName)==0)
 							   {
-							     ShowPictureInManualPage(ptDevVideoMem,strFullPathName);	
+							     ShowPictureInManualPage(ptDevVideoMem,strFullPathName);
+								 break;
 							   }
 						    }
 							break;
 						case 4://下一张 本目录下下一张
-							while(iPicFileIndex< iDirContentsNumber - 1)
+							while(iPicFileIndex < iDirContentsNumber - 1)
 						    {
 
 							   iPicFileIndex++;
 							   snprintf ( strFullPathName,255,"%s/%s",strDirName,aptDirContents[iPicFileIndex]->strName ); //生成绝对路径
-							   DBG_PRINTF("%s\r\n",strFullPathName);
+							   DBG_PRINTF("strFullPathName : %s\r\n",strFullPathName);
 
 							   strFullPathName[255] = '\0';
 							   
 							   //判断是否支持此格式
 							   if(isPictureFileSupported(strFullPathName)==0)
 							   {
-							     ShowPictureInManualPage(ptDevVideoMem,strFullPathName);	
+							     ShowPictureInManualPage(ptDevVideoMem,strFullPathName);
+								 break;
 							   }
 							   
 						    }
