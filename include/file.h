@@ -5,7 +5,7 @@
 
 
 typedef struct MapFile{
-  char FileName[128];      //文件名
+  char FileName[256];      //文件名
 //  int iFd;
   FILE * tFp;              /* 文件句柄 */
   int iFileSize;           //文件大小

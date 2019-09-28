@@ -602,6 +602,7 @@ int isPictureFileSupported ( char* strFileName )
 	int iError;
 
 	strncpy ( tMapFile.FileName,strFileName,256 );
+	tMapFile.FileName[255] = '\0';
 
 	//打开目标文件 并使用mmap映射到内存上
 	iError = MapFile ( &tMapFile );

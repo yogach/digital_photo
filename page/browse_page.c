@@ -755,12 +755,15 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 						{
 
 						#if 1
-						    tPageParams.PageID = ID(g_tBrowsePageDesc.name);
+						    
 							//获取点下文件的绝对路径
-							snprintf ( tPageParams.strCurPictureFile,256,"%s/%s",g_strCurDir,g_aptDirContents[iPressIndex]->strName ); 
-
+							snprintf ( tPageParams.strCurPictureFile,256,"%s%s",g_strCurDir,g_aptDirContents[iPressIndex]->strName ); 
+							tPageParams.strCurPictureFile[255] = '\0';
+							DBG_PRINTF("%s\r\n",tPageParams.strCurPictureFile);
+							
 							if(isPictureFileSupported(tPageParams.strCurPictureFile)==0)
 							{
+							    tPageParams.PageID = ID(g_tBrowsePageDesc.name);
 								Page ( "manual" )->Run(&tPageParams);
 								ShowPage ( &g_tBrowsePageDesc );
 							}
