@@ -14,11 +14,11 @@ OBJDUMP		= $(CROSS_COMPILE)objdump
 export AS LD CC CPP AR NM
 export STRIP OBJCOPY OBJDUMP
 
-#-Werror 代表所有警告当成错误来处理  -ljpeg
+#-Werror 代表所有警告当成错误来处理  
 CFLAGS := -Wall -O2 -g -Werror
 CFLAGS +=  -I $(shell pwd)/include 
 
-LDFLAGS := -lm -lfreetype -lpthread -lts 
+LDFLAGS := -lm -lfreetype -lpthread -lts -ljpeg
 
 export CFLAGS LDFLAGS
 
