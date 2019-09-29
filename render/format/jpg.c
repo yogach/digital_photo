@@ -171,7 +171,7 @@ static int CovertOneLine(int iWidth, int iSrcBpp, int iDstBpp, unsigned char *pu
  * -----------------------------------------------
  * 2013/02/08        V1.0     韦东山          创建
  ***********************************************************************/
-static int GetPixelDatasFrmJPG(PT_MapFile ptFileMap, PT_PixelDatas ptPixelDatas)
+static int GetPixelDatasFrmJPG(PT_MapFile ptFileMap, PT_PhotoDesc ptPixelDatas)
 {
 	struct jpeg_decompress_struct tDInfo;
 	//struct jpeg_error_mgr tJErr;
@@ -197,9 +197,9 @@ static int GetPixelDatasFrmJPG(PT_MapFile ptFileMap, PT_PixelDatas ptPixelDatas)
         {
             free(aucLineBuffer);
         }
-        if (ptPixelDatas->aucPixelDatas)
+        if (ptPixelDatas->aucPhotoData)
         {
-            free(ptPixelDatas->aucPixelDatas);
+            free(ptPixelDatas->aucPhotoData);
         }
 		return -1;
 	}
@@ -227,17 +227,17 @@ static int GetPixelDatasFrmJPG(PT_MapFile ptFileMap, PT_PixelDatas ptPixelDatas)
     }
 
 	ptPixelDatas->iWidth  = tDInfo.output_width;
-	ptPixelDatas->iHeight = tDInfo.output_height;
+	ptPixelDatas->iHigh = tDInfo.output_height;
 	//ptPixelDatas->iBpp    = iBpp;
 	ptPixelDatas->iLineBytes    = ptPixelDatas->iWidth * ptPixelDatas->iBpp / 8;
-    ptPixelDatas->iTotalBytes   = ptPixelDatas->iHeight * ptPixelDatas->iLineBytes;
-	ptPixelDatas->aucPixelDatas = malloc(ptPixelDatas->iTotalBytes);
-	if (NULL == ptPixelDatas->aucPixelDatas)
+    ptPixelDatas->iTotalBytes   = ptPixelDatas->iHigh * ptPixelDatas->iLineBytes;
+	ptPixelDatas->aucPhotoData = malloc(ptPixelDatas->iTotalBytes);
+	if (NULL == ptPixelDatas->aucPhotoData)
 	{
 		return -1;
 	}
 
-    pucDest = ptPixelDatas->aucPixelDatas;
+    pucDest = ptPixelDatas->aucPhotoData;
 
 	// 循环调用jpeg_read_scanlines来一行一行地获得解压的数据
 	while (tDInfo.output_scanline < tDInfo.output_height) 

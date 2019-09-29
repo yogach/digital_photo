@@ -60,7 +60,6 @@ void ShowPages ( void )
  * 返 回 值： NULL   - 失败,没有指定的模块,
  *            非NULL - "页面模块"的PT_PageAction结构体指针
  ***********************************************************************/
-
 PT_PageDesc Page ( char* pcName )
 {
 	PT_PageDesc ptTmp = g_tPageActionHead;
@@ -78,6 +77,13 @@ PT_PageDesc Page ( char* pcName )
 	return NULL;
 }
 
+/**********************************************************************
+ * 函数名称： ID
+ * 功能描述： 根据名字算出一个唯一的整数,它用来标识VideoMem中的显示数据
+ * 输入参数： strName - 名字
+ * 输出参数： 无
+ * 返 回 值： 一个唯一的整数
+ ***********************************************************************/
 int ID ( char* str )
 {
 	return ( int ) ( str[0] ) + ( int ) ( str[1] ) + ( int ) ( str[2] ) + ( int ) ( str[3] ) ;

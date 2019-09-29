@@ -33,12 +33,18 @@ unsigned long	biClrImportant;
 } __attribute__ ((packed))BITMAPINFOHEADER;
 
 
-
-
-static int isSupportBMP(unsigned char * FileHead)
+/**********************************************************************
+ * 函数名称： isSupportBMP
+ * 功能描述： BMP模块是否支持该文件,即该文件是否为BMP文件
+ * 输入参数： ptFileMap - 内含文件信息
+ * 输出参数： 无
+ * 返 回 值： 0 - 不支持, 1 - 支持
+ ***********************************************************************/
+static int isSupportBMP(PT_MapFile ptFileMap)
 {
+    unsigned char aucFileHead = ptFileMap->pucFileMapMem;
 	//如果文件开头为424d 代表该文件为bmp格式
-	if (FileHead[0] != 0x42 || FileHead[1] != 0x4d)
+	if (aucFileHead[0] != 0x42 || aucFileHead[1] != 0x4d)
 		return 0;
 
 	else 
@@ -46,7 +52,17 @@ static int isSupportBMP(unsigned char * FileHead)
 }
 
 
-//根据bpp将图片数据拷贝到指定空间
+/**********************************************************************
+ * 函数名称： CovertOneLine
+ * 功能描述： 把BMP文件中一行的象素数据,转换为能在显示设备上使用的格式
+ * 输入参数： iWidth      - 宽度,即多少个象素
+ *            iSrcBpp     - BMP文件中一个象素用多少位来表示
+ *            iDstBpp     - 显示设备上一个象素用多少位来表示
+ *            pudSrcDatas - BMP文件里该行数据的位置
+ *            pudDstDatas - 转换所得数据存储的位置
+ * 输出参数： 无
+ * 返 回 值： 0 - 成功, 其他值 - 失败
+ ***********************************************************************/
 static int CovertOneLine(int iWidth,int iSrcBpp,int iDstBpp,unsigned char * pudSrcDatas,unsigned char * pudDstDatas)
 {
 	unsigned int dwRed;
@@ -106,8 +122,15 @@ static int CovertOneLine(int iWidth,int iSrcBpp,int iDstBpp,unsigned char * pudS
 
 }
 
-
-static int GetPixelDatasFrmBMP(unsigned char * FileHead,PT_PhotoDesc ptPhotoDesc,int iexpBpp)
+/**********************************************************************
+ * 函数名称： GetPixelDatasFrmBMP
+ * 功能描述： 把BMP文件中的象素数据,取出并转换为能在显示设备上使用的格式
+ * 输入参数： ptFileMap    - 内含文件信息
+ * 输出参数： ptPixelDatas - 内含象素数据
+ *            ptPixelDatas->iBpp 是输入的参数, 它确定从BMP文件得到的数据要转换为该BPP
+ * 返 回 值： 0 - 成功, 其他值 - 失败
+ ***********************************************************************/
+static int GetPixelDatasFrmBMP(PT_MapFile ptFileMap,PT_PhotoDesc ptPhotoDesc,int iexpBpp)
 {
 	BITMAPFILEHEADER * pBMPHead;
 	BITMAPINFOHEADER * PBMPInfo;
@@ -119,11 +142,12 @@ static int GetPixelDatasFrmBMP(unsigned char * FileHead,PT_PhotoDesc ptPhotoDesc
 	int iLineWidthAlign;
 	unsigned char * pucSrc;
 	unsigned char * pucDest;
+	unsigned char aucFileHead = ptFileMap->pucFileMapMem;
 	int y;
 
-	pBMPHead = (BITMAPFILEHEADER *) (FileHead);
+	pBMPHead = (BITMAPFILEHEADER *) (aucFileHead);
 
-	PBMPInfo = (BITMAPINFOHEADER *) (FileHead + sizeof (BITMAPFILEHEADER));
+	PBMPInfo = (BITMAPINFOHEADER *) (aucFileHead + sizeof (BITMAPFILEHEADER));
 
 	iWidth = PBMPInfo->biWidth;						//获取长宽高 像素
 	iHeight = PBMPInfo->biHeight;
@@ -132,7 +156,7 @@ static int GetPixelDatasFrmBMP(unsigned char * FileHead,PT_PhotoDesc ptPhotoDesc
 	//DBG_PRINTF("Expect bpp: %d bpp\r\n",iexpBpp);
     if(iexpBpp!=16 && iexpBpp!=24 && iexpBpp!=32)
     {
-        DBG_PRINTF ("iexpBpp is %d\r\n",iexpBpp);	
+        DBG_PRINTF ("can't support  %d Bpp\r\n",iexpBpp);	
 		return -1;
 	}
 
@@ -172,7 +196,7 @@ static int GetPixelDatasFrmBMP(unsigned char * FileHead,PT_PhotoDesc ptPhotoDesc
 	/* BMP数据的保持每行是4的倍数 所以行数字节需要向4取整 */
 	iLineWidthAlign = (iLineWidthReal + 3) &~0x3;
 
-	pucSrc = FileHead + pBMPHead->bfOffBits;		//得到BMP文件像素数据的起始位置
+	pucSrc = aucFileHead + pBMPHead->bfOffBits;		//得到BMP文件像素数据的起始位置
 
 	//如果数据不是正向排列需要得到最后一行的开始位置
 	if (!PixelDir)

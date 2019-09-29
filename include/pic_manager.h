@@ -2,6 +2,8 @@
 #ifndef __PIC_OPERATION__
 #define __PIC_OPERATION__
 
+#include <file.h>
+
 typedef struct PhotoDesc
 {
   int iHigh;       /* 高度: 一列有多少个象素 */
@@ -17,8 +19,8 @@ typedef struct PhotoDesc
 typedef struct PicFileParser 
 {
   char* name;
-  int (*isSupport)(unsigned char *FileHead);
-  int (*GetPixelDatas)(unsigned char *FileHead,PT_PhotoDesc ptPhotoDesc,int iexpBpp);
+  int (*isSupport)(PT_MapFile ptFileMap);
+  int (*GetPixelDatas)(PT_MapFile ptFileMap,PT_PhotoDesc ptPhotoDesc,int iexpBpp);
   int (*FreePixelDatas)(PT_PhotoDesc ptPhotoDesc);
   struct PicFileParser *ptNext;
 }T_PicFileParser,*PT_PicFileParser;

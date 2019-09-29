@@ -63,13 +63,13 @@ PT_PicFileParser GetPicFileParser ( char* pcName )
 	return NULL;
 }
 
-PT_PicFileParser isSupport ( unsigned char* pucFileHead )
+PT_PicFileParser isSupport ( PT_MapFile ptFileMap )
 {
 	PT_PicFileParser ptTmp = g_ptPicFileParserHead;
 	
 	while ( ptTmp )
 	{
-		if ( ptTmp->isSupport ( pucFileHead ) == 1 )
+		if ( ptTmp->isSupport ( ptFileMap ) == 1 )
 		{
 			return ptTmp;
 		}
@@ -85,7 +85,7 @@ int PicFileParserInit ( void )
 	int iError;
 
 	iError = BMPInit();
-	//iError |=JPGParserInit();
+	iError |=JPGParserInit();
 
 	return iError;
 }

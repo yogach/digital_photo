@@ -402,6 +402,7 @@ int GetOriPixelDatasFormFile ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
 	PT_PicFileParser ptTargetFileParser;
 	int iXres,iYres,iBpp,iError;
 
+    //得到文件绝对路径
 	strncpy ( tMapFile.FileName,strFileName,127 );
     tMapFile.FileName[127] = '\0'; //添加结束符
 
@@ -414,7 +415,7 @@ int GetOriPixelDatasFormFile ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
 	}
 
 	//得到支持此文件的图片处理节点
-	ptTargetFileParser = isSupport ( tMapFile.pucFileMapMem );
+	ptTargetFileParser = isSupport ( &tMapFile );
 	if ( ptTargetFileParser == NULL )
 	{
 		DBG_PRINTF ( "can't support :%s\n ",tMapFile.FileName );
@@ -426,7 +427,7 @@ int GetOriPixelDatasFormFile ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
 	GetDispResolution ( &iXres,&iYres,&iBpp ); //获取分辨率
 
 	//使用该图片处理节点得到图片数据
-	iError = ptTargetFileParser->GetPixelDatas ( tMapFile.pucFileMapMem, ptPhotoDesc,iBpp );
+	iError = ptTargetFileParser->GetPixelDatas ( &tMapFile, ptPhotoDesc,iBpp );
 	if ( iError )
 	{
 		DBG_PRINTF ( "GetPixelDatas for %s error!\n", tMapFile.FileName );
@@ -487,7 +488,7 @@ int GetPixelDatasFormIcon ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
 	    GetDispResolution ( &iXres,&iYres,&iBpp ); //获取分辨率
 
 		//使用该图片处理节点得到图片数据
-		iError = ptTargetFileParser->GetPixelDatas(tMapFile.pucFileMapMem , ptPhotoDesc ,iBpp );
+		iError = ptTargetFileParser->GetPixelDatas(&tMapFile , ptPhotoDesc ,iBpp );
 		if (iError)
 		{
 			DBG_PRINTF("GetPixelDatas for %s error!\n", tMapFile.FileName);
@@ -518,7 +519,6 @@ void FreePixelDatasForIcon ( PT_PhotoDesc ptPhotoDatas )
 	//g_tBMPFileParser.FreePixelDatas(ptPhotoDatas);
 
 }
-
 
 
 /**********************************************************************
@@ -613,7 +613,7 @@ int isPictureFileSupported ( char* strFileName )
 	}
 
 	//得到支持此文件的图片处理节点
-	ptTargetFileParser = isSupport ( tMapFile.pucFileMapMem );
+	ptTargetFileParser = isSupport ( &tMapFile );
 	if ( ptTargetFileParser == NULL )
 	{
 		DBG_PRINTF ( "can't support :%s\n ",tMapFile.FileName );
