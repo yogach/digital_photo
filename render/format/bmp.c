@@ -42,7 +42,7 @@ unsigned long	biClrImportant;
  ***********************************************************************/
 static int isSupportBMP(PT_MapFile ptFileMap)
 {
-    unsigned char aucFileHead = ptFileMap->pucFileMapMem;
+    unsigned char * aucFileHead = ptFileMap->pucFileMapMem;
 	//如果文件开头为424d 代表该文件为bmp格式
 	if (aucFileHead[0] != 0x42 || aucFileHead[1] != 0x4d)
 		return 0;
@@ -142,7 +142,7 @@ static int GetPixelDatasFrmBMP(PT_MapFile ptFileMap,PT_PhotoDesc ptPhotoDesc,int
 	int iLineWidthAlign;
 	unsigned char * pucSrc;
 	unsigned char * pucDest;
-	unsigned char aucFileHead = ptFileMap->pucFileMapMem;
+	unsigned char * aucFileHead = ptFileMap->pucFileMapMem;
 	int y;
 
 	pBMPHead = (BITMAPFILEHEADER *) (aucFileHead);

@@ -13,7 +13,7 @@ typedef struct MyErrorMgr
 }T_MyErrorMgr, *PT_MyErrorMgr;
 
 static int isJPGFormat(PT_MapFile ptFileMap);
-static int GetPixelDatasFrmJPG(PT_MapFile ptFileMap, PT_PhotoDesc ptPixelDatas);
+static int GetPixelDatasFrmJPG(PT_MapFile ptFileMap, PT_PhotoDesc ptPixelDatas,int iexpBpp);
 static int FreePixelDatasForJPG(PT_PhotoDesc ptPixelDatas);
 
 
@@ -171,7 +171,7 @@ static int CovertOneLine(int iWidth, int iSrcBpp, int iDstBpp, unsigned char *pu
  * -----------------------------------------------
  * 2013/02/08        V1.0     韦东山          创建
  ***********************************************************************/
-static int GetPixelDatasFrmJPG(PT_MapFile ptFileMap, PT_PhotoDesc ptPixelDatas)
+static int GetPixelDatasFrmJPG(PT_MapFile ptFileMap, PT_PhotoDesc ptPixelDatas,int iexpBpp)
 {
 	struct jpeg_decompress_struct tDInfo;
 	//struct jpeg_error_mgr tJErr;

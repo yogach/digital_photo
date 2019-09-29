@@ -36,9 +36,9 @@ int PicZoom(PT_PhotoDesc ptOriginPic, PT_PhotoDesc ptZoomPic);
 
 int PicMergeRegion(int iStartXofNewPic, int iStartYofNewPic, int iStartXofOldPic, int iStartYofOldPic, int iWidth, int iHeight, PT_PhotoDesc ptNewPic, PT_PhotoDesc ptOldPic);
 
-PT_PicFileParser isSupport ( unsigned char* pucFileHead );
+PT_PicFileParser isSupport ( PT_MapFile ptFileMap );
 
-//int JPGParserInit(void);
+int JPGParserInit(void);
 
 
 
