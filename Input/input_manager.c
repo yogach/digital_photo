@@ -98,7 +98,7 @@ int AllInputDevicesInit(void)
 int GetDeviceInput(PT_InputEvent ptInputEvent)
 {
 
-    /* ÐÝÃß */
+    /* ÐÝÃß µÈ´ý×ÓÏß³Ì»½ÐÑ*/
 	pthread_mutex_lock(&g_tMutex);
 	pthread_cond_wait(&g_tConVar, &g_tMutex);	
 
