@@ -97,6 +97,7 @@ int  isDir ( char* strFilePath,char* strFileName )
 
 
 }
+
 /**********************************************************************
  * 函数名称： isRegFile
  * 功能描述： 判断一个文件是否为文件
@@ -126,6 +127,39 @@ int isRegFile ( char* strFilePath,char* strFileName )
 
 }
 
+
+
+/**********************************************************************
+ * 函数名称： isRegDir
+ * 功能描述： 判断一个目录是否常规的目录,在本程序中把sbin等目录当作特殊目录来对待
+ * 输入参数： strDirPath    - 目录的路径
+ *            strSubDirName - 目录的名字
+ * 输出参数： 无
+ * 返 回 值： 0 - 不是常规目录
+ *            1 - 是常规目录
+ * 修改日期        版本号     修改人	      修改内容
+ * -----------------------------------------------
+ * 2013/02/08	     V1.0	  韦东山	      创建
+ ***********************************************************************/
+static int isRegDir(char *strDirPath, char *strSubDirName)
+{
+    static const char *astrSpecailDirs[] = {"sbin", "bin", "usr", "lib", "proc", "tmp", "dev", "sys", NULL};
+    int i;
+    
+    /* 如果目录名含有"astrSpecailDirs"中的任意一个, 则返回0 */
+    if (0 == strcmp(strDirPath, "/"))
+    {
+        while (astrSpecailDirs[i])
+        {
+            if (0 == strcmp(strSubDirName, astrSpecailDirs[i]))
+                return 0;
+            i++;
+        }
+    }
+    return 1;    
+}
+
+
 /**********************************************************************
  * 函数名称： GetDirContents
  * 功能描述： 把某目录下所含的顶层子目录、顶层文件都记录下来,并且按名字排序
@@ -136,7 +170,7 @@ int isRegFile ( char* strFilePath,char* strFileName )
  *            piNumber       - strDirName下含有多少个"顶层子目录/顶层文件",
  *                             即数组(*pptDirContents)[0,1,...]有多少项
  * 返 回 值： 0 - 成功
- *            1 - 失败
+ *            -1 - 失败
  ***********************************************************************/
 int GetDirContents ( char* strDirName, PT_DirContent** pptDirContents, int* piNumber )
 {
@@ -160,7 +194,7 @@ int GetDirContents ( char* strDirName, PT_DirContent** pptDirContents, int* piNu
 	if ( aptDirContents == NULL )
 	{
 		DBG_PRINTF ( "malloc error!\r\n" );
-		//如果分配失败需要释放之前分配的aptNameList	
+		//如果分配失败需要释放之前分配的aptNameList
 		for ( i = 0; i < iNumber; i++ )
 		{
 			if ( aptNameList[i] )
@@ -291,10 +325,119 @@ void FreeDirContents ( PT_DirContent* aptDirContents, int iNumber )
 	int i ;
 	for ( i = 0; i < iNumber; i++ )
 	{
-		free ( aptDirContents[i] );	
+		free ( aptDirContents[i] );
 	}
 	free ( aptDirContents );
 
 }
 
+/**********************************************************************
+ * 函数名称： GetFilesIndir
+ * 功能描述： 以深度优先的方式获得目录下的文件
+ *            即: 先获得顶层目录下的文件, 再进入一级子目录A
+ *                再获得一级子目录A下的文件, 再进入二级子目录AA, ...
+ *                处理完一级子目录A后, 再进入一级子目录B
+ *
+ * "连播模式"下调用该函数获得要显示的文件
+ * 有两种方法获得这些文件:
+ * 1. 事先把所有文件的名字保存到某个缓冲区中
+ * 2. 用到时再去搜索取出若干个文件名
+ * 第1种方法比较简单,但是当文件很多时有可能导致内存不足.
+ * 我们使用第2种方法:
+ * 假设某目录(包括所有子目录)下所有的文件都给它编一个号
+ *
+ * 输入参数：strDirName                 : 要获得哪个目录下的内容
+ *           piCurFileNumber       : 当前已经取到第几个文件
+ *           piStartNumberToRecord : 从第几个文件开始取出它们的名字
+ *           iFileCountTotal       : 总共要取出多少个文件的名字
+ * 输出参数：piFileCountHaveGet    : 已经得到了多少个文件的名字
+ *           apstrFileNames[][256] : 用来存储搜索到的文件名
+ * 输入/输出参数：
+ *           piCurFileNumber       : 当前搜索到的文件编号
+ * 返 回 值：0 - 成功
+ *           -1 - 失败
+
+ ***********************************************************************/
+int GetFilesIndir ( char* strDirName, int* piStartNumberToRecord, int* piCurFileNumber, int* piFileCountHaveGet, int iFileCountTotal, char apstrFileNames[][256] )
+{
+
+	PT_DirContent* aptDirContents;  /* 数组:存有目录下"顶层子目录","文件"的名字 */
+	int iDirContentsNumber;	  /* g_aptDirContents数组有多少项 */
+	int iError,i,iDirContentIndex;
+	char strSubDirName[256];
+
+	/* 为避免访问的目录互相嵌套, 设置能访问的目录深度为10 */
+#define MAX_DIR_DEEPNESS 10
+	static int iDirDeepness = 0;
+
+	if ( iDirDeepness > MAX_DIR_DEEPNESS )
+	{
+		return -1;
+	}
+
+	iDirDeepness++;
+
+
+	//获得传入路径下的文件夹内容
+	iError = GetDirContents ( strDirName, &aptDirContents, &iDirContentsNumber );
+	if ( iError == -1 )
+	{
+		DBG_PRINTF ( "GetDirContents error...\r\n" );
+		iDirDeepness--;
+		return -1;
+	}
+
+	for ( i=0; i<iDirContentsNumber; i++ )
+	{
+
+		//取出其中的文件拷贝到apstrFileNames中（包含绝对路径）
+		if ( aptDirContents[i]->eFileType == FILETYPE_FILE )
+		{
+			if ( *piCurFileNumber > *piStartNumberToRecord ) //待到指定位置取出
+			{
+				snpirntf ( apstrFileNames[*piFileCountHaveGet],256,"%s/%s",strDirName,aptDirContents[i]->strName );
+				( *piCurFileNumber )++; //当前文件
+				( *piFileCountHaveGet )++; //
+				(*piStartNumberToRecord)++;
+				if ( *piFileCountHaveGet >= iFileCountTotal ) //如果已经取得足够数量的文件 返回
+				{
+					FreeDirContents ( aptDirContents, iDirContentsNumber ); //释放空间
+					iDirDeepness--;
+					return 0;
+				}
+
+			}
+			else
+			{
+				*piCurFileNumber++;
+			}
+
+		}
+
+	}
+
+	
+	for ( i=0; i<iDirContentsNumber; i++ )
+	{
+		//如果一个目录下的文件数量不够 则继续进入下一级目录取出文件
+		if ( (aptDirContents[i]->eFileType ==  FILETYPE_DIR)&&(isRegDir(strDirName,aptDirContents[i]->strName)) )
+		{
+			//取出目录名
+			snprintf ( strSubDirName,256,"%s/%s/",strDirName,aptDirContents[i]->strName );
+			//递归处理
+			GetFilesIndir ( strSubDirName, piStartNumberToRecord, piCurFileNumber, piFileCountHaveGet, iFileCountTotal, apstrFileNames )
+			if ( *piFileCountHaveGet >= iFileCountTotal ) //如果已经取得足够数量的文件 返回
+			{
+				FreeDirContents ( aptDirContents, iDirContentsNumber ); //释放空间
+				iDirDeepness--;
+				return 0;
+			}
+
+		}
+	}
+
+	FreeDirContents ( aptDirContents, iDirContentsNumber ); //释放空间
+	iDirDeepness--;
+	return 0;
+}
 

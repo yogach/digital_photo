@@ -31,6 +31,7 @@ int MapFile(PT_MapFile ptFileMap);
 void  unMapFile(PT_MapFile ptFileMap);
 int GetDirContents ( char* strDirName, PT_DirContent** pptDirContents, int* piNumber );
 void FreeDirContents ( PT_DirContent* aptDirContents, int iNumber );
+int GetFilesIndir(char *strDirName, int *piStartNumberToRecord, int *piCurFileNumber, int *piFileCountHaveGet, int iFileCountTotal, char apstrFileNames[][256]);
 
 
 
