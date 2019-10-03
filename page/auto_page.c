@@ -24,12 +24,24 @@ static pthread_cond_t  g_tAutoPlayThreadConVar = PTHREAD_COND_INITIALIZER;
 static char g_acSelectDir[256] = "//mnt/";
 static int g_iIntervalSecond = 10;
 
-/*
+/* 以深度优先的方式获得目录下的文件
+ * 即: 先获得顶层目录下的文件, 再进入一级子目录A
+ *     先获得一级子目录A下的文件, 再进入二级子目录AA, ...
+ *     处理完一级子目录A后, 再进入一级子目录B
+ *
+ * "连播模式"下调用该函数获得要显示的文件
+ * 有两种方法获得这些文件:
+ * 1. 事先只需要调用一次函数,把所有文件的名字保存到某个缓冲区中
+ * 2. 要使用文件时再调用函数,只保存当前要使用的文件的名字
+ * 第1种方法比较简单,但是当文件很多时有可能导致内存不足.
+ * 我们使用第2种方法:
+ * 假设某目录(包括所有子目录)下所有的文件都给它编一个号
  * g_iStartNumberToRecord : 从第几个文件开始取出它们的名字
  * g_iCurFileNumber       : 本次函数执行时读到的第1个文件的编号
  * g_iFileCountHaveGet    : 已经得到了多少个文件的名字
  * g_iFileCountTotal      : 每一次总共要取出多少个文件的名字
  * g_iNextProcessFileIndex: 在g_apstrFileNames数组中即将要显示在LCD上的文件
+ *
  */
 static int g_iStartNumberToRecord = 0;
 static int g_iCurFileNumber = 0;
@@ -69,22 +81,39 @@ static int GetNextAutoPlayFile ( char* strFileName )
 	}
 	else //如果载入的图片都已显示完 重新加载
 	{
-	    //读取文件前 先设置参数初始值
+		//读取文件前 先设置参数初始值
 		g_iCurFileNumber    = 0;
 		g_iFileCountHaveGet = 0;
-		g_iFileCountTotal   = FILE_COUNT;//此值需设置成与g_apstrFileNames数组长度相同 不然会segment fault
+		g_iFileCountTotal   = FILE_COUNT;//此值需设置成与g_apstrFileNames数组长度相同 不然会数组长度不够 会造成segment fault
 		g_iNextProcessFileIndex = 0;
 
-		iError = GetFilesIndir ( strFileName, &g_iStartNumberToRecord, &g_iCurFileNumber,\
-		                         &g_iFileCountHaveGet, g_iFileCountTotal, g_apstrFileNames ); 
+		iError = GetFilesIndir ( g_acSelectDir, &g_iStartNumberToRecord, &g_iCurFileNumber,\
+		                         &g_iFileCountHaveGet, g_iFileCountTotal, g_apstrFileNames );
 
-		if( )
+		//如果出错从头开始重新加载
+		if ( ( iError == -1 ) || ( g_iNextProcessFileIndex >= g_iFileCountHaveGet ) )
 		{
 
+			g_iStartNumberToRecord = 0;
+			g_iCurFileNumber    = 0;
+			g_iFileCountHaveGet = 0;
+			g_iFileCountTotal   = FILE_COUNT;//此值需设置成与g_apstrFileNames数组长度相同 不然会数组长度不够 会造成segment fault
+			g_iNextProcessFileIndex = 0;
 
+			iError = GetFilesIndir ( g_acSelectDir, &g_iStartNumberToRecord, &g_iCurFileNumber,\
+			                         &g_iFileCountHaveGet, g_iFileCountTotal, g_apstrFileNames );
 		}
 
-
+		if ( iError == 0 )
+		{
+			if ( g_iNextProcessFileIndex < g_iFileCountHaveGet )
+			{
+				//拷贝
+				strncpy ( strFileName,g_apstrFileNames[g_iNextProcessFileIndex],256 );
+				g_iNextProcessFileIndex++;
+				return 0;
+			}
+		}
 
 	}
 
@@ -101,30 +130,92 @@ static int GetNextAutoPlayFile ( char* strFileName )
  ***********************************************************************/
 static PT_VideoMem PrepareNextPicture ( int bCur )
 {
-	PT_VideoMem ptVideoMen;
-	PT_PhotoDesc ptPhotoDesc;
+	float k;
+	PT_VideoMem ptVideoMem;
+	PT_PhotoDesc ptOriPhotoDesc;
+	T_PhotoDesc tZoomPhotoDesc;
 	int iError;
 	char strFileName[256];
+	int iXres, iYres, iBpp;
+    int iTopLeftX,iTopLeftY;
+
+	GetDispResolution ( &iXres, &iYres, &iBpp ); //获取分辨率
 
 	//获得显存
-	ptVideoMen =  GetVideoMem ( -1, bCur );
-	if ( ptVideoMen == NULL )
+	ptVideoMem =  GetVideoMem ( -1, bCur );
+	if ( ptVideoMem == NULL )
 	{
 		DBG_PRINTF ( "GetVideoMem error..\r\n" );
 		return NULL;
 	}
 
 	//清除videomen内的内容
-	ClearVideoMem ( ptVideoMen,COLOR_BACKGROUND );
+	ClearVideoMem ( ptVideoMem,COLOR_BACKGROUND );
 
-	//获得下一个要播放的图片的绝对路径
-	iError = GetNextAutoPlayFile ( strFileName );
+	while ( 1 )
+	{
+		//获得下一个要播放的图片的绝对路径
+		iError = GetNextAutoPlayFile ( strFileName );
+		if ( iError!=0 )
+		{
+			DBG_PRINTF ( "GetNextAutoPlayFile error..\r\n" );
+			return NULL;
+		}
 
-	//提取图片数据
-	GetOriPixelDatasFormFile ( strFileName, ptPhotoDesc );
+		//提取图片数据
+		iError = GetOriPixelDatasFormFile ( strFileName, ptOriPhotoDesc );
+		if ( iError!=0 )
+		{
+			DBG_PRINTF ( "GetOriPixelDatasFormFile error..\r\n" );
+		}
+		else
+		{
+			break;
+		}
+	}
 
+	/* 把图片按比例缩放到VideoMem上, 居中显示
+     * 1. 先算出缩放后的大小
+     */
+	k = ( float ) ptOriPhotoDesc->iHigh / ptOriPhotoDesc->iWidth; // 获取原先图片的长宽比
 
-	return ptVideoMen;
+	tZoomPhotoDesc.iWidth  = iXres ;
+	tZoomPhotoDesc.iHigh   = iXres * k ;
+
+	//如果图片的高度大于区域高度 限制区域图片高度为区域高度 宽度按比例缩放
+	if ( tZoomPhotoDesc.iHigh > iYres )
+	{
+		tZoomPhotoDesc.iHigh = iYres;
+		tZoomPhotoDesc.iWidth = tZoomPhotoDesc.iHigh / k ;
+	}
+
+	tZoomPhotoDesc.iBpp    = iBpp;
+	tZoomPhotoDesc.iLineBytes = tZoomPhotoDesc.iWidth * tZoomPhotoDesc.iBpp / 8;
+	tZoomPhotoDesc.iTotalBytes = tZoomPhotoDesc.iLineBytes * tZoomPhotoDesc.iHigh;
+	tZoomPhotoDesc.aucPhotoData = malloc ( tZoomPhotoDesc.iTotalBytes );
+	if ( tZoomPhotoDesc.aucPhotoData == NULL )
+	{
+	    PutVideoMem(ptVideoMem);
+		return NULL;
+	}
+
+	/* 2. 再进行缩放 */
+	PicZoom ( ptOriPhotoDesc, &tZoomPhotoDesc );
+
+	/* 3. 接着算出居中显示时左上角坐标 */
+    iTopLeftX = (iXres - tZoomPhotoDesc.iWidth) /2 ;
+	iTopLeftY = (iYres - tZoomPhotoDesc.iHigh) /2;
+
+	/* 4. 最后把得到的图片合并入VideoMem */
+	iError = PicMerge ( iTopLeftX, iTopLeftY,  &tZoomPhotoDesc, ptVideoMem );
+
+	/* 5. 释放图片原始数据 */
+    FreePixelDatasForIcon(ptOriPhotoDesc);
+
+	/* 6. 释放缩放后的数据 */
+    free(tZoomPhotoDesc.aucPhotoData);
+	
+	return ptVideoMem;
 
 }
 
@@ -151,7 +242,6 @@ static void* AutoPlayThreadFunction ( void* pVoid )
 		/* 2. 准备要显示的图片 */
 		ptVideoMem =PrepareNextPicture ( 0 );
 
-
 		/* 3. 时间到后就显示出来 */
 		if ( !bFirst ) //除第一个页面之外的页面需要休眠后显示
 		{
@@ -159,7 +249,7 @@ static void* AutoPlayThreadFunction ( void* pVoid )
 		}
 		bFirst = 0;
 
-		ptVideoMem =PrepareNextPicture ( 1 );
+		ptVideoMem = PrepareNextPicture ( 1 );
 
 		/* 刷到设备上去 */
 		FlushVideoMemToDev ( ptVideoMem );
@@ -173,12 +263,17 @@ static void* AutoPlayThreadFunction ( void* pVoid )
 
 }
 
-
+/*
+*连播模式要显示的文件夹有两种方式 ：
+* 1.通过设置页面设置要显示的文件夹
+* 2.在browse页面中按连播按键进入连播
+*/
 static void AutoPageRun ( PT_PageParams ptPageParams )
 {
 	int iRet;
 	T_InputEvent tInputEvent;
 	g_bAutoPlayThreadShouldExit = 0;
+
 
 	/* 获得配置值: 显示哪一个目录下的文件, 显示图片的间隔 */
 	//暂时使用固定目录来显示

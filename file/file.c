@@ -141,22 +141,24 @@ int isRegFile ( char* strFilePath,char* strFileName )
  * -----------------------------------------------
  * 2013/02/08	     V1.0	  韦东山	      创建
  ***********************************************************************/
-static int isRegDir(char *strDirPath, char *strSubDirName)
+static int isRegDir ( char* strDirPath, char* strSubDirName )
 {
-    static const char *astrSpecailDirs[] = {"sbin", "bin", "usr", "lib", "proc", "tmp", "dev", "sys", NULL};
-    int i;
-    
-    /* 如果目录名含有"astrSpecailDirs"中的任意一个, 则返回0 */
-    if (0 == strcmp(strDirPath, "/"))
-    {
-        while (astrSpecailDirs[i])
-        {
-            if (0 == strcmp(strSubDirName, astrSpecailDirs[i]))
-                return 0;
-            i++;
-        }
-    }
-    return 1;    
+	static const char* astrSpecailDirs[] = {"sbin", "bin", "usr", "lib", "proc", "tmp", "dev", "sys", NULL};
+	int i;
+
+	/* 如果目录名含有"astrSpecailDirs"中的任意一个, 则返回0 */
+	if ( 0 == strcmp ( strDirPath, "/" ) )
+	{
+		while ( astrSpecailDirs[i] )
+		{
+			if ( 0 == strcmp ( strSubDirName, astrSpecailDirs[i] ) )
+			{
+				return 0;
+			}
+			i++;
+		}
+	}
+	return 1;
 }
 
 
@@ -380,6 +382,7 @@ int GetFilesIndir ( char* strDirName, int* piStartNumberToRecord, int* piCurFile
 
 	//获得传入路径下的文件夹内容
 	iError = GetDirContents ( strDirName, &aptDirContents, &iDirContentsNumber );
+	DBG_PRINTF ( "iDirContentsNumber :%d\r\n",iDirContentsNumber );
 	if ( iError == -1 )
 	{
 		DBG_PRINTF ( "GetDirContents error...\r\n" );
@@ -398,7 +401,7 @@ int GetFilesIndir ( char* strDirName, int* piStartNumberToRecord, int* piCurFile
 				snpirntf ( apstrFileNames[*piFileCountHaveGet],256,"%s/%s",strDirName,aptDirContents[i]->strName );
 				( *piCurFileNumber )++; //当前文件
 				( *piFileCountHaveGet )++; //
-				(*piStartNumberToRecord)++;
+				( *piStartNumberToRecord )++;
 				if ( *piFileCountHaveGet >= iFileCountTotal ) //如果已经取得足够数量的文件 返回
 				{
 					FreeDirContents ( aptDirContents, iDirContentsNumber ); //释放空间
@@ -416,11 +419,11 @@ int GetFilesIndir ( char* strDirName, int* piStartNumberToRecord, int* piCurFile
 
 	}
 
-	
+
 	for ( i=0; i<iDirContentsNumber; i++ )
 	{
 		//如果一个目录下的文件数量不够 则继续进入下一级目录取出文件
-		if ( (aptDirContents[i]->eFileType ==  FILETYPE_DIR)&&(isRegDir(strDirName,aptDirContents[i]->strName)) )
+		if ( ( aptDirContents[i]->eFileType ==  FILETYPE_DIR ) && ( isRegDir ( strDirName,aptDirContents[i]->strName ) ) )
 		{
 			//取出目录名
 			snprintf ( strSubDirName,256,"%s/%s/",strDirName,aptDirContents[i]->strName );

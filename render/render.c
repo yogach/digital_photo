@@ -395,7 +395,15 @@ int isFontInArea ( int iTopLeftX, int iTopLeftY,int iBotRightX, int iBotRightY,P
 
 
 }
-
+/**********************************************************************
+ * 函数名称： GetOriPixelDatasFormFile
+ * 功能描述： 取出图片象素数据
+ * 输入参数： strFileName - BMP格式的图标文件名,它位于 ICON_PATH 目录下
+ * 输出参数： ptPhotoDesc - 内含象素数据,它所占的空间是通过malloc分配的,
+ *                          不用时需要用FreePixelDatasForIcon来释放
+ * 返 回 值： 0 - 正常,  其他值 - 错误
+ * -----------------------------------------------
+********************************************************************/
 int GetOriPixelDatasFormFile ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
 {
 	T_MapFile tMapFile;

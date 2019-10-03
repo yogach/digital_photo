@@ -101,7 +101,16 @@ PT_DispOpr GetDefaultDispDev ( void )
 
 }
 
-//获得默认显示设备的分辨率
+/**********************************************************************
+ * 函数名称： GetDispResolution
+ * 功能描述： 获得所使用的显示设备的分辨率和BPP
+ * 输入参数： 无
+ * 输出参数： iXres - 存X分辨率
+ *            iYres - 存X分辨率
+ *            iBpp  - 存BPP
+ * 返 回 值： 0  - 成功
+ *            -1 - 失败(未使用SelectAndInitDefaultDispDev来选择显示模块)
+ ***********************************************************************/
 int GetDispResolution ( int* iXres,int* iYres,int* iBpp )
 {
 	if ( g_ptDefaultDisp != NULL )
