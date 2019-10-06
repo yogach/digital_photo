@@ -70,6 +70,7 @@ int SettingPageInit ( void );
 int IntervalPageInit ( void );
 int ManualPageInit ( void );
 int BrowsePageInit ( void );
+int AutoPageInit ( void );
 
 
 #endif /*_PAGE_MANAGER_H__*/

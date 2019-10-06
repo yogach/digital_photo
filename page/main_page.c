@@ -140,6 +140,8 @@ static void MainPageRun (PT_PageParams ptPageParams)
 				break;
 
 			case 1://Á¬²¥Ò³Ãæ
+				Page ( "auto" )->Run(NULL);
+				ShowPage ( &g_tMainPageDesc );
 
 				break;
 
