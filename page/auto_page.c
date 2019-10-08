@@ -12,14 +12,15 @@
 #include <string.h>
 #include <sys/time.h>
 #include <pthread.h>
+#include <unistd.h>
 
 static void AutoPageRun ( PT_PageParams ptPageParams );
 
 static pthread_t g_tAutoPlayThreadID;
 static int g_bAutoPlayThreadShouldExit ;
 
-static pthread_mutex_t g_tAutoPlayThreadMutex  = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t  g_tAutoPlayThreadConVar = PTHREAD_COND_INITIALIZER;
+static pthread_mutex_t g_tAutoPlayThreadMutex  = PTHREAD_MUTEX_INITIALIZER; /* 互斥量 */
+//static pthread_cond_t  g_tAutoPlayThreadConVar = PTHREAD_COND_INITIALIZER;
 
 static char g_acSelectDir[256] = "//mnt/";
 static int g_iIntervalSecond = 10;
@@ -132,7 +133,7 @@ static PT_VideoMem PrepareNextPicture ( int bCur )
 {
 	float k;
 	PT_VideoMem ptVideoMem;
-	PT_PhotoDesc ptOriPhotoDesc;
+	PT_PhotoDesc ptOriPhotoDesc = NULL;
 	T_PhotoDesc tZoomPhotoDesc;
 	int iError;
 	char strFileName[256];
@@ -207,7 +208,7 @@ static PT_VideoMem PrepareNextPicture ( int bCur )
 	iTopLeftY = (iYres - tZoomPhotoDesc.iHigh) /2;
 
 	/* 4. 最后把得到的图片合并入VideoMem */
-	iError = PicMerge ( iTopLeftX, iTopLeftY,  &tZoomPhotoDesc, ptVideoMem );
+	iError = PicMerge ( iTopLeftX, iTopLeftY,  &tZoomPhotoDesc, &ptVideoMem->tVideoMemDesc );
 
 	/* 5. 释放图片原始数据 */
     FreePixelDatasForIcon(ptOriPhotoDesc);
@@ -222,7 +223,7 @@ static PT_VideoMem PrepareNextPicture ( int bCur )
 
 static void* AutoPlayThreadFunction ( void* pVoid )
 {
-	int bExit,bFirst;
+	int bExit = 0,bFirst = 1;
 	PT_VideoMem ptVideoMem;
 
 	while ( 1 )
@@ -240,7 +241,7 @@ static void* AutoPlayThreadFunction ( void* pVoid )
 		}
 
 		/* 2. 准备要显示的图片 */
-		ptVideoMem =PrepareNextPicture ( 0 );
+		ptVideoMem = PrepareNextPicture ( 0 );
 
 		/* 3. 时间到后就显示出来 */
 		if ( !bFirst ) //除第一个页面之外的页面需要休眠后显示

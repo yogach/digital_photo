@@ -144,7 +144,7 @@ int isRegFile ( char* strFilePath,char* strFileName )
 static int isRegDir ( char* strDirPath, char* strSubDirName )
 {
 	static const char* astrSpecailDirs[] = {"sbin", "bin", "usr", "lib", "proc", "tmp", "dev", "sys", NULL};
-	int i;
+	int i = 0;
 
 	/* 如果目录名含有"astrSpecailDirs"中的任意一个, 则返回0 */
 	if ( 0 == strcmp ( strDirPath, "/" ) )
@@ -365,7 +365,7 @@ int GetFilesIndir ( char* strDirName, int* piStartNumberToRecord, int* piCurFile
 
 	PT_DirContent* aptDirContents;  /* 数组:存有目录下"顶层子目录","文件"的名字 */
 	int iDirContentsNumber;	  /* g_aptDirContents数组有多少项 */
-	int iError,i,iDirContentIndex;
+	int iError,i;//,iDirContentIndex;
 	char strSubDirName[256];
 
 	/* 为避免访问的目录互相嵌套, 设置能访问的目录深度为10 */
@@ -398,7 +398,7 @@ int GetFilesIndir ( char* strDirName, int* piStartNumberToRecord, int* piCurFile
 		{
 			if ( *piCurFileNumber > *piStartNumberToRecord ) //待到指定位置取出
 			{
-				snpirntf ( apstrFileNames[*piFileCountHaveGet],256,"%s/%s",strDirName,aptDirContents[i]->strName );
+				snprintf ( apstrFileNames[*piFileCountHaveGet],256,"%s/%s",strDirName,aptDirContents[i]->strName );
 				( *piCurFileNumber )++; //当前文件
 				( *piFileCountHaveGet )++; //
 				( *piStartNumberToRecord )++;
@@ -406,6 +406,7 @@ int GetFilesIndir ( char* strDirName, int* piStartNumberToRecord, int* piCurFile
 				{
 					FreeDirContents ( aptDirContents, iDirContentsNumber ); //释放空间
 					iDirDeepness--;
+					DBG_PRINTF ( "iDirDeepness :%d\r\n",iDirDeepness );
 					return 0;
 				}
 
@@ -428,11 +429,12 @@ int GetFilesIndir ( char* strDirName, int* piStartNumberToRecord, int* piCurFile
 			//取出目录名
 			snprintf ( strSubDirName,256,"%s/%s/",strDirName,aptDirContents[i]->strName );
 			//递归处理
-			GetFilesIndir ( strSubDirName, piStartNumberToRecord, piCurFileNumber, piFileCountHaveGet, iFileCountTotal, apstrFileNames )
+			GetFilesIndir ( strSubDirName, piStartNumberToRecord, piCurFileNumber, piFileCountHaveGet, iFileCountTotal, apstrFileNames );
 			if ( *piFileCountHaveGet >= iFileCountTotal ) //如果已经取得足够数量的文件 返回
 			{
 				FreeDirContents ( aptDirContents, iDirContentsNumber ); //释放空间
 				iDirDeepness--;
+				DBG_PRINTF ( "iDirDeepness :%d\r\n",iDirDeepness );
 				return 0;
 			}
 
@@ -441,6 +443,7 @@ int GetFilesIndir ( char* strDirName, int* piStartNumberToRecord, int* piCurFile
 
 	FreeDirContents ( aptDirContents, iDirContentsNumber ); //释放空间
 	iDirDeepness--;
+	DBG_PRINTF ( "iDirDeepness :%d\r\n",iDirDeepness );
 	return 0;
 }
 
