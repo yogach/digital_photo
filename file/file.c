@@ -401,7 +401,7 @@ int GetFilesIndir ( char* strDirName, int* piStartNumberToRecord, int* piCurFile
 		//取出其中的文件拷贝到apstrFileNames中（包含绝对路径）
 		if ( aptDirContents[i]->eFileType == FILETYPE_FILE )
 		{
-			if ( *piCurFileNumber > *piStartNumberToRecord ) //待到指定位置取出
+			if ( *piCurFileNumber >= *piStartNumberToRecord ) //待到指定位置取出
 			{
 				snprintf ( apstrFileNames[*piFileCountHaveGet],256,"%s/%s",strCurDirName,aptDirContents[i]->strName );
 				( *piCurFileNumber )++; //当前文件
@@ -418,7 +418,7 @@ int GetFilesIndir ( char* strDirName, int* piStartNumberToRecord, int* piCurFile
 			}
 			else
 			{
-				*piCurFileNumber++;
+                (*piCurFileNumber)++;
 			}
 
 		}

@@ -104,12 +104,13 @@ static int GetNextAutoPlayFile ( char* strFileName )
 		g_iFileCountTotal   = FILE_COUNT;//此值需设置成与g_apstrFileNames数组长度相同 不然会数组长度不够 会造成segment fault
 		g_iNextProcessFileIndex = 0;
 
+        DBG_PRINTF("g_iStartNumberToRecord : %d\r\n",g_iStartNumberToRecord);
 		iError = GetFilesIndir ( g_acSelectDir, &g_iStartNumberToRecord, &g_iCurFileNumber,&g_iFileCountHaveGet, g_iFileCountTotal, g_apstrFileNames );
 
 		//如果出错从头开始重新加载
-		if ( ( iError == -1 ) || ( g_iNextProcessFileIndex >= g_iFileCountHaveGet ) )
+		if (  iError  || ( g_iNextProcessFileIndex >= g_iFileCountHaveGet ) )
 		{
-
+            DBG_PRINTF("if GetFilesIndir error or g_iNextProcessFileIndex >= g_iFileCountHaveGet reGetFilesIndir.\r\n");
 			g_iStartNumberToRecord = 0;
 			g_iCurFileNumber    = 0;
 			g_iFileCountHaveGet = 0;
