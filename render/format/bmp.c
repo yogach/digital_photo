@@ -124,7 +124,8 @@ static int CovertOneLine(int iWidth,int iSrcBpp,int iDstBpp,unsigned char * pudS
 
 /**********************************************************************
  * 函数名称： GetPixelDatasFrmBMP
- * 功能描述： 把BMP文件中的象素数据,取出并转换为能在显示设备上使用的格式
+ * 功能描述： 把BMP文件中的象素数据,取出并转换为能在显示设备上使用的格式 
+ *            本函数会malloc ptPhotoDesc->aucPhotoData空间,使用完毕后需要释放
  * 输入参数： ptFileMap    - 内含文件信息
  * 输出参数： ptPixelDatas - 内含象素数据
  *            ptPixelDatas->iBpp 是输入的参数, 它确定从BMP文件得到的数据要转换为该BPP

@@ -62,6 +62,22 @@ static T_PageDesc g_tAutoPageDesc =
 };
 
 /**********************************************************************
+ * 函数名称： ResetAutoPlayFile
+ * 功能描述： 每次使用"连播"功能时,都调用此函数,它使得从第1个文件开始"连播"
+ * 输入参数： 无
+ * 输出参数： 无
+ * 返 回 值： 无
+ ***********************************************************************/
+static void ResetAutoPlayFile ( void )
+{
+	g_iStartNumberToRecord = 0;
+	g_iCurFileNumber = 0;
+	g_iFileCountHaveGet = 0;
+	g_iFileCountTotal = 0;
+	g_iNextProcessFileIndex = 0;
+}
+
+/**********************************************************************
  * 函数名称： GetNextAutoPlayFile
  * 功能描述： 获得下一个要播放的图片的名字
  * 输入参数： 无
@@ -88,8 +104,7 @@ static int GetNextAutoPlayFile ( char* strFileName )
 		g_iFileCountTotal   = FILE_COUNT;//此值需设置成与g_apstrFileNames数组长度相同 不然会数组长度不够 会造成segment fault
 		g_iNextProcessFileIndex = 0;
 
-		iError = GetFilesIndir ( g_acSelectDir, &g_iStartNumberToRecord, &g_iCurFileNumber,\
-		                         &g_iFileCountHaveGet, g_iFileCountTotal, g_apstrFileNames );
+		iError = GetFilesIndir ( g_acSelectDir, &g_iStartNumberToRecord, &g_iCurFileNumber,&g_iFileCountHaveGet, g_iFileCountTotal, g_apstrFileNames );
 
 		//如果出错从头开始重新加载
 		if ( ( iError == -1 ) || ( g_iNextProcessFileIndex >= g_iFileCountHaveGet ) )
@@ -101,8 +116,7 @@ static int GetNextAutoPlayFile ( char* strFileName )
 			g_iFileCountTotal   = FILE_COUNT;//此值需设置成与g_apstrFileNames数组长度相同 不然会数组长度不够 会造成segment fault
 			g_iNextProcessFileIndex = 0;
 
-			iError = GetFilesIndir ( g_acSelectDir, &g_iStartNumberToRecord, &g_iCurFileNumber,\
-			                         &g_iFileCountHaveGet, g_iFileCountTotal, g_apstrFileNames );
+			iError = GetFilesIndir ( g_acSelectDir, &g_iStartNumberToRecord, &g_iCurFileNumber,&g_iFileCountHaveGet, g_iFileCountTotal, g_apstrFileNames );
 		}
 
 		if ( iError == 0 )
@@ -133,12 +147,12 @@ static PT_VideoMem PrepareNextPicture ( int bCur )
 {
 	float k;
 	PT_VideoMem ptVideoMem;
-	PT_PhotoDesc ptOriPhotoDesc = NULL;
+	T_PhotoDesc tOriPhotoDesc ;
 	T_PhotoDesc tZoomPhotoDesc;
 	int iError;
 	char strFileName[256];
 	int iXres, iYres, iBpp;
-    int iTopLeftX,iTopLeftY;
+	int iTopLeftX,iTopLeftY;
 
 	GetDispResolution ( &iXres, &iYres, &iBpp ); //获取分辨率
 
@@ -160,25 +174,27 @@ static PT_VideoMem PrepareNextPicture ( int bCur )
 		if ( iError!=0 )
 		{
 			DBG_PRINTF ( "GetNextAutoPlayFile error..\r\n" );
+			PutVideoMem ( ptVideoMem );
 			return NULL;
 		}
 
 		//提取图片数据
-		iError = GetOriPixelDatasFormFile ( strFileName, ptOriPhotoDesc );
+		iError = GetOriPixelDatasFormFile ( strFileName, &tOriPhotoDesc );
 		if ( iError!=0 )
 		{
 			DBG_PRINTF ( "GetOriPixelDatasFormFile error..\r\n" );
+			
 		}
 		else
 		{
-			break;
+			break; //如果获取成功就退出循环
 		}
 	}
 
 	/* 把图片按比例缩放到VideoMem上, 居中显示
-     * 1. 先算出缩放后的大小
-     */
-	k = ( float ) ptOriPhotoDesc->iHigh / ptOriPhotoDesc->iWidth; // 获取原先图片的长宽比
+	 * 1. 先算出缩放后的大小
+	 */
+	k = ( float ) tOriPhotoDesc.iHigh / tOriPhotoDesc.iWidth; // 获取原先图片的长宽比
 
 	tZoomPhotoDesc.iWidth  = iXres ;
 	tZoomPhotoDesc.iHigh   = iXres * k ;
@@ -196,26 +212,27 @@ static PT_VideoMem PrepareNextPicture ( int bCur )
 	tZoomPhotoDesc.aucPhotoData = malloc ( tZoomPhotoDesc.iTotalBytes );
 	if ( tZoomPhotoDesc.aucPhotoData == NULL )
 	{
-	    PutVideoMem(ptVideoMem);
+		DBG_PRINTF ( "malloc error...\r\n" );
+		PutVideoMem ( ptVideoMem );
 		return NULL;
 	}
 
 	/* 2. 再进行缩放 */
-	PicZoom ( ptOriPhotoDesc, &tZoomPhotoDesc );
+	PicZoom ( &tOriPhotoDesc, &tZoomPhotoDesc );
 
 	/* 3. 接着算出居中显示时左上角坐标 */
-    iTopLeftX = (iXres - tZoomPhotoDesc.iWidth) /2 ;
-	iTopLeftY = (iYres - tZoomPhotoDesc.iHigh) /2;
+	iTopLeftX = ( iXres - tZoomPhotoDesc.iWidth ) /2 ;
+	iTopLeftY = ( iYres - tZoomPhotoDesc.iHigh ) /2;
 
 	/* 4. 最后把得到的图片合并入VideoMem */
 	iError = PicMerge ( iTopLeftX, iTopLeftY,  &tZoomPhotoDesc, &ptVideoMem->tVideoMemDesc );
 
 	/* 5. 释放图片原始数据 */
-    FreePixelDatasForIcon(ptOriPhotoDesc);
+	FreePixelDatasForIcon ( &tOriPhotoDesc );
 
 	/* 6. 释放缩放后的数据 */
-    free(tZoomPhotoDesc.aucPhotoData);
-	
+	free ( tZoomPhotoDesc.aucPhotoData );
+
 	return ptVideoMem;
 
 }
@@ -226,6 +243,7 @@ static void* AutoPlayThreadFunction ( void* pVoid )
 	int bExit = 0,bFirst = 1;
 	PT_VideoMem ptVideoMem;
 
+	ResetAutoPlayFile();
 	while ( 1 )
 	{
 		/* 1. 先判断是否要退出 */
@@ -244,13 +262,17 @@ static void* AutoPlayThreadFunction ( void* pVoid )
 		ptVideoMem = PrepareNextPicture ( 0 );
 
 		/* 3. 时间到后就显示出来 */
-		if ( !bFirst ) //除第一个页面之外的页面需要休眠后显示
+		//除第一个页面之外的页面需要休眠后显示
+		if ( !bFirst ) 
 		{
 			sleep ( g_iIntervalSecond );
 		}
 		bFirst = 0;
 
-		ptVideoMem = PrepareNextPicture ( 1 );
+		if ( ptVideoMem == NULL )
+		{
+			ptVideoMem = PrepareNextPicture ( 1 );
+		}
 
 		/* 刷到设备上去 */
 		FlushVideoMemToDev ( ptVideoMem );
