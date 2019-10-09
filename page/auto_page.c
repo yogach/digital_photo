@@ -96,7 +96,7 @@ static int GetNextAutoPlayFile ( char* strFileName )
 		g_iNextProcessFileIndex++;
 		return 0;
 	}
-	else //如果载入的图片都已显示完 重新加载
+	else //如果载入的图片都已显示完 重新到文件夹中进行加载
 	{
 		//读取文件前 先设置参数初始值
 		g_iCurFileNumber    = 0;

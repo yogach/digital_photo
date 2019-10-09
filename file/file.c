@@ -366,7 +366,7 @@ int GetFilesIndir ( char* strDirName, int* piStartNumberToRecord, int* piCurFile
 	PT_DirContent* aptDirContents;  /* 数组:存有目录下"顶层子目录","文件"的名字 */
 	int iDirContentsNumber;	  /* g_aptDirContents数组有多少项 */
 	int iError,i;//,iDirContentIndex;
-	char strSubDirName[256];
+	char strSubDirName[256] ,strCurDirName[256];
 	char* ptTmp;
 
 	/* 为避免访问的目录互相嵌套, 设置能访问的目录深度为10 */
@@ -380,9 +380,10 @@ int GetFilesIndir ( char* strDirName, int* piStartNumberToRecord, int* piCurFile
 
 	iDirDeepness++;
 
+    strncpy(strCurDirName,strDirName,256);
 
 	//获得传入路径下的文件夹内容
-	iError = GetDirContents ( strDirName, &aptDirContents, &iDirContentsNumber );
+	iError = GetDirContents ( strCurDirName, &aptDirContents, &iDirContentsNumber );
 	DBG_PRINTF ( "iDirContentsNumber :%d\r\n",iDirContentsNumber );
 	if ( iError == -1 )
 	{
@@ -391,7 +392,7 @@ int GetFilesIndir ( char* strDirName, int* piStartNumberToRecord, int* piCurFile
 		return -1;
 	}
 
-    ptTmp = strrchr ( strDirName,'/' );
+    ptTmp = strrchr ( strCurDirName,'/' );
 	*ptTmp = '\0'; //将'/'替换成结束符
 
 	for ( i=0; i<iDirContentsNumber; i++ )
@@ -402,7 +403,7 @@ int GetFilesIndir ( char* strDirName, int* piStartNumberToRecord, int* piCurFile
 		{
 			if ( *piCurFileNumber > *piStartNumberToRecord ) //待到指定位置取出
 			{
-				snprintf ( apstrFileNames[*piFileCountHaveGet],256,"%s/%s",strDirName,aptDirContents[i]->strName );
+				snprintf ( apstrFileNames[*piFileCountHaveGet],256,"%s/%s",strCurDirName,aptDirContents[i]->strName );
 				( *piCurFileNumber )++; //当前文件
 				( *piFileCountHaveGet )++; //
 				( *piStartNumberToRecord )++;
@@ -428,10 +429,10 @@ int GetFilesIndir ( char* strDirName, int* piStartNumberToRecord, int* piCurFile
 	for ( i=0; i<iDirContentsNumber; i++ )
 	{
 		//如果一个目录下的文件数量不够 则继续进入下一级目录取出文件
-		if ( ( aptDirContents[i]->eFileType ==  FILETYPE_DIR ) && ( isRegDir ( strDirName,aptDirContents[i]->strName ) ) )
+		if ( ( aptDirContents[i]->eFileType ==  FILETYPE_DIR ) && ( isRegDir ( strCurDirName,aptDirContents[i]->strName ) ) )
 		{
 			//取出目录名
-			snprintf ( strSubDirName,256,"%s/%s/",strDirName,aptDirContents[i]->strName );
+			snprintf ( strSubDirName,256,"%s/%s/",strCurDirName,aptDirContents[i]->strName );
 			//递归处理
 			GetFilesIndir ( strSubDirName, piStartNumberToRecord, piCurFileNumber, piFileCountHaveGet, iFileCountTotal, apstrFileNames );
 			if ( *piFileCountHaveGet >= iFileCountTotal ) //如果已经取得足够数量的文件 返回
