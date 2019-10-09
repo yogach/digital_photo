@@ -22,7 +22,7 @@ static int g_bAutoPlayThreadShouldExit ;
 static pthread_mutex_t g_tAutoPlayThreadMutex  = PTHREAD_MUTEX_INITIALIZER; /* 互斥量 */
 //static pthread_cond_t  g_tAutoPlayThreadConVar = PTHREAD_COND_INITIALIZER;
 
-static char g_acSelectDir[256] = "//mnt/";
+static char g_acSelectDir[256] = "//mnt/Icon/";
 static int g_iIntervalSecond = 10;
 
 /* 以深度优先的方式获得目录下的文件
@@ -177,6 +177,8 @@ static PT_VideoMem PrepareNextPicture ( int bCur )
 			PutVideoMem ( ptVideoMem );
 			return NULL;
 		}
+
+        DBG_PRINTF("strFileName : %s\r\n",strFileName);
 
 		//提取图片数据
 		iError = GetOriPixelDatasFormFile ( strFileName, &tOriPhotoDesc );

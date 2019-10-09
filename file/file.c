@@ -367,6 +367,7 @@ int GetFilesIndir ( char* strDirName, int* piStartNumberToRecord, int* piCurFile
 	int iDirContentsNumber;	  /* g_aptDirContents数组有多少项 */
 	int iError,i;//,iDirContentIndex;
 	char strSubDirName[256];
+	char* ptTmp;
 
 	/* 为避免访问的目录互相嵌套, 设置能访问的目录深度为10 */
 #define MAX_DIR_DEEPNESS 10
@@ -389,6 +390,9 @@ int GetFilesIndir ( char* strDirName, int* piStartNumberToRecord, int* piCurFile
 		iDirDeepness--;
 		return -1;
 	}
+
+    ptTmp = strrchr ( strDirName,'/' );
+	*ptTmp = '\0'; //将'/'替换成结束符
 
 	for ( i=0; i<iDirContentsNumber; i++ )
 	{

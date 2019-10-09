@@ -201,6 +201,7 @@ static int GetPixelDatasFrmJPG(PT_MapFile ptFileMap, PT_PhotoDesc ptPixelDatas,i
         {
             free(ptPixelDatas->aucPhotoData);
         }
+		DBG_PRINTF("get ptPixelDatas error..\r\n");
 		return -1;
 	}
 
@@ -223,6 +224,7 @@ static int GetPixelDatasFrmJPG(PT_MapFile ptFileMap, PT_PhotoDesc ptPixelDatas,i
 
     if (NULL == aucLineBuffer)
     {
+        DBG_PRINTF("malloc error..\r\n");
         return -1;
     }
 
@@ -234,6 +236,7 @@ static int GetPixelDatasFrmJPG(PT_MapFile ptFileMap, PT_PhotoDesc ptPixelDatas,i
 	ptPixelDatas->aucPhotoData = malloc(ptPixelDatas->iTotalBytes);
 	if (NULL == ptPixelDatas->aucPhotoData)
 	{
+	    DBG_PRINTF("malloc error..\r\n");
 		return -1;
 	}
 
