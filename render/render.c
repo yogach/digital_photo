@@ -435,6 +435,7 @@ int GetOriPixelDatasFormFile ( char* strFileName, PT_PhotoDesc ptPhotoDesc )
 	GetDispResolution ( &iXres,&iYres,&iBpp ); //获取分辨率
 
 	//使用该图片处理节点得到图片数据
+	//ptPhotoDesc->iBpp =iBpp;
 	iError = ptTargetFileParser->GetPixelDatas ( &tMapFile, ptPhotoDesc,iBpp );
 	if ( iError )
 	{

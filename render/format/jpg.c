@@ -230,7 +230,7 @@ static int GetPixelDatasFrmJPG(PT_MapFile ptFileMap, PT_PhotoDesc ptPixelDatas,i
 
 	ptPixelDatas->iWidth  = tDInfo.output_width;
 	ptPixelDatas->iHigh = tDInfo.output_height;
-	//ptPixelDatas->iBpp    = iBpp;
+	ptPixelDatas->iBpp    = iexpBpp;
 	ptPixelDatas->iLineBytes    = ptPixelDatas->iWidth * ptPixelDatas->iBpp / 8;
     ptPixelDatas->iTotalBytes   = ptPixelDatas->iHigh * ptPixelDatas->iLineBytes;
 	ptPixelDatas->aucPhotoData = malloc(ptPixelDatas->iTotalBytes);

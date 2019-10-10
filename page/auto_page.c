@@ -22,7 +22,7 @@ static int g_bAutoPlayThreadShouldExit ;
 static pthread_mutex_t g_tAutoPlayThreadMutex  = PTHREAD_MUTEX_INITIALIZER; /* 互斥量 */
 //static pthread_cond_t  g_tAutoPlayThreadConVar = PTHREAD_COND_INITIALIZER; //休眠唤醒
 
-static char g_acSelectDir[256] = "//mnt/";//"//mnt/Icon/";
+static char g_acSelectDir[256] = "//mnt/Icon/";
 static int g_iIntervalSecond = 10;
 
 /* 以深度优先的方式获得目录下的文件
