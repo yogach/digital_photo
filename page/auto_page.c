@@ -20,9 +20,9 @@ static pthread_t g_tAutoPlayThreadID;
 static int g_bAutoPlayThreadShouldExit ;
 
 static pthread_mutex_t g_tAutoPlayThreadMutex  = PTHREAD_MUTEX_INITIALIZER; /* 互斥量 */
-//static pthread_cond_t  g_tAutoPlayThreadConVar = PTHREAD_COND_INITIALIZER;
+//static pthread_cond_t  g_tAutoPlayThreadConVar = PTHREAD_COND_INITIALIZER; //休眠唤醒
 
-static char g_acSelectDir[256] = "//mnt/Icon/";
+static char g_acSelectDir[256] = "//mnt/";//"//mnt/Icon/";
 static int g_iIntervalSecond = 10;
 
 /* 以深度优先的方式获得目录下的文件
@@ -223,7 +223,7 @@ static PT_VideoMem PrepareNextPicture ( int bCur )
 	/* 2. 再进行缩放 */
 	PicZoom ( &tOriPhotoDesc, &tZoomPhotoDesc );
 
-	/* 3. 接着算出居中显示时左上角坐标 */
+	/* 3. 接着算出居中显示时起始坐标 */
 	iTopLeftX = ( iXres - tZoomPhotoDesc.iWidth ) /2 ;
 	iTopLeftY = ( iYres - tZoomPhotoDesc.iHigh ) /2;
 

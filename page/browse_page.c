@@ -759,7 +759,7 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 							//获取点下文件的绝对路径
 							snprintf ( tPageParams.strCurPictureFile,256,"%s%s",g_strCurDir,g_aptDirContents[iPressIndex]->strName ); 
 							tPageParams.strCurPictureFile[255] = '\0';
-							DBG_PRINTF("%s\r\n",tPageParams.strCurPictureFile);
+							DBG_PRINTF("Press file absolute path : %s\r\n",tPageParams.strCurPictureFile);
 							
 							if(isPictureFileSupported(tPageParams.strCurPictureFile)==0)
 							{
