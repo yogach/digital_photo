@@ -52,6 +52,13 @@ void ShowPages ( void )
 }
 
 
+void GetPageCfg(int * IntervalSecond,char* strSeletedDir)
+{
+   (*IntervalSecond) = GetIntervalSecond();
+   GetSelectedDir(strSeletedDir);
+}
+
+
 /**********************************************************************
  * 函数名称： Page
  * 功能描述： 根据名字取出指定的"页面模块"

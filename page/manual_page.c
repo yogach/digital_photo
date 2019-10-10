@@ -464,6 +464,7 @@ static void ManualPageRun ( PT_PageParams ptPageParams )
 	char strFileName[256];
     char strFullPathName[256]; 
     char * pcTmp;
+	T_PageParams tPageParams;
 	
     PT_DirContent* aptDirContents;  /* 数组:存有目录下"顶层子目录","文件"的名字 */
 	int iDirContentsNumber;		 /* g_aptDirContents数组有多少项 */
@@ -602,7 +603,11 @@ static void ManualPageRun ( PT_PageParams ptPageParams )
 						    }
 							break;
 
-						case 5://连播：自动播放此目录下的图片文件
+						case 5://连播：自动播放此目录下的所有图片文件
+                            strncpy(tPageParams.strCurPictureFile,strDirName,256);
+                            tPageParams.PageID = ID(g_tManualPageDesc.name);
+							Page ( "auto" )->Run(&tPageParams);
+						    ShowPage ( &g_tManualPageDesc );
 							break;
 
 

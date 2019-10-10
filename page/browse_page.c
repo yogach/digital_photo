@@ -24,7 +24,7 @@ static int g_iStartIndex = 0;            /* 在屏幕上显示的第1个"目录和文件"是g_a
 
 //当前路径
 static char g_strCurDir[256] = DEFAULT_PATH;
-//static char g_strSelectDir[256] = DEFAULT_PATH;
+static char g_strSelectDir[256] = DEFAULT_PATH; //选择的文件夹路径
 
 static int g_iDirFileNumPerCol, g_iDirFileNumPerRow; //每行与每列显示的图标个数 COL - 列 ROW - 行
 static T_Layout* g_atDirAndFileLayout = NULL;    //用于保存文件夹/文件显示页面每个图标坐标值
@@ -77,6 +77,21 @@ static T_PageDesc g_tBrowsePageDesc =
 	.atPageLayout = g_atBrowsePageIconsLayout,
 	.DispSpecialIcon = BrowsePageSpecialDis,
 };
+
+
+/**********************************************************************
+ * 函数名称： GetSelectedDir
+ * 功能描述： 在"浏览页面"中,用户可能会选中某个目录-----它就是"连播页面"要显示的目录
+ *            本函数返回这个目录名
+ * 输入参数： 无
+ * 输出参数： strSeletedDir - 里面存有用户选中的目录的名字
+ * 返 回 值： 无
+ ***********************************************************************/
+void GetSelectedDir(char *strSeletedDir)
+{
+    strncpy(strSeletedDir, g_strSelectDir, 256);
+    strSeletedDir[255] = '\0';
+}
 
 /**********************************************************************
  * 函数名称： CalcBrowsePageDirAndFilesLayout
@@ -592,11 +607,17 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 	PT_VideoMem ptDevVideoMem;
 	T_PageParams tPageParams;
 	T_InputEvent tInputEvent,tPreInputEvent;
-	int iIndex,iIndexPressured=-1,bPressure = 0, bHaveClickSelectIcon = 0;
+	int iIndex,iIndexPressured=-1,bPressure = 0, bHaveClickSelectIcon = 0,bUsedToSelectDir = 0;
 	int iPressIndex;
 	char strtmp[256] ;
 	char* ptTmp;
 
+
+    // 如果是从设置页面进入了浏览页面 可以选择连播文件夹
+	if(ptPageParams->PageID == ID("setting"))
+	  bUsedToSelectDir = 1;
+
+	
 	//获得显示设备显存
 	ptDevVideoMem = GetDevVideoMen();
 
@@ -675,7 +696,18 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 
 								break;
 
-							case 1://选择 --暂时无用
+							case 1://选择 
+                                if(!bUsedToSelectDir)/* 如果不是用于"选择目录", 该按钮无用处 */
+									break;
+
+								if(!bHaveClickSelectIcon)
+								{
+								 bHaveClickSelectIcon = 1;
+								}
+								else
+								{
+
+								}
 
 								break;
 
@@ -731,6 +763,7 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 					else if ( bHaveClickSelectIcon ) /* 按下和松开都是同一个按钮, 并且"选择"按钮是按下状态 */
 					{
 						bPressure = 0;
+						bHaveClickSelectIcon = 0;
 
 					}
 					else /* "选择"按钮不被按下时, 单击目录则进入, bUsedToSelectDir为0时单击文件则显示它 */

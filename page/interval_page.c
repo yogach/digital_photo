@@ -35,7 +35,7 @@ static T_PageDesc g_tIntervalPageDesc =
 };
 
 static T_Layout g_NumDispLayout; //用于表示数字显示内框的起始结束坐标
-static int g_iIntervalSecond = 1;//用于显示时间间隔
+static int g_iIntervalSecond = 3;//用于显示时间间隔
 
 /**********************************************************************
  * 函数名称： CalcIntervalPageLayout

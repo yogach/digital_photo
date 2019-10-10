@@ -22,7 +22,7 @@ static int g_bAutoPlayThreadShouldExit ;
 static pthread_mutex_t g_tAutoPlayThreadMutex  = PTHREAD_MUTEX_INITIALIZER; /* 互斥量 */
 //static pthread_cond_t  g_tAutoPlayThreadConVar = PTHREAD_COND_INITIALIZER; //休眠唤醒
 
-static char g_acSelectDir[256] = "//mnt/Icon/";
+static char g_acSelectDir[256];// = "//mnt/Icon/";
 static int g_iIntervalSecond = 10;
 
 /* 以深度优先的方式获得目录下的文件
@@ -301,8 +301,17 @@ static void AutoPageRun ( PT_PageParams ptPageParams )
 	g_bAutoPlayThreadShouldExit = 0;
 
 
+
 	/* 获得配置值: 显示哪一个目录下的文件, 显示图片的间隔 */
-	//暂时使用固定目录来显示
+    
+	g_iIntervalSecond = GetIntervalSecond();
+
+	//当传入的目录值不为空时,显示此文件夹下的内容
+	if (ptPageParams->strCurPictureFile[0] != '\0')
+    {
+		strncpy(g_acSelectDir,ptPageParams->strCurPictureFile,256);
+    	g_acSelectDir[255] = '\0';
+	}
 
 	/* 1. 启动一个线程来连续显示图片 */
 	pthread_create ( &g_tAutoPlayThreadID,NULL,AutoPlayThreadFunction,NULL );

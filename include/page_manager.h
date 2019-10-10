@@ -59,6 +59,7 @@ int TimeMSBetween(struct timeval tTimeStart, struct timeval tTimeEnd);
 
 int GeneratePage(PT_Layout atLayout , PT_VideoMem pt_VideoMem);
 int ShowPage ( PT_PageDesc ptPageDesc);
+void GetPageCfg(int * IntervalSecond,char* strSeletedDir);
 
 
 int PagesInit(void);
@@ -71,6 +72,7 @@ int IntervalPageInit ( void );
 int ManualPageInit ( void );
 int BrowsePageInit ( void );
 int AutoPageInit ( void );
+int GetIntervalSecond(void);
 
 
 #endif /*_PAGE_MANAGER_H__*/
