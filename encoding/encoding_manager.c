@@ -173,7 +173,7 @@ int GetCodeFrmBuf ( unsigned char* pucBufStart, unsigned char* pucBufEnd, unsign
 
 	//ShowEncodingOpr();
 
-	//获得支持ascii的编码处理模块
+	//获得支持ascii的编码处理模块 //修改此处以支持中文显示
 	ptEncodingOpr = GetEncodingOpr ( "ascii" );
 
 	//如果不能获取到处理模块
