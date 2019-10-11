@@ -87,10 +87,10 @@ static T_PageDesc g_tBrowsePageDesc =
  * 输出参数： strSeletedDir - 里面存有用户选中的目录的名字
  * 返 回 值： 无
  ***********************************************************************/
-void GetSelectedDir(char *strSeletedDir)
+void GetSelectedDir ( char* strSeletedDir )
 {
-    strncpy(strSeletedDir, g_strSelectDir, 256);
-    strSeletedDir[255] = '\0';
+	strncpy ( strSeletedDir, g_strSelectDir, 256 );
+	strSeletedDir[255] = '\0';
 }
 
 /**********************************************************************
@@ -197,10 +197,10 @@ static int CalcBrowsePageDirAndFilesLayout ( void )
 	 * 分配"两倍+1"的T_Layout结构体: 一个用来表示图标,另一个用来表示名字
 	 * 最后一个用来存NULL,借以判断结构体数组的末尾
 	 */
-	if(g_atDirAndFileLayout == NULL)
+	if ( g_atDirAndFileLayout == NULL )
 	{
 		g_atDirAndFileLayout = malloc ( sizeof ( T_Layout ) * ( 2*g_iDirFileNumPerCol*g_iDirFileNumPerRow + 1 ) );
-        DBG_PRINTF("malloc g_atDirAndFileLayout...\r\n");
+		DBG_PRINTF ( "malloc g_atDirAndFileLayout...\r\n" );
 		if ( g_atDirAndFileLayout == NULL )
 		{
 			DBG_PRINTF ( "malloc error..\r\n" );
@@ -478,13 +478,13 @@ static int GenerateBrowsePageDirAndFile ( int iStartIndex, int iDirContentsNumbe
 	//2、设置文件夹/文件 名称字体大小
 	SetFontSize ( atFileAndDirLayout[1].iLowerRightY - atFileAndDirLayout[1].iTopLeftY + 1 - 5 );
 
-    DBG_PRINTF("iDirContentsNumber:%d \r\n",iDirContentsNumber); //打印搜索到的文件个数
+	DBG_PRINTF ( "iDirContentsNumber:%d \r\n",iDirContentsNumber ); //打印搜索到的文件个数
 	//3、往指定位置拷贝数据
 	for ( i = 0; i< g_iDirFileNumPerCol ; i++ )
 	{
 		for ( j = 0; j< g_iDirFileNumPerRow ; j++ )
 		{
-			if ( iDirContentIndex < iDirContentsNumber )
+			if ( iDirContentIndex < iDirContentsNumber ) //
 			{
 
 				if ( aptDirContents[iDirContentIndex]->eFileType == FILETYPE_DIR ) //如果目标目录是文件夹 则在指定位置显示文件夹图标
@@ -607,17 +607,22 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 	PT_VideoMem ptDevVideoMem;
 	T_PageParams tPageParams;
 	T_InputEvent tInputEvent,tPreInputEvent;
-	int iIndex,iIndexPressured=-1,bPressure = 0, bHaveClickSelectIcon = 0,bUsedToSelectDir = 0;
+	
+	int iIndex,iIndexPressured=-1,bPressure = 0;//iIndexPressured代表之前按下的区域 bPressure代表已经按下过
+	//bHaveClickSelectIcon 代表选择按键已经被按下 bUsedToSelectDir为1时代表可以用于选择显示文件夹
+	int bHaveClickSelectIcon = 0,bUsedToSelectDir = 0;
 	int iPressIndex;
 	char strtmp[256] ;
 	char* ptTmp;
 
 
-    // 如果是从设置页面进入了浏览页面 可以选择连播文件夹
-	if(ptPageParams->PageID == ID("setting"))
-	  bUsedToSelectDir = 1;
+	// 如果是从设置页面进入了浏览页面 可以选择连播文件夹
+	if ( ptPageParams->PageID == ID ( "setting" ) )
+	{
+		bUsedToSelectDir = 1;
+	}
 
-	
+
 	//获得显示设备显存
 	ptDevVideoMem = GetDevVideoMen();
 
@@ -641,7 +646,7 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 		if ( iIndex == -1 ) //如果按下的地方没有在浏览页面控制按键上
 		{
 			iIndex =  GenericGetInputPositionInPageLayout ( g_atDirAndFileLayout,&tInputEvent );
-			//DBG_PRINTF("press Icon Number is %d\r\n",iIndex); 
+			//DBG_PRINTF("press Icon Number is %d\r\n",iIndex);
 
 			if ( iIndex != -1 ) //如果按下的地方在文件夹/文件区域 此时得到的索引是按下区域的索引
 			{
@@ -667,7 +672,11 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 				if ( iIndex < DIRFILE_ICON_INDEX_BASE ) //代表是控制区按键
 				{
 					//改变按键区域的颜色
-					ReleaseButton ( &g_atBrowsePageIconsLayout[iIndex] );
+					if (!(bUsedToSelectDir && (iIndexPressured == 1))) /* "选择"图标单独处理 */
+                    {
+						ReleaseButton ( &g_atBrowsePageIconsLayout[iIndexPressured] );
+					}
+
 					bPressure = 0;
 
 					if ( iIndexPressured == iIndex ) //如果按键和松开的是同一个按键
@@ -696,17 +705,20 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 
 								break;
 
-							case 1://选择 
-                                if(!bUsedToSelectDir)/* 如果不是用于"选择目录", 该按钮无用处 */
-									break;
-
-								if(!bHaveClickSelectIcon)
+							case 1://选择
+								if ( !bUsedToSelectDir ) /* 如果不是用于"选择目录", 该按钮无用处 */
 								{
-								 bHaveClickSelectIcon = 1;
+									break;
+								}
+
+								if ( !bHaveClickSelectIcon ) /* 第1次点击"选择"按钮 */
+								{
+									bHaveClickSelectIcon = 1;
 								}
 								else
 								{
-
+								    bHaveClickSelectIcon = 0;
+								    ReleaseButton ( &g_atBrowsePageIconsLayout[iIndexPressured] );
 								}
 
 								break;
@@ -763,7 +775,21 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 					else if ( bHaveClickSelectIcon ) /* 按下和松开都是同一个按钮, 并且"选择"按钮是按下状态 */
 					{
 						bPressure = 0;
-						bHaveClickSelectIcon = 0;
+						
+						iPressIndex = g_iStartIndex + ( iIndexPressured - DIRFILE_ICON_INDEX_BASE ) /2;
+						if ( g_aptDirContents[iPressIndex]->eFileType == FILETYPE_DIR )//如果是按下的目录文件 
+						{
+							/*如果g_strCurDir值为"/"	  strtmp的值会是 "//mnt/" 此时使用scandir可成功获取到文件夹内容
+							 *多重目录会呈现以下形式 //mnt//tmp//lib//pkgconfig/
+							 */
+							snprintf ( strtmp,255,"%s/%s/",g_strCurDir,g_aptDirContents[iPressIndex]->strName ); //生成绝对路径
+							strtmp[255]='\0';
+							DBG_PRINTF ( "%s\r\n",strtmp );
+							strcpy ( g_strSelectDir, strtmp );
+							
+							ReleaseButton(&g_atMenuIconsLayout[1]);  /* 同时松开"选择按钮" */
+							bHaveClickSelectIcon = 0;
+						}
 
 					}
 					else /* "选择"按钮不被按下时, 单击目录则进入, bUsedToSelectDir为0时单击文件则显示它 */
@@ -773,13 +799,12 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 						iPressIndex = g_iStartIndex + ( iIndexPressured - DIRFILE_ICON_INDEX_BASE ) /2;
 						if ( g_aptDirContents[iPressIndex]->eFileType == FILETYPE_DIR )
 						{
-							/*如果g_strCurDir值为"/"      strtmp的值会是 "//mnt/" 此时可成功获取到文件夹内容 
+							/*如果g_strCurDir值为"/"      strtmp的值会是 "//mnt/" 此时可成功获取到文件夹内容
 							 *多重目录会呈现以下形式 //mnt//tmp//lib//pkgconfig/
 							 */
 							snprintf ( strtmp,255,"%s/%s/",g_strCurDir,g_aptDirContents[iPressIndex]->strName ); //生成绝对路径
-
-							DBG_PRINTF("%s\r\n",strtmp);
 							strtmp[255]='\0';
+							DBG_PRINTF ( "%s\r\n",strtmp );
 							strcpy ( g_strCurDir, strtmp );
 							FlushDirAndFile ( ptDevVideoMem );
 
@@ -787,23 +812,22 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 						else//如果是文件则进入显示页面
 						{
 
-						#if 1
-						    
+#if 1
 							//获取点下文件的绝对路径
-							snprintf ( tPageParams.strCurPictureFile,256,"%s%s",g_strCurDir,g_aptDirContents[iPressIndex]->strName ); 
+							snprintf ( tPageParams.strCurPictureFile,256,"%s%s",g_strCurDir,g_aptDirContents[iPressIndex]->strName );
 							tPageParams.strCurPictureFile[255] = '\0';
-							DBG_PRINTF("Press file absolute path : %s\r\n",tPageParams.strCurPictureFile);
-							
-							if(isPictureFileSupported(tPageParams.strCurPictureFile)==0)
+							DBG_PRINTF ( "Press file absolute path : %s\r\n",tPageParams.strCurPictureFile );
+
+							if ( isPictureFileSupported ( tPageParams.strCurPictureFile ) ==0 )
 							{
-							    tPageParams.PageID = ID(g_tBrowsePageDesc.name);
-								Page ( "manual" )->Run(&tPageParams);
+								tPageParams.PageID = ID ( g_tBrowsePageDesc.name );
+								Page ( "manual" )->Run ( &tPageParams );
 								ShowPage ( &g_tBrowsePageDesc );
 							}
-					    #else
-						      Page ( "manual" )->Run(NULL);
-							  ShowPage ( &g_tBrowsePageDesc );
-						#endif
+#else
+							Page ( "manual" )->Run ( NULL );
+							ShowPage ( &g_tBrowsePageDesc );
+#endif
 						}
 
 					}
@@ -825,8 +849,18 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 					tPreInputEvent = tInputEvent;
 					if ( iIndexPressured < DIRFILE_ICON_INDEX_BASE ) //代表按下的是控制区按键
 					{
-						//改变按键区域的颜色
-						PressButton ( &g_atBrowsePageIconsLayout[iIndex] );
+						if ( bUsedToSelectDir  ) 
+						{
+                            if((iIndexPressured == 1)&&(!bHaveClickSelectIcon))//如果按下的区域为选择按键
+                            {
+								PressButton ( &g_atBrowsePageIconsLayout[iIndex] );
+                            }
+						}
+						else
+						{
+						   if(!bHaveClickSelectIcon)
+							PressButton ( &g_atBrowsePageIconsLayout[iIndex] );//改变按键区域的颜色
+						}
 					}
 					else
 					{

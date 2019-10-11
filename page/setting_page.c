@@ -78,6 +78,9 @@ static void SettingPageRun ( PT_PageParams ptPageParams )
 {
     T_InputEvent tInputEvent;
 	int iIndex,iIndexPressured=-1,bPressure = 0;
+	T_PageParams tPageParams;
+
+	tPageParams.PageID = ID(g_tSettingPageDesc.name);
 
 	/* 1. 显示页面 */
 	ShowPage ( &g_tSettingPageDesc );
@@ -104,13 +107,14 @@ static void SettingPageRun ( PT_PageParams ptPageParams )
 					{
 						case 0://设置连播文件夹页面
 						{
-						
+						   Page("browse")->Run(&tPageParams);
+						   ShowPage ( &g_tSettingPageDesc );
 						}
 						break;
 
 						case 1://设置连播间隔页面
 						{
-						   Page("interval")->Run(NULL);
+						   Page("interval")->Run(&tPageParams);
 						   ShowPage ( &g_tSettingPageDesc );
 						}
 						break;

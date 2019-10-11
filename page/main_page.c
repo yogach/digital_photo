@@ -124,6 +124,11 @@ static void MainPageRun (PT_PageParams ptPageParams)
 	//T_InputEvent tInputEvent;
 	//int iIndex,iIndexPressured=-1,bPressure = 0;
     int bLongPress = 0;
+
+    T_PageParams tPageParams;
+
+    tPageParams.PageID = ID(g_tMainPageDesc.name);
+	
 	/* 1. 显示页面 */
 	//showMainPage ( g_atMainPageIconsLayout );
 	ShowPage ( &g_tMainPageDesc );
@@ -135,19 +140,19 @@ static void MainPageRun (PT_PageParams ptPageParams)
 		switch ( GenericGetPressedIcon ( g_atMainPageIconsLayout, &bLongPress ) )
 		{
 			case 0://浏览模式
-				Page ( "browse" )->Run(NULL);
+				Page ( "browse" )->Run(&tPageParams);
 				ShowPage ( &g_tMainPageDesc );
 				break;
 
 			case 1://连播页面
-				Page ( "auto" )->Run(NULL);
+				Page ( "auto" )->Run(&tPageParams);
 				ShowPage ( &g_tMainPageDesc );
 
 				break;
 
 			case 2://设置页面
 				//显示设置界面
-				Page ( "setting" )->Run(NULL);
+				Page ( "setting" )->Run(&tPageParams);
 				//从设置界面返回后需重新刷新显示
 				ShowPage ( &g_tMainPageDesc );
 				break;

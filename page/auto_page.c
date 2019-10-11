@@ -183,12 +183,7 @@ static PT_VideoMem PrepareNextPicture ( int bCur )
 
 		//提取图片数据
 		iError = GetOriPixelDatasFormFile ( strFileName, &tOriPhotoDesc );
-		if ( iError!=0 )
-		{
-			DBG_PRINTF ( "GetOriPixelDatasFormFile error..\r\n" );
-			
-		}
-		else
+		if ( iError==0 )
 		{
 			break; //如果获取成功就退出循环
 		}
@@ -300,12 +295,9 @@ static void AutoPageRun ( PT_PageParams ptPageParams )
 	T_InputEvent tInputEvent;
 	g_bAutoPlayThreadShouldExit = 0;
 
-
-
 	/* 获得配置值: 显示哪一个目录下的文件, 显示图片的间隔 */
-    
-	g_iIntervalSecond = GetIntervalSecond();
-
+	GetPageCfg(&g_iIntervalSecond,g_acSelectDir);
+	
 	//当传入的目录值不为空时,显示此文件夹下的内容
 	if (ptPageParams->strCurPictureFile[0] != '\0')
     {
