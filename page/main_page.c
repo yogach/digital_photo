@@ -128,6 +128,7 @@ static void MainPageRun (PT_PageParams ptPageParams)
     T_PageParams tPageParams;
 
     tPageParams.PageID = ID(g_tMainPageDesc.name);
+    tPageParams.strCurPictureFile[0] = '\0';
 	
 	/* 1. œ‘ æ“≥√Ê */
 	//showMainPage ( g_atMainPageIconsLayout );

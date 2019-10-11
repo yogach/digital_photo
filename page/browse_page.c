@@ -787,7 +787,7 @@ static void BrowsePageRun ( PT_PageParams ptPageParams )
 							DBG_PRINTF ( "%s\r\n",strtmp );
 							strcpy ( g_strSelectDir, strtmp );
 							
-							ReleaseButton(&g_atMenuIconsLayout[1]);  /* 同时松开"选择按钮" */
+							ReleaseButton(&g_atBrowsePageIconsLayout[1]);  /* 同时松开"选择按钮" */
 							bHaveClickSelectIcon = 0;
 						}
 

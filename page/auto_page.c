@@ -297,13 +297,15 @@ static void AutoPageRun ( PT_PageParams ptPageParams )
 
 	/* 获得配置值: 显示哪一个目录下的文件, 显示图片的间隔 */
 	GetPageCfg(&g_iIntervalSecond,g_acSelectDir);
-	
+	g_acSelectDir[255] = '\0';
+    
 	//当传入的目录值不为空时,显示此文件夹下的内容
 	if (ptPageParams->strCurPictureFile[0] != '\0')
     {
 		strncpy(g_acSelectDir,ptPageParams->strCurPictureFile,256);
     	g_acSelectDir[255] = '\0';
 	}
+	DBG_PRINTF("IntervalSecond:%d SelectDir:%s\r\n",g_iIntervalSecond,g_acSelectDir);
 
 	/* 1. 启动一个线程来连续显示图片 */
 	pthread_create ( &g_tAutoPlayThreadID,NULL,AutoPlayThreadFunction,NULL );

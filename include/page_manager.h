@@ -60,6 +60,7 @@ int TimeMSBetween(struct timeval tTimeStart, struct timeval tTimeEnd);
 int GeneratePage(PT_Layout atLayout , PT_VideoMem pt_VideoMem);
 int ShowPage ( PT_PageDesc ptPageDesc);
 void GetPageCfg(int * IntervalSecond,char* strSeletedDir);
+void GetSelectedDir ( char* strSeletedDir );
 
 
 int PagesInit(void);
