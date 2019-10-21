@@ -31,7 +31,7 @@ int scandir(const char *dir,struct dirent **namelist ,int (*filter)(const void *
 9）浏览页面的文件夹显示：首先使用scandir()获取文件夹内容（第5点），读取到的内容根据文件类型，填充不同的图标，文件夹名字按ASCII码方式进行解析，得到Unicode码后使用freetype库得到位图后显示。每次进行翻页时，获取文件夹在namelist中（第5点）的计数，然后进行显示。
 
 
-10）文件指针mmap： 使用fopen()打开文件以可读/可写方式打开文件（fopen与open的区别），使用fstat获取文件大小后，使用mmap方式映射到内存中。
+10）文件指针mmap： 使用fopen()打开文件以可读/可写方式打开文件，使用fstat获取文件大小后，使用mmap方式映射到内存中。
 
 11）BMP文件的解析：
 https://www.cnblogs.com/Matrix_Yao/archive/2009/12/02/1615295.html
