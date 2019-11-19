@@ -392,6 +392,7 @@ int GetFilesIndir ( char* strDirName, int* piStartNumberToRecord, int* piCurFile
 		return -1;
 	}
 
+	//查找strCurDirName中'/'最后一次出现的位置
     ptTmp = strrchr ( strCurDirName,'/' );
 	*ptTmp = '\0'; //将'/'替换成结束符
 
