@@ -335,7 +335,7 @@ static int ManualPageSpecialDis ( PT_VideoMem ptVideoMem )
 static void ShowZoomedPictureInLayout ( PT_PhotoDesc ptZoomedPicPixelDatas, PT_VideoMem ptVideoMem )
 {
 
-	int iStartXofPicData, iStartYofPicData;   //代表图片像素数据的起始坐标 在g_tZoomedPicPixelDatas里的坐标
+	int iStartXofPicData, iStartYofPicData;   //代表图片像素数据的起始坐标 在g_tZoomedPicPixelDatas区域内里的坐标
 	int iStartXofVideoMen, iStartYofVideoMen; //代表在显存内的x,y起始坐标
 	int iPictureLayoutWidth, iPictureLayoutHeight;
 	int iWidthPictureInPlay, iHeightPictureInPlay; //代表图片实际显示宽度和高度
@@ -365,7 +365,7 @@ static void ShowZoomedPictureInLayout ( PT_PhotoDesc ptZoomedPicPixelDatas, PT_V
 	 */
 	iDeltaX = g_iXofZoomedPicShowInCenter - iStartXofPicData;
 	iStartXofVideoMen = (g_tManualPagePictureLayout.iTopLeftX + iPictureLayoutWidth / 2) - iDeltaX;
-	//如果要显示的图片起始位置大于
+	//如果要显示的图片起始位置小于或大于图片显示区域
 	if ( iStartXofVideoMen < g_tManualPagePictureLayout.iTopLeftX )
 	{
 		iStartXofVideoMen = g_tManualPagePictureLayout.iTopLeftX;
